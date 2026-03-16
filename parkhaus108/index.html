@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>THE MÆWJØNS — Band Sheet</title>
+<title>PARKHAUS108 — Band Sheet</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0e0e0e;--surface:#181818;--border:#2a2a2a;--border-strong:#3a3a3a;--text:#f0ede8;--muted:#666;--faint:#2a2a2a;--accent:#f472b6;--accent-rgb:244,114,182}
+:root{--bg:#0e0e0e;--surface:#181818;--border:#2a2a2a;--border-strong:#3a3a3a;--text:#f0ede8;--muted:#666;--faint:#2a2a2a;--accent:#34d399;--accent-rgb:52,211,153}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai',sans-serif;min-height:100vh}
 header{padding:32px 40px 20px;border-bottom:1px solid var(--border)}
@@ -55,10 +55,10 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
 </head>
 <body>
 <header>
-  <div class="breadcrumb"><a href="../">Band Sheet</a> / THE MÆWJØNS</div>
-  <div class="band-tag">THE MÆWJØNS</div>
+  <div class="breadcrumb"><a href="../">Band Sheet</a> / PARKHAUS108</div>
+  <div class="band-tag">PARKHAUS108</div>
   <h1>Song List</h1>
-  <div class="stats" id="stats">1 เพลง</div>
+  <div class="stats" id="stats">0 เพลง</div>
 </header>
 
 <div class="toolbar">
@@ -69,8 +69,6 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
   <div class="filter-group">
     <span class="filter-label">Key:</span>
     <button class="filter-pill active" data-key="all" onclick="setKeyFilter(this,'all')">All</button>
-    <button class="filter-pill" data-key="ab" onclick="setKeyFilter(this,'ab')">Ab</button>
-
   </div>
   <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
 </div>
@@ -88,21 +86,13 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
       </tr>
     </thead>
     <tbody id="song-list">
-      <tr class="song-row" data-title="jesus of suburbia" data-artist="green day" data-key="ab" data-search="jesus of suburbia green day ab">
-        <td class="song-num">01</td>
-        <td><div class="song-title">Jesus of Suburbia</div><div class="song-artist">Green Day</div></td>
-        <td class="song-key">Ab</td>
-        <td class="song-bpm">~174</td>
-        <td class="song-bars">380</td>
-        <td><a class="open-btn" href="jesus-of-suburbia.html">Open →</a></td>
-      </tr>
     </tbody>
   </table>
   <div class="no-results" id="no-results">ไม่พบเพลงที่ค้นหา</div>
 </main>
 
 <footer>
-  <span>THE MÆWJØNS · Band Sheet</span>
+  <span>PARKHAUS108 · Band Sheet</span>
   <span><a href="../" style="color:var(--muted);text-decoration:none">← back to all bands</a></span>
 </footer>
 
