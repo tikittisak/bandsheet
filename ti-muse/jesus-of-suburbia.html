@@ -85,7 +85,20 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .meta-sep{color:var(--border-strong);font-size:12px;margin:0 4px}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'Inter',sans-serif;white-space:nowrap;z-index:999}
 #toast.show{opacity:1}
-@media print{#toolbar,.add-row-btn,.add-bar-cell,.del-btn,.color-popup{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
+/* ── IMAGE NOTE ── */
+.img-block{padding:2px 2px 6px;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.img-item{position:relative;display:inline-flex;flex-direction:column;gap:3px;flex-shrink:0}
+.img-item img{width:120px;height:80px;object-fit:cover;border-radius:4px;border:1px solid var(--border);cursor:zoom-in;display:block}
+.img-item img:hover{opacity:.88}
+.img-caption{font-size:10px;font-family:'Inter',sans-serif;color:var(--text-muted);border:none;background:transparent;outline:none;width:120px;padding:1px 2px}
+.img-caption:focus{background:var(--bg);border-radius:2px}
+.img-caption::placeholder{color:var(--text-faint);font-style:italic}
+.img-del-btn{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:11px;line-height:16px;text-align:center;cursor:pointer;display:none;padding:0}
+.img-item:hover .img-del-btn{display:block}
+.img-del-btn:hover{background:#dc2626}
+.img-add-btn{font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:4px;padding:4px 10px;cursor:pointer;transition:all .12s;font-family:inherit;align-self:flex-start}
+.img-add-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
+@media print{#toolbar,.add-row-btn,.sec-btn,.add-bar-cell,.del-btn,.color-popup,.img-add-btn,.img-del-btn{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -152,6 +165,24 @@ function render(){
     dupBtn.onclick=(function(idx){return function(){duplicateSection(idx)}})(si);
     acts.appendChild(addRowBtn);acts.appendChild(dupBtn);
     head.appendChild(tag);head.appendChild(noteEl);head.appendChild(acts);div.appendChild(head);
+    // ── Image note block ──
+    if(!sec.images)sec.images=[];
+    var imgBlock=document.createElement('div');imgBlock.className='img-block';
+    sec.images.forEach(function(img,ii){
+      var item=document.createElement('div');item.className='img-item';
+      var imgEl=document.createElement('img');imgEl.src=img.src;imgEl.title=img.caption||'';
+      imgEl.onclick=function(){window.open(img.src,'_blank')};
+      var capEl=document.createElement('input');capEl.className='img-caption';capEl.value=img.caption||'';capEl.placeholder='caption...';
+      capEl.oninput=(function(s,i){return function(){SECTIONS[s].images[i].caption=this.value}})(si,ii);
+      capEl.onmousedown=capEl.onclick=function(e){e.stopPropagation()};
+      var iDel=document.createElement('button');iDel.className='img-del-btn';iDel.textContent='×';
+      iDel.onclick=(function(s,i){return function(e){e.stopPropagation();removeImageNote(s,i)}})(si,ii);
+      item.appendChild(imgEl);item.appendChild(capEl);item.appendChild(iDel);
+      imgBlock.appendChild(item);
+    });
+    var addImgBtn=document.createElement('button');addImgBtn.className='img-add-btn';addImgBtn.textContent='📷 Add Image';
+    addImgBtn.onclick=(function(idx){return function(e){e.stopPropagation();addImageNote(idx)}})(si);
+    imgBlock.appendChild(addImgBtn);div.appendChild(imgBlock);
     for(var r=0;r*COLS<sec.bars.length;r++){
       var row=document.createElement('div');row.className='bar-row';row.dataset.si=si;
       var start=r*COLS,end=Math.min(start+COLS,sec.bars.length);
@@ -214,9 +245,9 @@ function applyColor(si,col){SECTIONS[si].color=col;render()}
 function closeColorPicker(){document.getElementById('colorPopup').classList.remove('open');pickerSi=null}
 document.addEventListener('click',function(e){var popup=document.getElementById('colorPopup');if(popup.classList.contains('open')&&!popup.contains(e.target))closeColorPicker()});
 function deleteBar(si,bi){if(SECTIONS[si].bars.length<=1)return toast('ต้องมีอย่างน้อย 1 ห้อง');SECTIONS[si].bars.splice(bi,1);render()}
-function addRow(si){for(var i=0;i<8;i++)SECTIONS[si].bars.push({c:'—',a:''});render();toast('เพิ่มแถวแล้ว (8 ห้อง)')}
+function addRow(si){for(var i=0;i<8;i++)SECTIONS[si].bars.push({c:'—',a:'',h:false});render();toast('เพิ่มแถวแล้ว (8 ห้อง)')}
 function renumberAll(){render();toast('Renumber เรียบร้อย')}
-function addSection(){var name=prompt('ชื่อ section ใหม่:');if(!name)return;var col=PRESETS[SECTIONS.length%PRESETS.length];SECTIONS.push({id:'verse',label:name,note:'',color:col,bars:[{c:'C',a:''}]});render();toast('เพิ่ม section แล้ว')}
+function addSection(){var name=prompt('ชื่อ section ใหม่:');if(!name)return;var col=PRESETS[SECTIONS.length%PRESETS.length];SECTIONS.push({id:'verse',label:name,note:'',color:col,images:[],bars:[{c:'C',a:'',h:false}]});render();toast('เพิ่ม section แล้ว')}
 function saveToFile(){
   var html=document.documentElement.outerHTML;var dataStr=JSON.stringify(SECTIONS);
   html=html.replace(/var SECTIONS = \[[\s\S]*?\];\s*\/\/ ── END DATA ──/,'var SECTIONS = '+dataStr+';\n// ── END DATA ──');
@@ -245,6 +276,24 @@ function duplicateSection(si){
   copy.images = [];
   SECTIONS.splice(si+1, 0, copy);
   render(); toast('Duplicate section แล้ว ✓');
+}
+function addImageNote(si){
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=function(){
+    if(!this.files[0])return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      if(!SECTIONS[si].images)SECTIONS[si].images=[];
+      SECTIONS[si].images.push({src:e.target.result,caption:''});
+      render();toast('เพิ่มรูปแล้ว ✓');
+    };
+    reader.readAsDataURL(this.files[0]);
+  };
+  inp.click();
+}
+function removeImageNote(si,ii){
+  SECTIONS[si].images.splice(ii,1);
+  render();toast('ลบรูปแล้ว ✓');
 }
 var toastTimer;
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show')},2400)}
