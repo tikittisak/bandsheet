@@ -62,6 +62,30 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .popup-close{margin-left:auto;font-size:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;font-family:inherit}
 .popup-close:hover{color:var(--text)}
 
+
+.tb-title-wrap{display:flex;align-items:baseline;gap:6px;flex:1;min-width:200px}
+.tb-filename{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border:none;background:transparent;outline:none;color:var(--text);padding:1px 4px;border-radius:3px;min-width:80px;max-width:260px}
+.tb-filename:hover,.tb-artist:hover{background:var(--bg)}
+.tb-filename:focus,.tb-artist:focus{background:var(--bg);box-shadow:0 0 0 1.5px var(--border-strong)}
+.tb-artist{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--text-muted);border:none;background:transparent;outline:none;padding:1px 4px;border-radius:3px;min-width:60px;max-width:200px}
+.bar-cell.highlighted{outline:2px solid #f59e0b;outline-offset:-1px;background:#fffbeb !important;z-index:3}
+.bar-cell.highlighted .bar-chord{color:#92400e}
+.bar-cell.highlighted .bar-num{color:#d97706}
+.highlight-dot{position:absolute;top:3px;left:8px;width:6px;height:6px;border-radius:50%;background:#f59e0b;display:none}
+.bar-cell.highlighted .highlight-dot{display:block}
+.highlight-btn{position:absolute;bottom:3px;right:3px;width:14px;height:14px;border-radius:3px;background:none;border:none;color:var(--text-faint);font-size:10px;cursor:pointer;display:none;padding:0;line-height:14px;text-align:center}
+.bar-cell:hover .highlight-btn{display:block}
+.bar-cell.highlighted .highlight-btn{display:block;color:#f59e0b}
+.highlight-btn:hover{background:rgba(245,158,11,.15);color:#d97706}
+.section-actions{margin-left:auto;display:flex;gap:4px}
+.sec-btn{font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:3px;padding:2px 8px;cursor:pointer;transition:all .12s;font-family:inherit;white-space:nowrap}
+.sec-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
+#metabar{background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.meta-label{font-size:10px;color:var(--text-faint);font-family:'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
+.meta-input{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--text);border:none;background:transparent;outline:none;min-width:20px;max-width:80px;padding:2px 4px;border-radius:3px;transition:background .12s}
+.meta-input:hover{background:var(--bg)}
+.meta-input:focus{background:var(--bg);box-shadow:0 0 0 1.5px var(--border-strong)}
+.meta-sep{color:var(--border-strong);font-size:12px;margin:0 4px}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'Inter',sans-serif;white-space:nowrap;z-index:999}
 #toast.show{opacity:1}
 @media print{#toolbar,.add-row-btn,.add-bar-cell,.del-btn,.color-popup{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
@@ -69,13 +93,25 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 </head>
 <body>
 <div id="toolbar">
-  <h1>The Game of Love <span>— Santana</span></h1>
-  <span class="tb-meta">~120 BPM · Em · 4/4</span>
+  <div class="tb-title-wrap">
+    <input class="tb-filename" id="tb-filename" value="The Game of Love" oninput="updateTitle()">
+    <input class="tb-artist" id="tb-artist" value="— Santana" oninput="updateTitle()">
+  </div>
   <div class="tb-sep"></div>
   <button class="tb-btn" onclick="addSection()">+ Section</button>
   <button class="tb-btn" onclick="renumberAll()">Renumber</button>
   <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
   <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
+</div>
+<div id="metabar">
+  <span class="meta-label">Key</span>
+  <input class="meta-input" id="meta-key" value="Em" style="width:60px" oninput="saveMeta()">
+  <span class="meta-sep">·</span>
+  <span class="meta-label">BPM</span>
+  <input class="meta-input" id="meta-bpm" value="~120 BPM" style="width:60px" oninput="saveMeta()">
+  <span class="meta-sep">·</span>
+  <span class="meta-label">Time</span>
+  <input class="meta-input" id="meta-time" value="4/4" style="width:36px" oninput="saveMeta()">
 </div>
 <div id="sheet"></div>
 <div id="toast"></div>
@@ -114,7 +150,7 @@ var PRESETS = [
 ];
 
 // ── DATA ──
-var SECTIONS = [{"id":"intro","label":"Intro","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"bars":[{"c":"—","a":""},{"c":"—","a":""}]},{"id":"verse1","label":"Verse 1","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"bars":[{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"A","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"F#m","a":""}]},{"id":"chorus","label":"Chorus","note":"","color":{"bar":"#059669","bg":"#d1fae5","lbl":"#022c22"},"bars":[{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""}]},{"id":"verse2","label":"Verse 2","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"bars":[{"c":"Em7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"D","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"F#m","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""}]},{"id":"chorus","label":"Chorus","note":"","color":{"bar":"#059669","bg":"#d1fae5","lbl":"#022c22"},"bars":[{"c":"Em7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Bm7","a":""},{"c":"F#m","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"F#m","a":""}]},{"id":"solo","label":"Solo","note":"","color":{"bar":"#0d9488","bg":"#f0fdfa","lbl":"#134e4a"},"bars":[{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""}]},{"id":"outro","label":"Outro","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"bars":[{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"Dsus2","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"Dsus2","a":""},{"c":"Em","a":""},{"c":"F#m","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Em","a":""},{"c":"Dmaj7","a":""},{"c":"Gmaj7","a":""},{"c":"A","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""},{"c":"Em7","a":""},{"c":"Dmaj7","a":""}]}];
+var SECTIONS = [{"id":"intro","label":"Intro","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"images":[],"bars":[{"c":"—","a":"","h":false},{"c":"—","a":"","h":false}]},{"id":"verse1","label":"Verse 1","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"images":[],"bars":[{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"F#m","a":"","h":false}]},{"id":"chorus","label":"Chorus","note":"","color":{"bar":"#059669","bg":"#d1fae5","lbl":"#022c22"},"images":[],"bars":[{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false}]},{"id":"verse2","label":"Verse 2","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"images":[],"bars":[{"c":"Em7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"D","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"F#m","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false}]},{"id":"chorus","label":"Chorus","note":"","color":{"bar":"#059669","bg":"#d1fae5","lbl":"#022c22"},"images":[],"bars":[{"c":"Em7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Bm7","a":"","h":false},{"c":"F#m","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"F#m","a":"","h":false}]},{"id":"solo","label":"Solo","note":"","color":{"bar":"#0d9488","bg":"#f0fdfa","lbl":"#134e4a"},"images":[],"bars":[{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false}]},{"id":"outro","label":"Outro","note":"","color":{"bar":"#34d399","bg":"#ecfdf5","lbl":"#064e3b"},"images":[],"bars":[{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"Dsus2","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"Dsus2","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"F#m","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Gmaj7","a":"","h":false},{"c":"A","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false},{"c":"Em7","a":"","h":false},{"c":"Dmaj7","a":"","h":false}]}];
 // ── END DATA ──
 
 var dragSrc = null;
@@ -375,7 +411,7 @@ function addSection() {
   render(); toast('เพิ่ม section แล้ว');
 }
 function scrollTo(id) {
-  var el = document.querySelector('[data-si="'+id+'"]');
+  var el = document.querySelector('[data-id="'+id+'"]');
   if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -390,12 +426,33 @@ function saveToFile() {
   var blob = new Blob(['<!DOCTYPE html>\n' + html], {type:'text/html;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'the-game-of-love.html';
+  var fn=(document.getElementById('tb-filename')||{value:'the-game-of-love'}).value||'the-game-of-love';
+  a.download = fn.replace(/\s+/g,'-').toLowerCase()+'.html';
   document.body.appendChild(a); a.click();
   setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
   toast('บันทึกแล้ว ✓');
 }
 
+
+function updateTitle(){
+  var fn = document.getElementById('tb-filename').value;
+  var ar = document.getElementById('tb-artist').value;
+  document.title = fn + ' ' + ar + ' · Band Sheet';
+}
+function saveMeta(){
+  if(typeof META!=='undefined'){
+    META.key  = document.getElementById('meta-key').value;
+    META.bpm  = document.getElementById('meta-bpm').value;
+    META.time = document.getElementById('meta-time').value;
+  }
+}
+function duplicateSection(si){
+  var copy = JSON.parse(JSON.stringify(SECTIONS[si]));
+  copy.label = copy.label + ' (copy)';
+  copy.images = [];
+  SECTIONS.splice(si+1, 0, copy);
+  render(); toast('Duplicate section แล้ว ✓');
+}
 var toastTimer;
 function toast(msg) {
   var el = document.getElementById('toast');
@@ -405,6 +462,11 @@ function toast(msg) {
 }
 
 render();
+if(document.getElementById('meta-key')){
+  document.getElementById('meta-key').value = document.getElementById('meta-key').value||'';
+  document.getElementById('meta-bpm').value = document.getElementById('meta-bpm').value||'';
+  document.getElementById('meta-time').value = document.getElementById('meta-time').value||'';
+}
 </script>
 </body>
 </html>

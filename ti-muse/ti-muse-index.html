@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ti.muse — Band Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0e0e;--surface:#181818;--border:#2a2a2a;--border-strong:#3a3a3a;--text:#f0ede8;--muted:#666;--faint:#2a2a2a;--accent:#60a5fa;--accent-rgb:96,165,250}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai',sans-serif;min-height:100vh}
+header{padding:32px 40px 20px;border-bottom:1px solid var(--border)}
+.breadcrumb{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:14px}
+.breadcrumb a{color:var(--muted);text-decoration:none}
+.breadcrumb a:hover{color:var(--text)}
+.band-tag{display:inline-block;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:3px;margin-bottom:10px;border:1px solid rgba(var(--accent-rgb),.2)}
+h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.02em}
+.stats{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ── SEARCH & FILTER ── */
+.toolbar{padding:14px 40px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;max-width:320px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+.search{font-family:'Inter',sans-serif;font-size:12px;background:#222;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px 7px 32px;outline:none;width:100%;transition:border-color .12s}
+.search::placeholder{color:var(--muted)}
+.search:focus{border-color:#444}
+.filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.filter-label{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.filter-pill{font-family:'Inter',sans-serif;font-size:10px;font-weight:500;padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:none;color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap}
+.filter-pill:hover{border-color:#555;color:var(--text)}
+.filter-pill.active{background:rgba(var(--accent-rgb),.15);border-color:rgba(var(--accent-rgb),.4);color:var(--accent)}
+.clear-btn{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;transition:color .12s}
+.clear-btn:hover{color:var(--text)}
+
+/* ── TABLE ── */
+main{padding:0 40px 60px}
+.song-table{width:100%;border-collapse:collapse;margin-top:8px}
+.song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 12px 10px;border-bottom:1px solid var(--border)}
+.song-table th:first-child{padding-left:0;width:36px}
+.song-row{border-bottom:1px solid var(--faint);transition:background .1s;cursor:pointer}
+.song-row:hover{background:#141414}
+.song-row td{padding:13px 12px;font-size:13px;vertical-align:middle}
+.song-row td:first-child{padding-left:0}
+.song-num{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);width:36px}
+.song-title{font-weight:500;color:var(--text)}
+.song-artist{font-size:11px;color:var(--muted);margin-top:2px}
+.song-key{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:70px}
+.song-bpm{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:60px}
+.song-bars{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:60px}
+.open-btn{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:500;letter-spacing:.06em;color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid rgba(var(--accent-rgb),.3);border-radius:4px;transition:all .12s;white-space:nowrap}
+.open-btn:hover{background:rgba(var(--accent-rgb),.1);border-color:var(--accent)}
+.no-results{padding:40px 0;text-align:center;color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;display:none}
+footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:'Inter',sans-serif;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<header>
+  <div class="breadcrumb"><a href="../">Band Sheet</a> / ti.muse</div>
+  <div class="band-tag">ti.muse</div>
+  <h1>Song List</h1>
+  <div class="stats" id="stats">2 เพลง</div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search" type="text" id="search" placeholder="ค้นหาเพลง, ศิลปิน, key..." oninput="filterSongs()">
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Key:</span>
+    <button class="filter-pill active" data-key="all" onclick="setKeyFilter(this,'all')">All</button>
+    <button class="filter-pill" data-key="c / eb" onclick="setKeyFilter(this,'c / eb')">C / Eb</button>
+    <button class="filter-pill" data-key="ab" onclick="setKeyFilter(this,'ab')">Ab</button>
+
+  </div>
+  <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+</div>
+
+<main>
+  <table class="song-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>ชื่อเพลง / ศิลปิน</th>
+        <th>Key</th>
+        <th>BPM</th>
+        <th>Bars</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="song-list">
+      <tr class="song-row" data-title="sleepwalk" data-artist="larry carlton" data-key="c / eb" data-search="sleepwalk larry carlton c / eb">
+        <td class="song-num">01</td>
+        <td><div class="song-title">Sleepwalk</div><div class="song-artist">Larry Carlton</div></td>
+        <td class="song-key">C / Eb</td>
+        <td class="song-bpm">~133</td>
+        <td class="song-bars">136</td>
+        <td><a class="open-btn" href="sleepwalk.html">Open →</a></td>
+      </tr>
+      <tr class="song-row" data-title="jesus of suburbia" data-artist="green day" data-key="ab" data-search="jesus of suburbia green day ab">
+        <td class="song-num">02</td>
+        <td><div class="song-title">Jesus of Suburbia</div><div class="song-artist">Green Day</div></td>
+        <td class="song-key">Ab</td>
+        <td class="song-bpm">~174</td>
+        <td class="song-bars">380</td>
+        <td><a class="open-btn" href="jesus-of-suburbia.html">Open →</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="no-results" id="no-results">ไม่พบเพลงที่ค้นหา</div>
+</main>
+
+<footer>
+  <span>ti.muse · Band Sheet</span>
+  <span><a href="../" style="color:var(--muted);text-decoration:none">← back to all bands</a></span>
+</footer>
+
+<script>
+var activeKey = 'all';
+
+function filterSongs() {
+  var q = document.getElementById('search').value.toLowerCase().trim();
+  var rows = document.querySelectorAll('#song-list .song-row');
+  var visible = 0;
+  rows.forEach(function(r) {
+    var matchQ = !q || r.dataset.search.includes(q);
+    var matchK = activeKey === 'all' || r.dataset.key === activeKey;
+    var show = matchQ && matchK;
+    r.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('stats').textContent = visible + ' เพลง';
+  document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+}
+
+function setKeyFilter(btn, key) {
+  activeKey = key;
+  document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  filterSongs();
+}
+
+function clearFilters() {
+  document.getElementById('search').value = '';
+  activeKey = 'all';
+  document.querySelectorAll('.filter-pill').forEach(function(p, i) { p.classList.toggle('active', i === 0); });
+  filterSongs();
+}
+</script>
+</body>
+</html>
