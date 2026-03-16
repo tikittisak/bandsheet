@@ -1,18 +1,304 @@
 <!DOCTYPE html>
-<html lang="th">
-<head>
+<html lang="th"><head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js" integrity="sha512-iZ2ORl595Wx6miw+GuadDet4WQbdSWS3JLMoNfY8cRGoEFy6oT3G9IbcrBeL6AfkgpA51ETt/faX6yLV+/gFJg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function() {
+        const originalConsole = window.console;
+        window.console = {
+          log: (...args) => {
+            originalConsole.log(...args);
+            window.parent.postMessage({ type: 'console', message: args.join(' ') }, '*');
+          },
+          error: (...args) => {
+            originalConsole.error(...args);
+            window.parent.postMessage({ type: 'console', message: 'Error: ' + args.join(' ') }, '*');
+          },
+          warn: (...args) => {
+            originalConsole.warn(...args);
+            window.parent.postMessage({ type: 'console', message: 'Warning: ' + args.join(' ') }, '*');
+          }
+        };
+
+        let requestId = 0;
+        let callbacksMap = new Map();
+        let streamControllers = new Map();
+        
+        window.claude = {
+          complete: (prompt) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'claudeComplete', id, prompt }, '*');
+            });
+          }
+        };
+
+        window.storage = {
+          get: (key, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageGet', id, key, shared }, '*');
+            });
+          },
+          set: (key, value, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageSet', id, key, value, shared }, '*');
+            });
+          },
+          delete: (key, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageDelete', id, key, shared }, '*');
+            });
+          },
+          list: (prefix, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageList', id, prefix, shared }, '*');
+            });
+          }
+        };
+
+        let pendingBlobs = new Map();
+        URL.createObjectURL = (blob) => {
+          // Store the blob and create an ID and URL for it
+          const blobId = `blob-${Date.now()}-${Math.random()}`;
+          pendingBlobs.set(blobId, blob);
+          return `blob-request://${blobId}`;
+        };
+
+        URL.revokeObjectURL = (url) => {
+          // Remove the blob from our store
+          const blobId = url.replace("blob-request://", "");
+          pendingBlobs.delete(blobId);
+        };
+
+        const getBlobFromURL = (url) => {
+          const blobId = url.replace("blob-request://", "");
+          return pendingBlobs.get(blobId);
+        };
+
+        // Override global fetch with streaming support
+        window.fetch = (url, init = {}) => {
+          return new Promise((resolve, reject) => {
+            const id = requestId++;
+            const channelId = `fetch-${id}-${Date.now()}`;
+            
+            callbacksMap.set(id, { 
+              resolve: (response) => {
+                // Create a ReadableStream for the response body
+                const stream = new ReadableStream({
+                  start(controller) {
+                    streamControllers.set(channelId, controller);
+                  },
+                  cancel() {
+                    streamControllers.delete(channelId);
+                  }
+                });
+                
+                // Create and return the Response with the stream
+                resolve(new Response(stream, {
+                  status: response.status,
+                  statusText: response.statusText,
+                  headers: response.headers
+                }));
+              },
+              reject,
+              channelId
+            });
+            
+            window.parent.postMessage({
+              type: 'proxyFetch',
+              id,
+              url,
+              init,
+              channelId
+            }, '*');
+          });
+        };
+
+        window.addEventListener('message', async (event) => {
+          if (event.data.type === 'takeScreenshot') {
+            const rootElement = document.getElementById('artifacts-component-root-html');
+            if (!rootElement) {
+              window.parent.postMessage({
+                type: 'screenshotError',
+                error: new Error('Root element not found'),
+              }, '*');
+            }
+            const screenshot = await htmlToImage.toPng(rootElement, {
+              imagePlaceholder:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjePDgwX8ACOQDoNsk0PMAAAAASUVORK5CYII=",
+            });
+            window.parent.postMessage({
+              type: 'screenshotData',
+              data: screenshot,
+            }, '*');
+          } else if (event.data.type === 'claudeComplete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.completion);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'proxyFetchResponse') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+              callbacksMap.delete(event.data.id);
+            } else {
+              // Initial response with headers, status, etc.
+              callback.resolve({
+                status: event.data.status,
+                statusText: event.data.statusText,
+                headers: event.data.headers
+              });
+              // Don't delete the callback yet if streaming
+              if (!event.data.body) {
+                callbacksMap.delete(event.data.id);
+              }
+            }
+          } else if (event.data.type === 'proxyFetchStream') {
+            // Handle streaming data chunks
+            const controller = streamControllers.get(event.data.channelId);
+            if (controller) {
+              if (event.data.error) {
+                controller.error(new Error(event.data.error));
+                streamControllers.delete(event.data.channelId);
+              } else if (event.data.done) {
+                controller.close();
+                streamControllers.delete(event.data.channelId);
+                // Clean up the callback
+                const callback = Array.from(callbacksMap.entries()).find(
+                  ([_, value]) => value.channelId === event.data.channelId
+                );
+                if (callback) {
+                  callbacksMap.delete(callback[0]);
+                }
+              } else if (event.data.chunk) {
+                controller.enqueue(new Uint8Array(event.data.chunk));
+              }
+            }
+          } else if (event.data.type === 'storageGet') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageSet') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageDelete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageList') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          }
+        });
+
+        window.addEventListener('click', (event) => {
+          const isEl = event.target instanceof HTMLElement;
+          if (!isEl) return;
+    
+          // find ancestor links
+          const linkEl = event.target.closest("a");
+          if (!linkEl || !linkEl.href) return;
+    
+          event.preventDefault();
+          event.stopImmediatePropagation();
+    
+          if (linkEl.href.startsWith("blob-request:")) {
+            const blob = getBlobFromURL(linkEl.href);
+            if (!blob) return;
+            void blob.arrayBuffer().then((data) => {
+              window.parent.postMessage({
+                type: "downloadFile",
+                filename: linkEl.download,
+                data,
+                mimeType: blob.type || "application/octet-stream",
+              });
+            });
+          } else if (linkEl.href.startsWith("data:")) {
+            const [header, base64Data] = linkEl.href.split(",");
+            const mimeMatch = header.match(/data:([^;]+)/);
+            const mimeType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+            const binaryString = atob(base64Data);
+            const data = Uint8Array.from(binaryString, (c) =>
+              c.charCodeAt(0),
+            ).buffer;
+            window.parent.postMessage({
+              type: "downloadFile",
+              filename: linkEl.download,
+              data,
+              mimeType,
+            });
+          } else {
+            let linkUrl;
+            try {
+              linkUrl = new URL(linkEl.href);
+            } catch (error) {
+              return;
+            }
+    
+            if (linkUrl.hostname === window.location.hostname) return;
+      
+            window.parent.postMessage({
+              type: 'openExternal',
+              href: linkEl.href,
+            }, '*');
+          }
+      });
+
+        const originalOpen = window.open;
+        window.open = function (url) {
+          window.parent.postMessage({
+            type: "openExternal",
+            href: url,
+          }, "*");
+        };
+
+        window.addEventListener('error', (event) => {
+          window.parent.postMessage({ type: 'console', message: 'Uncaught Error: ' + event.message }, '*');
+        });
+      })();
+    </script>
+  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sleepwalk — Larry Carlton · Band Sheet</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600&amp;display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f7f6f2;--surface:#fff;--border:#e0ddd6;--border-strong:#c8c4bc;--text:#1a1917;--text-muted:#8a8780;--text-faint:#c4c1bb;--accent:#2a2a2a;--cell-w:130px;--cell-h:72px;--gap:6px;--radius:5px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
 #toolbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-#toolbar h1{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;flex:1;min-width:200px}
+#toolbar h1{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;flex:1;min-width:200px}
 #toolbar h1 span{color:var(--text-muted);font-weight:400}
-.tb-meta{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace}
+.tb-meta{font-size:11px;color:var(--text-muted);font-family:'Inter',sans-serif}
 .tb-btn{font-size:11px;font-weight:500;padding:5px 12px;border:1px solid var(--border-strong);border-radius:4px;background:var(--surface);color:var(--text);cursor:pointer;transition:background .12s;font-family:inherit;white-space:nowrap}
 .tb-btn:hover{background:var(--bg);border-color:var(--accent)}
 .tb-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -23,7 +309,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .section-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:0 2px;flex-wrap:wrap}
 .section-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;transition:opacity .12s}
 .section-tag:hover{opacity:.8}
-.section-note{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;border:none;background:transparent;outline:none;cursor:text;min-width:40px}
+.section-note{font-size:11px;color:var(--text-muted);font-family:'Inter',sans-serif;border:none;background:transparent;outline:none;cursor:text;min-width:40px}
 .section-note:focus{background:var(--bg);border-radius:2px;padding:0 3px;color:var(--text)}
 .add-row-btn{margin-left:auto;font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:3px;padding:2px 8px;cursor:pointer;transition:all .12s;font-family:inherit}
 .add-row-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
@@ -34,8 +320,8 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .bar-cell.dragging{opacity:.3;transform:scale(.96)}
 .bar-cell.drag-over-left{box-shadow:-3px 0 0 #3b82f6}
 .bar-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.09);z-index:2}
-.bar-num{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-faint);line-height:1}
-.bar-chord{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--text);line-height:1.1;cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0}
+.bar-num{font-family:'Inter',sans-serif;font-size:9px;color:var(--text-faint);line-height:1}
+.bar-chord{font-family:'Inter',sans-serif;font-size:15px;font-weight:600;color:var(--text);line-height:1.1;cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0}
 .bar-chord:focus{background:rgba(0,0,0,.04);border-radius:2px;padding:0 2px}
 .bar-ann{font-size:10px;color:var(--text-muted);cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0;font-family:inherit;line-height:1.2}
 .bar-ann:focus{background:rgba(0,0,0,.03);border-radius:2px;padding:0 2px}
@@ -49,25 +335,25 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 /* ── COLOR PICKER POPUP ── */
 .color-popup{position:fixed;z-index:500;background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;padding:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);min-width:220px;display:none}
 .color-popup.open{display:block}
-.color-popup-title{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.color-popup-title{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
 .color-swatches{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .swatch{width:24px;height:24px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:transform .1s,border-color .1s;flex-shrink:0}
 .swatch:hover{transform:scale(1.15)}
 .swatch.active{border-color:var(--accent)}
 .color-popup-row{display:flex;align-items:center;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:8px}
-.color-popup-row label{font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
-.hex-input{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 7px;outline:none;width:90px}
+.color-popup-row label{font-size:10px;color:var(--text-muted);font-family:'Inter',sans-serif;white-space:nowrap}
+.hex-input{font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 7px;outline:none;width:90px}
 .hex-input:focus{border-color:var(--border-strong)}
 .color-preview{width:20px;height:20px;border-radius:3px;border:1px solid var(--border);flex-shrink:0}
 .popup-close{margin-left:auto;font-size:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;font-family:inherit}
 .popup-close:hover{color:var(--text)}
 
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'IBM Plex Mono',monospace;white-space:nowrap;z-index:999}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'Inter',sans-serif;white-space:nowrap;z-index:999}
 #toast.show{opacity:1}
 @media print{#toolbar,.add-row-btn,.add-bar-cell,.del-btn,.color-popup{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
 </style>
 </head>
-<body>
+<body id="artifacts-component-root-html">
 <div id="toolbar">
   <h1>Sleepwalk <span>— Larry Carlton</span></h1>
   <span class="tb-meta">~133 BPM · C / Eb · 4/4</span>
@@ -77,7 +363,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
   <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
   <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
 </div>
-<div id="sheet"></div>
+<div id="sheet"><div class="section" data-si="0"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(238, 244, 253); color: rgb(30, 64, 175); border: 1px solid rgba(59, 130, 246, 0.267);">Intro</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="0"><div class="bar-cell" draggable="true" data-si="0" data-bi="0" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">1</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="1" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">2</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="2" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">3</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="3" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">4</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="4" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">5</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="5" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">6</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="6" style="background: rgb(238, 244, 253); border-left-color: rgb(59, 130, 246);"><span class="bar-num">7</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(59, 130, 246, 0.4);">+</div></div></div><div class="section" data-si="1"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(237, 250, 243); color: rgb(20, 83, 45); border: 1px solid rgba(22, 163, 74, 0.267);">Verse / A</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="0" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">8</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="1" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">9</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="2" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">10</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="3" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">11</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="4" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">12</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="5" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">13</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="6" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">14</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="7" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">15</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="8" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">16</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="9" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">17</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="10" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">18</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="11" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">19</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="12" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">20</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="13" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">21</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="14" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">22</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="15" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">23</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="16" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">24</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="17" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">25</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="18" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">26</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="19" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">27</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="20" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">28</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="21" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">29</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="22" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">30</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="23" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">31</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="24" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">32</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="25" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">33</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="26" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">34</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(22, 163, 74, 0.4);">+</div></div></div><div class="section" data-si="2"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(253, 247, 232); color: rgb(120, 53, 15); border: 1px solid rgba(217, 119, 6, 0.267);">Chorus / B</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="2"><div class="bar-cell" draggable="true" data-si="2" data-bi="0" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">35</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="1" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">36</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="2" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">37</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="3" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">38</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="4" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">39</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="5" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">40</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="6" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">41</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="7" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">42</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="2"><div class="bar-cell" draggable="true" data-si="2" data-bi="8" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">43</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="9" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">44</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="10" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">45</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="11" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">46</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="12" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">47</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="13" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">48</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="14" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">49</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="15" style="background: rgb(253, 247, 232); border-left-color: rgb(217, 119, 6);"><span class="bar-num">50</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(217, 119, 6, 0.4);">+</div></div></div><div class="section" data-si="3"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(237, 250, 243); color: rgb(20, 83, 45); border: 1px solid rgba(22, 163, 74, 0.267);">Verse / A</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="3"><div class="bar-cell" draggable="true" data-si="3" data-bi="0" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">51</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="1" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">52</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="2" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">53</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="3" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">54</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="4" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">55</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="5" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">56</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="6" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">57</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="7" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">58</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="3"><div class="bar-cell" draggable="true" data-si="3" data-bi="8" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">59</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="9" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">60</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="10" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">61</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="11" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">62</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="12" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">63</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="13" style="background: rgb(237, 250, 243); border-left-color: rgb(22, 163, 74);"><span class="bar-num">64</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(22, 163, 74, 0.4);">+</div></div></div><div class="section" data-si="4"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(243, 240, 253); color: rgb(59, 7, 100); border: 1px solid rgba(124, 58, 237, 0.267);">Bridge</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="0" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">65</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="1" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">66</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="2" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">67</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="3" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">68</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="4" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">69</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="5" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">70</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="6" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">71</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="7" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">72</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="8" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">73</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="9" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">74</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="10" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">75</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="11" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">76</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="12" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">77</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="13" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">78</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="14" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">79</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="15" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">80</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="16" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">81</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="17" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">82</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="18" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">83</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="19" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">84</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="20" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">85</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="21" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">86</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="22" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">87</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="23" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">88</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="24" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">89</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="25" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">90</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="26" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">91</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="27" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">92</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="28" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">93</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="29" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">94</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="30" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">95</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="31" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">96</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="32" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">97</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="33" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">98</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="34" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">99</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="35" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">100</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="36" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">101</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="37" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">102</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="38" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">103</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="39" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">104</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="40" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">105</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="41" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">106</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="42" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">107</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="43" style="background: rgb(243, 240, 253); border-left-color: rgb(124, 58, 237);"><span class="bar-num">108</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(124, 58, 237, 0.4);">+</div></div></div><div class="section" data-si="5"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(253, 240, 246); color: rgb(131, 24, 67); border: 1px solid rgba(219, 39, 119, 0.267);">Solo</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="5"><div class="bar-cell" draggable="true" data-si="5" data-bi="0" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">109</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="1" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">110</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="2" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">111</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="3" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">112</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="4" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">113</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="5" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">114</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="6" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">115</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="7" style="background: rgb(253, 240, 246); border-left-color: rgb(219, 39, 119);"><span class="bar-num">116</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(219, 39, 119, 0.4);">+</div></div></div><div class="section" data-si="6"><div class="section-head"><span class="section-tag" title="คลิกเพื่อเปลี่ยนสี" style="background: rgb(234, 250, 244); color: rgb(6, 78, 59); border: 1px solid rgba(5, 150, 105, 0.267);">Outro</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="6"><div class="bar-cell" draggable="true" data-si="6" data-bi="0" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">117</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="1" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">118</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="2" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">119</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="3" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">120</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="4" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">121</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="5" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">122</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="6" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">123</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="7" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">124</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="6"><div class="bar-cell" draggable="true" data-si="6" data-bi="8" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">125</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="9" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">126</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="10" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">127</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="11" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">128</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="12" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">129</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="13" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">130</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="14" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">131</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="15" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">132</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div></div><div class="bar-row" data-si="6"><div class="bar-cell" draggable="true" data-si="6" data-bi="16" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">133</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="17" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">134</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="18" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">135</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="19" style="background: rgb(234, 250, 244); border-left-color: rgb(5, 150, 105);"><span class="bar-num">136</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn">×</button></div><div class="add-bar-cell" style="border-color: rgba(5, 150, 105, 0.4);">+</div></div></div></div>
 <div id="toast"></div>
 
 <!-- Color picker popup -->
@@ -406,5 +692,6 @@ function toast(msg) {
 
 render();
 </script>
-</body>
-</html>
+
+
+</body></html>
