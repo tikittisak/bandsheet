@@ -101,7 +101,28 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .img-del-btn:hover{background:#dc2626}
 .img-add-btn{font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:4px;padding:4px 10px;cursor:pointer;transition:all .12s;font-family:inherit;align-self:flex-start}
 .img-add-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
-@media print{#toolbar,.add-row-btn,.sec-btn,.add-bar-cell,.del-btn,.color-popup,.img-add-btn,.img-del-btn{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
+@media print{#toolbar,#metabar,.add-row-btn,.sec-btn,.add-bar-cell,.del-btn,.color-popup,.img-add-btn,.img-del-btn,.highlight-btn{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
+/* ── MINI VIEW ── */
+body.view-mini{--cell-w:56px;--cell-h:36px;--gap:3px}
+body.view-mini .bar-ann{display:none!important}
+body.view-mini .bar-num{display:none!important}
+body.view-mini .bar-chord{font-size:12px;font-weight:700}
+body.view-mini .highlight-btn{display:none!important}
+body.view-mini .del-btn{display:none!important}
+body.view-mini .add-bar-cell{display:none!important}
+body.view-mini .section-actions{display:none!important}
+body.view-mini .img-block{display:block!important}
+body.view-mini .img-item{display:block;width:100%;margin-bottom:6px}
+body.view-mini .img-item img{width:100%;height:auto;max-height:200px;object-fit:cover;border-radius:6px}
+body.view-mini .img-caption{width:100%}
+body.view-mini .img-add-btn{display:none!important}
+body.view-mini .img-del-btn{display:none!important}
+body.view-mini .section-note{display:none}
+.cols-toggle{display:flex;border:1px solid var(--border-strong);border-radius:4px;overflow:hidden}
+.cols-btn{font-size:11px;font-weight:500;padding:5px 10px;background:var(--surface);border:none;border-right:1px solid var(--border-strong);color:var(--text-muted);cursor:pointer;transition:background .12s;font-family:inherit}
+.cols-btn:last-child{border-right:none}
+.cols-btn.active{background:var(--accent);color:#fff}
+.section-label-inp{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;background:transparent;color:inherit;border-radius:3px;padding:2px 7px;outline:none;font-family:inherit;min-width:40px;max-width:140px}
 </style>
 </head>
 <body>
@@ -113,6 +134,13 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
   <div class="tb-sep"></div>
   <button class="tb-btn" onclick="addSection()">+ Section</button>
   <button class="tb-btn" onclick="renumberAll()">Renumber</button>
+  <div class="tb-sep"></div>
+  <div class="cols-toggle">
+    <button class="cols-btn" id="cols-4" onclick="setCols(4)">4</button>
+    <button class="cols-btn active" id="cols-8" onclick="setCols(8)">8</button>
+  </div>
+  <button class="tb-btn" id="mini-btn" onclick="toggleMini()">📐 Mini</button>
+  <div class="tb-sep"></div>
   <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
   <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
 </div>
@@ -168,6 +196,7 @@ var SECTIONS = [{"id":"intro","label":"Intro","note":"","color":{"bar":"#34d399"
 
 var dragSrc = null;
 var COLS = 8;
+var VIEW = 'normal';
 var pickerSi = null;
 
 // ── COLOR HELPERS ──
@@ -217,6 +246,21 @@ function render() {
     tag.style.color = col.lbl;
     tag.style.border = '1px solid ' + col.bar + '44';
     tag.onclick = (function(idx, el){ return function(e){ openColorPicker(idx, el, e); }; })(si, tag);
+    tag.title = 'คลิกเพื่อเปลี่ยนสี · ดับเบิลคลิกเพื่อเปลี่ยนชื่อ';
+    tag.ondblclick = (function(idx, el){ return function(e){
+      e.stopPropagation(); closeColorPicker();
+      var inp = document.createElement('input');
+      inp.className = 'section-label-inp';
+      inp.value = SECTIONS[idx].label;
+      inp.style.background = (SECTIONS[idx].color||{}).bg || '#eef';
+      inp.style.color = (SECTIONS[idx].color||{}).lbl || '#333';
+      inp.style.borderColor = (SECTIONS[idx].color||{}).bar || '#888';
+      el.parentNode.replaceChild(inp, el);
+      inp.focus(); inp.select();
+      function done(){ var v = inp.value.trim(); if(v) SECTIONS[idx].label = v; render(); }
+      inp.onblur = done;
+      inp.onkeydown = function(ev){ if(ev.key==='Enter'){ inp.blur(); } if(ev.key==='Escape'){ render(); } };
+    }; })(si, tag);
 
     var noteEl = document.createElement('input');
     noteEl.className = 'section-note';
@@ -457,6 +501,20 @@ function addSection() {
 function scrollTo(id) {
   var el = document.querySelector('[data-si="'+id+'"]');
   if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function setCols(n) {
+  COLS = n;
+  var b4 = document.getElementById('cols-4');
+  var b8 = document.getElementById('cols-8');
+  if(b4) b4.classList.toggle('active', n===4);
+  if(b8) b8.classList.toggle('active', n===8);
+  render();
+}
+function toggleMini() {
+  VIEW = VIEW === 'mini' ? 'normal' : 'mini';
+  document.body.classList.toggle('view-mini', VIEW === 'mini');
+  var btn = document.getElementById('mini-btn');
+  if (btn) { btn.classList.toggle('primary', VIEW === 'mini'); btn.textContent = VIEW === 'mini' ? '🔲 Full' : '📐 Mini'; }
 }
 function duplicateSection(si) {
   var copy = JSON.parse(JSON.stringify(SECTIONS[si]));
