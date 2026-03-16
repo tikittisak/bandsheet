@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js" integrity="sha512-iZ2ORl595Wx6miw+GuadDet4WQbdSWS3JLMoNfY8cRGoEFy6oT3G9IbcrBeL6AfkgpA51ETt/faX6yLV+/gFJg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function() {
+        const originalConsole = window.console;
+        window.console = {
+          log: (...args) => {
+            originalConsole.log(...args);
+            window.parent.postMessage({ type: 'console', message: args.join(' ') }, '*');
+          },
+          error: (...args) => {
+            originalConsole.error(...args);
+            window.parent.postMessage({ type: 'console', message: 'Error: ' + args.join(' ') }, '*');
+          },
+          warn: (...args) => {
+            originalConsole.warn(...args);
+            window.parent.postMessage({ type: 'console', message: 'Warning: ' + args.join(' ') }, '*');
+          }
+        };
+
+        let requestId = 0;
+        let callbacksMap = new Map();
+        let streamControllers = new Map();
+        
+        window.claude = {
+          complete: (prompt) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'claudeComplete', id, prompt }, '*');
+            });
+          }
+        };
+
+        window.storage = {
+          get: (key, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageGet', id, key, shared }, '*');
+            });
+          },
+          set: (key, value, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageSet', id, key, value, shared }, '*');
+            });
+          },
+          delete: (key, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageDelete', id, key, shared }, '*');
+            });
+          },
+          list: (prefix, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageList', id, prefix, shared }, '*');
+            });
+          }
+        };
+
+        let pendingBlobs = new Map();
+        URL.createObjectURL = (blob) => {
+          // Store the blob and create an ID and URL for it
+          const blobId = `blob-${Date.now()}-${Math.random()}`;
+          pendingBlobs.set(blobId, blob);
+          return `blob-request://${blobId}`;
+        };
+
+        URL.revokeObjectURL = (url) => {
+          // Remove the blob from our store
+          const blobId = url.replace("blob-request://", "");
+          pendingBlobs.delete(blobId);
+        };
+
+        const getBlobFromURL = (url) => {
+          const blobId = url.replace("blob-request://", "");
+          return pendingBlobs.get(blobId);
+        };
+
+        // Override global fetch with streaming support
+        window.fetch = (url, init = {}) => {
+          return new Promise((resolve, reject) => {
+            const id = requestId++;
+            const channelId = `fetch-${id}-${Date.now()}`;
+            
+            callbacksMap.set(id, { 
+              resolve: (response) => {
+                // Create a ReadableStream for the response body
+                const stream = new ReadableStream({
+                  start(controller) {
+                    streamControllers.set(channelId, controller);
+                  },
+                  cancel() {
+                    streamControllers.delete(channelId);
+                  }
+                });
+                
+                // Create and return the Response with the stream
+                resolve(new Response(stream, {
+                  status: response.status,
+                  statusText: response.statusText,
+                  headers: response.headers
+                }));
+              },
+              reject,
+              channelId
+            });
+            
+            window.parent.postMessage({
+              type: 'proxyFetch',
+              id,
+              url,
+              init,
+              channelId
+            }, '*');
+          });
+        };
+
+        window.addEventListener('message', async (event) => {
+          if (event.data.type === 'takeScreenshot') {
+            const rootElement = document.getElementById('artifacts-component-root-html');
+            if (!rootElement) {
+              window.parent.postMessage({
+                type: 'screenshotError',
+                error: new Error('Root element not found'),
+              }, '*');
+            }
+            const screenshot = await htmlToImage.toPng(rootElement, {
+              imagePlaceholder:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjePDgwX8ACOQDoNsk0PMAAAAASUVORK5CYII=",
+            });
+            window.parent.postMessage({
+              type: 'screenshotData',
+              data: screenshot,
+            }, '*');
+          } else if (event.data.type === 'claudeComplete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.completion);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'proxyFetchResponse') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+              callbacksMap.delete(event.data.id);
+            } else {
+              // Initial response with headers, status, etc.
+              callback.resolve({
+                status: event.data.status,
+                statusText: event.data.statusText,
+                headers: event.data.headers
+              });
+              // Don't delete the callback yet if streaming
+              if (!event.data.body) {
+                callbacksMap.delete(event.data.id);
+              }
+            }
+          } else if (event.data.type === 'proxyFetchStream') {
+            // Handle streaming data chunks
+            const controller = streamControllers.get(event.data.channelId);
+            if (controller) {
+              if (event.data.error) {
+                controller.error(new Error(event.data.error));
+                streamControllers.delete(event.data.channelId);
+              } else if (event.data.done) {
+                controller.close();
+                streamControllers.delete(event.data.channelId);
+                // Clean up the callback
+                const callback = Array.from(callbacksMap.entries()).find(
+                  ([_, value]) => value.channelId === event.data.channelId
+                );
+                if (callback) {
+                  callbacksMap.delete(callback[0]);
+                }
+              } else if (event.data.chunk) {
+                controller.enqueue(new Uint8Array(event.data.chunk));
+              }
+            }
+          } else if (event.data.type === 'storageGet') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageSet') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageDelete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageList') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          }
+        });
+
+        window.addEventListener('click', (event) => {
+          const isEl = event.target instanceof HTMLElement;
+          if (!isEl) return;
+    
+          // find ancestor links
+          const linkEl = event.target.closest("a");
+          if (!linkEl || !linkEl.href) return;
+    
+          event.preventDefault();
+          event.stopImmediatePropagation();
+    
+          if (linkEl.href.startsWith("blob-request:")) {
+            const blob = getBlobFromURL(linkEl.href);
+            if (!blob) return;
+            void blob.arrayBuffer().then((data) => {
+              window.parent.postMessage({
+                type: "downloadFile",
+                filename: linkEl.download,
+                data,
+                mimeType: blob.type || "application/octet-stream",
+              });
+            });
+          } else if (linkEl.href.startsWith("data:")) {
+            const [header, base64Data] = linkEl.href.split(",");
+            const mimeMatch = header.match(/data:([^;]+)/);
+            const mimeType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+            const binaryString = atob(base64Data);
+            const data = Uint8Array.from(binaryString, (c) =>
+              c.charCodeAt(0),
+            ).buffer;
+            window.parent.postMessage({
+              type: "downloadFile",
+              filename: linkEl.download,
+              data,
+              mimeType,
+            });
+          } else {
+            let linkUrl;
+            try {
+              linkUrl = new URL(linkEl.href);
+            } catch (error) {
+              return;
+            }
+    
+            if (linkUrl.hostname === window.location.hostname) return;
+      
+            window.parent.postMessage({
+              type: 'openExternal',
+              href: linkEl.href,
+            }, '*');
+          }
+      });
+
+        const originalOpen = window.open;
+        window.open = function (url) {
+          window.parent.postMessage({
+            type: "openExternal",
+            href: url,
+          }, "*");
+        };
+
+        window.addEventListener('error', (event) => {
+          window.parent.postMessage({ type: 'console', message: 'Uncaught Error: ' + event.message }, '*');
+        });
+      })();
+    </script>
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleepwalk — Larry Carlton · Band Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e0ddd6;--border-strong:#c8c4bc;--text:#1a1917;--text-muted:#8a8780;--text-faint:#c4c1bb;--accent:#2a2a2a;--intro-bg:#eef4fd;--intro-bar:#3b82f6;--intro-lbl:#1e40af;--verse-bg:#edfaf3;--verse-bar:#16a34a;--verse-lbl:#14532d;--chorus-bg:#fdf7e8;--chorus-bar:#d97706;--chorus-lbl:#78350f;--bridge-bg:#f3f0fd;--bridge-bar:#7c3aed;--bridge-lbl:#3b0764;--solo-bg:#fdf0f6;--solo-bar:#db2777;--solo-lbl:#831843;--outro-bg:#eafaf4;--outro-bar:#059669;--outro-lbl:#064e3b;--cell-w:130px;--cell-h:72px;--gap:6px;--radius:5px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
+#toolbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#toolbar h1{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;flex:1;min-width:200px}
+#toolbar h1 span{color:var(--text-muted);font-weight:400}
+.tb-meta{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace}
+.tb-btn{font-size:11px;font-weight:500;padding:5px 12px;border:1px solid var(--border-strong);border-radius:4px;background:var(--surface);color:var(--text);cursor:pointer;transition:background .12s;font-family:inherit;white-space:nowrap}
+.tb-btn:hover{background:var(--bg);border-color:var(--accent)}
+.tb-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tb-btn.primary:hover{background:#333}
+.tb-sep{width:1px;height:20px;background:var(--border)}
+#legend{padding:10px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.leg{display:flex;align-items:center;gap:5px;cursor:pointer;padding:3px 8px;border-radius:3px;transition:background .1s}
+.leg:hover{background:var(--border)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-txt{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+#sheet{padding:8px 24px 24px}
+.section{margin-bottom:18px}
+.section-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:0 2px}
+.section-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+.section-note{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;border:none;background:transparent;outline:none;cursor:text;min-width:40px}
+.section-note:focus{background:var(--bg);border-radius:2px;padding:0 3px;color:var(--text)}
+.add-row-btn{margin-left:auto;font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:3px;padding:2px 8px;cursor:pointer;transition:all .12s;font-family:inherit}
+.add-row-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
+.bar-row{display:flex;flex-wrap:wrap;gap:var(--gap);min-height:calc(var(--cell-h) + 4px);padding:3px 2px;border-radius:4px;transition:background .1s;position:relative}
+.bar-row.drag-over{background:rgba(59,130,246,.07);outline:2px dashed #3b82f6;outline-offset:-2px}
+.bar-cell{width:var(--cell-w);height:var(--cell-h);border-radius:var(--radius);border:1px solid var(--border);border-left-width:3px;padding:6px 8px 5px;display:flex;flex-direction:column;gap:2px;cursor:grab;user-select:none;transition:box-shadow .12s,transform .1s,opacity .1s;position:relative;background:var(--surface)}
+.bar-cell:active{cursor:grabbing}
+.bar-cell.dragging{opacity:.3;transform:scale(.96)}
+.bar-cell.drag-over-left{border-left:3px solid #3b82f6 !important;box-shadow:-3px 0 0 #3b82f6}
+.bar-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.09);z-index:2}
+.bar-num{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-faint);line-height:1}
+.bar-chord{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--text);line-height:1.1;cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0}
+.bar-chord:focus{background:rgba(0,0,0,.04);border-radius:2px;padding:0 2px}
+.bar-ann{font-size:10px;color:var(--text-muted);cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0;font-family:inherit;line-height:1.2}
+.bar-ann:focus{background:rgba(0,0,0,.03);border-radius:2px;padding:0 2px}
+.bar-ann::placeholder{color:var(--text-faint);font-style:italic}
+.del-btn{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;background:none;border:none;color:var(--text-faint);font-size:11px;line-height:14px;text-align:center;cursor:pointer;display:none;padding:0}
+.bar-cell:hover .del-btn{display:block}
+.del-btn:hover{background:#fee2e2;color:#dc2626}
+.add-bar-cell{width:var(--cell-w);height:var(--cell-h);border-radius:var(--radius);border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-faint);font-size:20px;transition:all .12s;flex-shrink:0}
+.add-bar-cell:hover{border-color:var(--accent);color:var(--text);background:var(--bg)}
+.s-intro .bar-cell{background:var(--intro-bg);border-left-color:var(--intro-bar)}
+.s-verse .bar-cell{background:var(--verse-bg);border-left-color:var(--verse-bar)}
+.s-chorus .bar-cell{background:var(--chorus-bg);border-left-color:var(--chorus-bar)}
+.s-bridge .bar-cell{background:var(--bridge-bg);border-left-color:var(--bridge-bar)}
+.s-solo .bar-cell{background:var(--solo-bg);border-left-color:var(--solo-bar)}
+.s-outro .bar-cell{background:var(--outro-bg);border-left-color:var(--outro-bar)}
+.s-intro .section-tag{background:var(--intro-bg);color:var(--intro-lbl)}
+.s-verse .section-tag{background:var(--verse-bg);color:var(--verse-lbl)}
+.s-chorus .section-tag{background:var(--chorus-bg);color:var(--chorus-lbl)}
+.s-bridge .section-tag{background:var(--bridge-bg);color:var(--bridge-lbl)}
+.s-solo .section-tag{background:var(--solo-bg);color:var(--solo-lbl)}
+.s-outro .section-tag{background:var(--outro-bg);color:var(--outro-lbl)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'IBM Plex Mono',monospace;white-space:nowrap;z-index:999}
+#toast.show{opacity:1}
+@media print{#toolbar,#legend,.add-row-btn,.add-bar-cell,.del-btn{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
+</style>
+</head>
+<body id="artifacts-component-root-html">
+<div id="toolbar">
+  <h1>Sleepwalk <span>— Larry Carlton</span></h1>
+  <span class="tb-meta">~133 BPM · C / Eb · 4/4</span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="addSection()">+ Section</button>
+  <button class="tb-btn" onclick="renumberAll()">Renumber</button>
+  <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
+  <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
+</div>
+<div id="legend">
+  <span style="font-size:11px;color:var(--text-muted);margin-right:4px">Section:</span>
+  <span class="leg" onclick="scrollTo('intro')"><span class="leg-dot" style="background:var(--intro-bar)"></span><span class="leg-txt" style="color:var(--intro-lbl)">Intro</span></span>
+  <span class="leg" onclick="scrollTo('verse')"><span class="leg-dot" style="background:var(--verse-bar)"></span><span class="leg-txt" style="color:var(--verse-lbl)">Verse</span></span>
+  <span class="leg" onclick="scrollTo('chorus')"><span class="leg-dot" style="background:var(--chorus-bar)"></span><span class="leg-txt" style="color:var(--chorus-lbl)">Chorus</span></span>
+  <span class="leg" onclick="scrollTo('bridge')"><span class="leg-dot" style="background:var(--bridge-bar)"></span><span class="leg-txt" style="color:var(--bridge-lbl)">Bridge</span></span>
+  <span class="leg" onclick="scrollTo('solo')"><span class="leg-dot" style="background:var(--solo-bar)"></span><span class="leg-txt" style="color:var(--solo-lbl)">Solo</span></span>
+  <span class="leg" onclick="scrollTo('outro')"><span class="leg-dot" style="background:var(--outro-bar)"></span><span class="leg-txt" style="color:var(--outro-lbl)">Outro</span></span>
+</div>
+<div id="sheet"><div class="section s-intro" data-si="0"><div class="section-head"><span class="section-tag">Intro</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="0"><div class="bar-cell" draggable="true" data-si="0" data-bi="0"><span class="bar-num">1</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="1"><span class="bar-num">2</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="2"><span class="bar-num">3</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="3"><span class="bar-num">4</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="4"><span class="bar-num">5</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="5"><span class="bar-num">6</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="0" data-bi="6"><span class="bar-num">7</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div><div class="section s-verse" data-si="1"><div class="section-head"><span class="section-tag">Verse / A</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="0"><span class="bar-num">8</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="1"><span class="bar-num">9</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="2"><span class="bar-num">10</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="3"><span class="bar-num">11</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="4"><span class="bar-num">12</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="5"><span class="bar-num">13</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="6"><span class="bar-num">14</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="7"><span class="bar-num">15</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="8"><span class="bar-num">16</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="9"><span class="bar-num">17</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="10"><span class="bar-num">18</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="11"><span class="bar-num">19</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="12"><span class="bar-num">20</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="13"><span class="bar-num">21</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="14"><span class="bar-num">22</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="15"><span class="bar-num">23</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="16"><span class="bar-num">24</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="17"><span class="bar-num">25</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="18"><span class="bar-num">26</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="19"><span class="bar-num">27</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="20"><span class="bar-num">28</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="21"><span class="bar-num">29</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="22"><span class="bar-num">30</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="23"><span class="bar-num">31</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="1"><div class="bar-cell" draggable="true" data-si="1" data-bi="24"><span class="bar-num">32</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="25"><span class="bar-num">33</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="1" data-bi="26"><span class="bar-num">34</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div><div class="section s-chorus" data-si="2"><div class="section-head"><span class="section-tag">Chorus / B</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="2"><div class="bar-cell" draggable="true" data-si="2" data-bi="0"><span class="bar-num">35</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="1"><span class="bar-num">36</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="2"><span class="bar-num">37</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="3"><span class="bar-num">38</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="4"><span class="bar-num">39</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="5"><span class="bar-num">40</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="6"><span class="bar-num">41</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="7"><span class="bar-num">42</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="2"><div class="bar-cell" draggable="true" data-si="2" data-bi="8"><span class="bar-num">43</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="9"><span class="bar-num">44</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="10"><span class="bar-num">45</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="11"><span class="bar-num">46</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="12"><span class="bar-num">47</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="13"><span class="bar-num">48</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="14"><span class="bar-num">49</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="2" data-bi="15"><span class="bar-num">50</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div><div class="section s-verse" data-si="3"><div class="section-head"><span class="section-tag">Verse / A</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="3"><div class="bar-cell" draggable="true" data-si="3" data-bi="0"><span class="bar-num">51</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="1"><span class="bar-num">52</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="2"><span class="bar-num">53</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="3"><span class="bar-num">54</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="4"><span class="bar-num">55</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="5"><span class="bar-num">56</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="6"><span class="bar-num">57</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="7"><span class="bar-num">58</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="3"><div class="bar-cell" draggable="true" data-si="3" data-bi="8"><span class="bar-num">59</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="9"><span class="bar-num">60</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="10"><span class="bar-num">61</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="11"><span class="bar-num">62</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="12"><span class="bar-num">63</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="3" data-bi="13"><span class="bar-num">64</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div><div class="section s-bridge" data-si="4"><div class="section-head"><span class="section-tag">Bridge</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="0"><span class="bar-num">65</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="1"><span class="bar-num">66</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="2"><span class="bar-num">67</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="3"><span class="bar-num">68</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="4"><span class="bar-num">69</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="5"><span class="bar-num">70</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="6"><span class="bar-num">71</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="7"><span class="bar-num">72</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="8"><span class="bar-num">73</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="9"><span class="bar-num">74</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="10"><span class="bar-num">75</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="11"><span class="bar-num">76</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="12"><span class="bar-num">77</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="13"><span class="bar-num">78</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="14"><span class="bar-num">79</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="15"><span class="bar-num">80</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="16"><span class="bar-num">81</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="17"><span class="bar-num">82</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="18"><span class="bar-num">83</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="19"><span class="bar-num">84</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="20"><span class="bar-num">85</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="21"><span class="bar-num">86</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="22"><span class="bar-num">87</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="23"><span class="bar-num">88</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="24"><span class="bar-num">89</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="25"><span class="bar-num">90</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="26"><span class="bar-num">91</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="27"><span class="bar-num">92</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="28"><span class="bar-num">93</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="29"><span class="bar-num">94</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="30"><span class="bar-num">95</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="31"><span class="bar-num">96</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="32"><span class="bar-num">97</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="33"><span class="bar-num">98</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="34"><span class="bar-num">99</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="35"><span class="bar-num">100</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="36"><span class="bar-num">101</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="37"><span class="bar-num">102</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="38"><span class="bar-num">103</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="39"><span class="bar-num">104</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="4"><div class="bar-cell" draggable="true" data-si="4" data-bi="40"><span class="bar-num">105</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="41"><span class="bar-num">106</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="42"><span class="bar-num">107</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="4" data-bi="43"><span class="bar-num">108</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div><div class="section s-solo" data-si="5"><div class="section-head"><span class="section-tag">Solo</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="5"><div class="bar-cell" draggable="true" data-si="5" data-bi="0"><span class="bar-num">109</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="1"><span class="bar-num">110</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="2"><span class="bar-num">111</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="3"><span class="bar-num">112</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="4"><span class="bar-num">113</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="5"><span class="bar-num">114</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="6"><span class="bar-num">115</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="5" data-bi="7"><span class="bar-num">116</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div><div class="section s-outro" data-si="6"><div class="section-head"><span class="section-tag">Outro</span><input class="section-note" placeholder="note..."><button class="add-row-btn">+ row</button></div><div class="bar-row" data-si="6"><div class="bar-cell" draggable="true" data-si="6" data-bi="0"><span class="bar-num">117</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="1"><span class="bar-num">118</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="2"><span class="bar-num">119</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="3"><span class="bar-num">120</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="4"><span class="bar-num">121</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="5"><span class="bar-num">122</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="6"><span class="bar-num">123</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="7"><span class="bar-num">124</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="6"><div class="bar-cell" draggable="true" data-si="6" data-bi="8"><span class="bar-num">125</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="9"><span class="bar-num">126</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="10"><span class="bar-num">127</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="11"><span class="bar-num">128</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="12"><span class="bar-num">129</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="13"><span class="bar-num">130</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="14"><span class="bar-num">131</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="15"><span class="bar-num">132</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div></div><div class="bar-row" data-si="6"><div class="bar-cell" draggable="true" data-si="6" data-bi="16"><span class="bar-num">133</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="17"><span class="bar-num">134</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="18"><span class="bar-num">135</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="bar-cell" draggable="true" data-si="6" data-bi="19"><span class="bar-num">136</span><input class="bar-chord"><input class="bar-ann" placeholder="annotation..."><button class="del-btn" title="ลบห้องนี้">×</button></div><div class="add-bar-cell" title="เพิ่มห้อง">+</div></div></div></div>
+<div id="toast"></div>
+
+<script>
+// ── DATA (replaced on each Save) ──
+var SECTIONS = [{"id":"intro","label":"Intro","note":"","bars":[{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"Cm9","a":""},{"c":"Ebmaj7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""}]},{"id":"verse","label":"Verse / A","note":"C major","bars":[{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"Bb7","a":""}]},{"id":"chorus","label":"Chorus / B","note":"","bars":[{"c":"Cmaj7","a":""},{"c":"C7","a":""},{"c":"Fmaj7","a":""},{"c":"Fmaj7","a":""},{"c":"Dm7b5","a":""},{"c":"Fm","a":""},{"c":"Cmaj7","a":""},{"c":"Fmaj9","a":""},{"c":"Cmaj7","a":""},{"c":"Dm7","a":""},{"c":"Dm7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Cmaj7","a":""},{"c":"Cmaj7","a":""}]},{"id":"verse","label":"Verse / A","note":"return","bars":[{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"C","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""}]},{"id":"bridge","label":"Bridge","note":"Eb major","bars":[{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"C7","a":""},{"c":"Cm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Eb","a":""},{"c":"Abmaj7","a":""},{"c":"Fm7b5","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Abmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7b5","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""}]},{"id":"solo","label":"Solo","note":"","bars":[{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Cm7","a":""},{"c":"Ebmaj7","a":""}]},{"id":"outro","label":"Outro","note":"","bars":[{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""}]}];
+// ── END DATA ──
+
+var dragSrc = null, dragOver = null;
+var COLS = 8;
+
+function render() {
+  var sheet = document.getElementById('sheet');
+  sheet.innerHTML = '';
+  var n = 1;
+  SECTIONS.forEach(function(sec, si) {
+    var div = document.createElement('div');
+    div.className = 'section s-' + sec.id;
+    div.dataset.si = si;
+    // head
+    var head = document.createElement('div');
+    head.className = 'section-head';
+    var tag = document.createElement('span');
+    tag.className = 'section-tag';
+    tag.textContent = sec.label;
+    var noteEl = document.createElement('input');
+    noteEl.className = 'section-note';
+    noteEl.value = sec.note;
+    noteEl.placeholder = 'note...';
+    noteEl.oninput = (function(idx){ return function(){ SECTIONS[idx].note = this.value; }; })(si);
+    var addRowBtn = document.createElement('button');
+    addRowBtn.className = 'add-row-btn';
+    addRowBtn.textContent = '+ row';
+    addRowBtn.onclick = (function(idx){ return function(){ addRow(idx); }; })(si);
+    head.appendChild(tag);
+    head.appendChild(noteEl);
+    head.appendChild(addRowBtn);
+    div.appendChild(head);
+    // rows
+    for (var r = 0; r * COLS < sec.bars.length; r++) {
+      var row = document.createElement('div');
+      row.className = 'bar-row';
+      row.dataset.si = si;
+      var start = r * COLS, end = Math.min(start + COLS, sec.bars.length);
+      for (var i = start; i < end; i++) {
+        row.appendChild(makeCell(sec.bars[i], si, i, n++));
+      }
+      // add-bar btn only on last row
+      if (end === sec.bars.length) {
+        var addBtn = document.createElement('div');
+        addBtn.className = 'add-bar-cell';
+        addBtn.title = 'เพิ่มห้อง';
+        addBtn.textContent = '+';
+        addBtn.onclick = (function(idx){ return function(){ SECTIONS[idx].bars.push({c:'—',a:''}); render(); }; })(si);
+        row.appendChild(addBtn);
+      }
+      setupDrop(row);
+      div.appendChild(row);
+    }
+    sheet.appendChild(div);
+  });
+}
+
+function makeCell(bar, si, bi, num) {
+  var cell = document.createElement('div');
+  cell.className = 'bar-cell';
+  cell.draggable = true;
+  cell.dataset.si = si;
+  cell.dataset.bi = bi;
+
+  var numEl = document.createElement('span');
+  numEl.className = 'bar-num';
+  numEl.textContent = num;
+
+  var chordEl = document.createElement('input');
+  chordEl.className = 'bar-chord';
+  chordEl.value = bar.c;
+  chordEl.oninput = (function(s,b){ return function(){ SECTIONS[s].bars[b].c = this.value; }; })(si, bi);
+  chordEl.onmousedown = function(e){ e.stopPropagation(); };
+  chordEl.onclick    = function(e){ e.stopPropagation(); };
+
+  var annEl = document.createElement('input');
+  annEl.className = 'bar-ann';
+  annEl.value = bar.a || '';
+  annEl.placeholder = 'annotation...';
+  annEl.oninput = (function(s,b){ return function(){ SECTIONS[s].bars[b].a = this.value; }; })(si, bi);
+  annEl.onmousedown = function(e){ e.stopPropagation(); };
+  annEl.onclick    = function(e){ e.stopPropagation(); };
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'del-btn';
+  delBtn.title = 'ลบห้องนี้';
+  delBtn.textContent = '×';
+  delBtn.onclick = (function(s,b){ return function(e){ e.stopPropagation(); deleteBar(s,b); }; })(si, bi);
+
+  cell.appendChild(numEl);
+  cell.appendChild(chordEl);
+  cell.appendChild(annEl);
+  cell.appendChild(delBtn);
+
+  // drag
+  cell.addEventListener('dragstart', function(e) {
+    dragSrc = cell;
+    cell.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', si + ',' + bi);
+  });
+  cell.addEventListener('dragend', function() {
+    cell.classList.remove('dragging');
+    clearHighlights();
+    dragSrc = null;
+  });
+  return cell;
+}
+
+function setupDrop(row) {
+  row.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    row.classList.add('drag-over');
+    var after = getAfter(row, e.clientX);
+    clearHighlights();
+    if (after) after.classList.add('drag-over-left');
+  });
+  row.addEventListener('dragleave', function(e) {
+    if (!row.contains(e.relatedTarget)) {
+      row.classList.remove('drag-over');
+      clearHighlights();
+    }
+  });
+  row.addEventListener('drop', function(e) {
+    e.preventDefault();
+    row.classList.remove('drag-over');
+    clearHighlights();
+    if (!dragSrc) return;
+    var parts = e.dataTransfer.getData('text/plain').split(',');
+    var fromSi = parseInt(parts[0]), fromBi = parseInt(parts[1]);
+    var toSi = parseInt(row.dataset.si);
+    var after = getAfter(row, e.clientX);
+    var toBi;
+    if (!after) {
+      toBi = SECTIONS[toSi].bars.length;
+    } else {
+      toBi = parseInt(after.dataset.bi);
+    }
+    var moved = SECTIONS[fromSi].bars.splice(fromBi, 1)[0];
+    if (fromSi === toSi && toBi > fromBi) toBi--;
+    SECTIONS[toSi].bars.splice(toBi, 0, moved);
+    render();
+    toast('สลับห้องแล้ว ✓');
+  });
+}
+
+function getAfter(row, x) {
+  var cells = Array.from(row.querySelectorAll('.bar-cell:not(.dragging)'));
+  var res = null, best = -Infinity;
+  cells.forEach(function(c) {
+    var box = c.getBoundingClientRect();
+    var offset = x - box.left - box.width / 2;
+    if (offset < 0 && offset > best) { best = offset; res = c; }
+  });
+  return res;
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.drag-over-left').forEach(function(el){ el.classList.remove('drag-over-left'); });
+}
+
+function deleteBar(si, bi) {
+  if (SECTIONS[si].bars.length <= 1) return toast('ต้องมีอย่างน้อย 1 ห้อง');
+  SECTIONS[si].bars.splice(bi, 1);
+  render();
+}
+
+function addRow(si) {
+  for (var i = 0; i < 8; i++) SECTIONS[si].bars.push({c:'—', a:''});
+  render();
+  toast('เพิ่มแถวแล้ว (8 ห้อง)');
+}
+
+function renumberAll() { render(); toast('Renumber เรียบร้อย'); }
+
+function addSection() {
+  var name = prompt('ชื่อ section ใหม่ (เช่น Verse, Bridge):');
+  if (!name) return;
+  var types = ['intro','verse','chorus','bridge','solo','outro'];
+  var id = 'verse';
+  for (var i = 0; i < types.length; i++) {
+    if (name.toLowerCase().indexOf(types[i]) >= 0) { id = types[i]; break; }
+  }
+  SECTIONS.push({id:id, label:name, note:'', bars:[{c:'C',a:''}]});
+  render();
+  toast('เพิ่ม section แล้ว');
+}
+
+function scrollTo(id) {
+  var el = document.querySelector('.s-' + id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── SAVE: rebuild clean HTML with current data baked in ──
+function saveToFile() {
+  var html = document.documentElement.outerHTML;
+  var dataStr = JSON.stringify(SECTIONS);
+  // Replace between the data markers
+  html = html.replace(
+    /var SECTIONS = \[[\s\S]*?\];\s*\/\/ ── END DATA ──/,
+    'var SECTIONS = ' + dataStr + ';\n// ── END DATA ──'
+  );
+  var blob = new Blob(['<!DOCTYPE html>\n' + html], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sleepwalk_bandsheet.html';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
+  toast('บันทึกแล้ว — อัปโหลดไปยัง Google Drive ได้เลย ✓');
+}
+
+var toastTimer;
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2400);
+}
+
+render();
+</script>
+
+
+</body></html>
