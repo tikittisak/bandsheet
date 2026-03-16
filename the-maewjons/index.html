@@ -16,8 +16,6 @@ header{padding:32px 40px 20px;border-bottom:1px solid var(--border)}
 .band-tag{display:inline-block;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:3px;margin-bottom:10px;border:1px solid rgba(var(--accent-rgb),.2)}
 h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.02em}
 .stats{font-size:12px;color:var(--muted);margin-top:6px}
-
-/* ── SEARCH & FILTER ── */
 .toolbar{padding:14px 40px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;max-width:320px}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
@@ -31,13 +29,13 @@ h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:700;letter-spacing:
 .filter-pill.active{background:rgba(var(--accent-rgb),.15);border-color:rgba(var(--accent-rgb),.4);color:var(--accent)}
 .clear-btn{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;transition:color .12s}
 .clear-btn:hover{color:var(--text)}
-
-/* ── TABLE ── */
+.add-song-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:var(--accent);background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.3);border-radius:6px;padding:6px 14px;cursor:pointer;transition:all .12s;margin-left:auto;white-space:nowrap}
+.add-song-btn:hover{background:rgba(var(--accent-rgb),.18);border-color:var(--accent)}
 main{padding:0 40px 60px}
 .song-table{width:100%;border-collapse:collapse;margin-top:8px}
 .song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 12px 10px;border-bottom:1px solid var(--border)}
 .song-table th:first-child{padding-left:0;width:36px}
-.song-row{border-bottom:1px solid var(--faint);transition:background .1s;cursor:pointer}
+.song-row{border-bottom:1px solid var(--faint);transition:background .1s}
 .song-row:hover{background:#141414}
 .song-row td{padding:13px 12px;font-size:13px;vertical-align:middle}
 .song-row td:first-child{padding-left:0}
@@ -47,10 +45,37 @@ main{padding:0 40px 60px}
 .song-key{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:70px}
 .song-bpm{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:60px}
 .song-bars{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:60px}
+.row-actions{display:flex;gap:5px;align-items:center}
 .open-btn{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:500;letter-spacing:.06em;color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid rgba(var(--accent-rgb),.3);border-radius:4px;transition:all .12s;white-space:nowrap}
 .open-btn:hover{background:rgba(var(--accent-rgb),.1);border-color:var(--accent)}
+.action-btn{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.action-btn:hover{color:var(--text);border-color:#444}
+.action-btn.del:hover{color:#ef4444;border-color:#ef4444}
+.shared-badge{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a78bfa;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.25);border-radius:3px;padding:1px 6px;margin-left:6px;vertical-align:middle}
 .no-results{padding:40px 0;text-align:center;color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;display:none}
 footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:'Inter',sans-serif;display:flex;justify-content:space-between}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .15s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#1c1c1c;border:1px solid var(--border-strong);border-radius:10px;padding:28px;width:440px;max-width:92vw;transform:translateY(10px);transition:transform .15s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:20px}
+.form-row{margin-bottom:14px}
+.form-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.form-input{width:100%;font-family:'Inter',sans-serif;font-size:12px;background:#111;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 12px;outline:none;transition:border-color .12s}
+.form-input:focus{border-color:#444}
+.form-input::placeholder{color:var(--muted)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:22px}
+.btn-cancel{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:8px 16px;cursor:pointer;transition:all .12s}
+.btn-cancel:hover{color:var(--text);border-color:#444}
+.btn-submit{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:#0e0e0e;background:var(--accent);border:none;border-radius:6px;padding:8px 18px;cursor:pointer;transition:opacity .12s}
+.btn-submit:hover{opacity:.85}
+.band-check-list{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.band-check-item{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 10px;border-radius:6px;border:1px solid var(--border);transition:border-color .12s}
+.band-check-item:hover{border-color:#444}
+.band-check-item input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+.band-check-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.band-check-label{font-family:'Inter',sans-serif;font-size:12px;color:var(--text)}
 </style>
 </head>
 <body>
@@ -58,75 +83,100 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
   <div class="breadcrumb"><a href="../">Band Sheet</a> / THE MÆWJØNS</div>
   <div class="band-tag">THE MÆWJØNS</div>
   <h1>Song List</h1>
-  <div class="stats" id="stats">0 เพลง</div>
+  <div class="stats" id="stats"></div>
 </header>
-
 <div class="toolbar">
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input class="search" type="text" id="search" placeholder="ค้นหาเพลง, ศิลปิน, key..." oninput="filterSongs()">
   </div>
-  <div class="filter-group">
+  <div class="filter-group" id="key-filters">
     <span class="filter-label">Key:</span>
     <button class="filter-pill active" data-key="all" onclick="setKeyFilter(this,'all')">All</button>
   </div>
   <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+  <button class="add-song-btn" onclick="openAddModal()">＋ New Song</button>
 </div>
-
 <main>
   <table class="song-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>ชื่อเพลง / ศิลปิน</th>
-        <th>Key</th>
-        <th>BPM</th>
-        <th>Bars</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="song-list">
-    </tbody>
+    <thead><tr><th>#</th><th>ชื่อเพลง / ศิลปิน</th><th>Key</th><th>BPM</th><th>Bars</th><th></th></tr></thead>
+    <tbody id="song-list"></tbody>
   </table>
   <div class="no-results" id="no-results">ไม่พบเพลงที่ค้นหา</div>
 </main>
-
 <footer>
   <span>THE MÆWJØNS · Band Sheet</span>
   <span><a href="../" style="color:var(--muted);text-decoration:none">← back to all bands</a></span>
 </footer>
-
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-title">＋ Add New Song</div>
+    <div class="form-row"><label class="form-label">Song Title *</label><input class="form-input" id="f-title" placeholder="e.g. Basket Case"></div>
+    <div class="form-row"><label class="form-label">Artist</label><input class="form-input" id="f-artist" placeholder="e.g. Green Day"></div>
+    <div class="form-row-2">
+      <div><label class="form-label">Key</label><input class="form-input" id="f-key" placeholder="e.g. Eb"></div>
+      <div><label class="form-label">BPM</label><input class="form-input" id="f-bpm" placeholder="e.g. ~148"></div>
+    </div>
+    <div class="form-row-2">
+      <div><label class="form-label">Bars</label><input class="form-input" id="f-bars" placeholder="e.g. 200"></div>
+      <div><label class="form-label">Filename (.html)</label><input class="form-input" id="f-file" placeholder="auto from title"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitAddSong()">Add &amp; Save</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="assign-modal">
+  <div class="modal">
+    <div class="modal-title" id="assign-title">Assign Song to Bands</div>
+    <div class="form-row">
+      <label class="form-label">Share this song with:</label>
+      <div class="band-check-list" id="band-check-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAssignModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitAssign()">Save</button>
+    </div>
+  </div>
+</div>
 <script>
+var BAND_ID = 'the-maewjons';
+var BAND_NAME = 'THE MÆWJØNS';
+var ALL_BANDS = [
+  {id:'ti-muse',           name:'ti.muse',          color:'#60a5fa'},
+  {id:'the-maewjons',      name:'THE MÆWJØNS',      color:'#f472b6'},
+  {id:'parkhaus108',       name:'PARKHAUS108',       color:'#34d399'},
+  {id:'90alter',           name:'90Alter',           color:'#fbbf24'},
+  {id:'parkhaus-studio',   name:'PARKHAUS Studio',   color:'#a78bfa'}
+];
+var SONGS = [
+]; // ── END SONGS ──
 var activeKey = 'all';
-
-function filterSongs() {
-  var q = document.getElementById('search').value.toLowerCase().trim();
-  var rows = document.querySelectorAll('#song-list .song-row');
-  var visible = 0;
-  rows.forEach(function(r) {
-    var matchQ = !q || r.dataset.search.includes(q);
-    var matchK = activeKey === 'all' || r.dataset.key === activeKey;
-    var show = matchQ && matchK;
-    r.style.display = show ? '' : 'none';
-    if (show) visible++;
-  });
-  document.getElementById('stats').textContent = visible + ' เพลง';
-  document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
-}
-
-function setKeyFilter(btn, key) {
-  activeKey = key;
-  document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
-  btn.classList.add('active');
-  filterSongs();
-}
-
-function clearFilters() {
-  document.getElementById('search').value = '';
-  activeKey = 'all';
-  document.querySelectorAll('.filter-pill').forEach(function(p, i) { p.classList.toggle('active', i === 0); });
-  filterSongs();
-}
+var assignIdx = -1;
+var assignIsShared = false;
+function registerSongs(){try{var r=JSON.parse(localStorage.getItem('bandsheet_registry')||'{}');r[BAND_ID]={band:BAND_ID,name:BAND_NAME,songs:SONGS};localStorage.setItem('bandsheet_registry',JSON.stringify(r));}catch(e){}}
+function getSharedSongs(){try{var r=localStorage.getItem('bandsheet_shared_'+BAND_ID);return r?JSON.parse(r):[];}catch(e){return[];}}
+function saveSharedSongs(a){try{localStorage.setItem('bandsheet_shared_'+BAND_ID,JSON.stringify(a));}catch(e){}}
+function buildKeyFilters(){var keys={};SONGS.concat(getSharedSongs()).forEach(function(s){if(s.key)keys[s.key.toLowerCase()]=s.key;});var fg=document.getElementById('key-filters');Array.from(fg.querySelectorAll('[data-key]:not([data-key="all"])')).forEach(function(el){el.remove();});Object.keys(keys).sort().forEach(function(kl){var btn=document.createElement('button');btn.className='filter-pill'+(activeKey===kl?' active':'');btn.dataset.key=kl;btn.textContent=keys[kl];btn.onclick=function(){setKeyFilter(btn,kl);};fg.appendChild(btn);});}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderSongs(){buildKeyFilters();var tbody=document.getElementById('song-list');tbody.innerHTML='';var shared=getSharedSongs();var all=SONGS.map(function(s,i){return{s:s,idx:i,isShared:false};}).concat(shared.map(function(s,i){return{s:s,idx:i,isShared:true};}));all.forEach(function(item,num){var s=item.s;var fileHref=item.isShared?('../'+(s.fromBand||'')+'/'+s.file):s.file;var tr=document.createElement('tr');tr.className='song-row';tr.dataset.title=(s.title||'').toLowerCase();tr.dataset.artist=(s.artist||'').toLowerCase();tr.dataset.key=(s.key||'').toLowerCase();tr.dataset.search=[(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();tr.innerHTML='<td class="song-num">'+String(num+1).padStart(2,'0')+'</td><td><div class="song-title">'+esc(s.title||'')+(item.isShared?'<span class="shared-badge">'+esc(s.fromBandName||'shared')+'</span>':'')+'</div><div class="song-artist">'+esc(s.artist||'—')+'</div></td><td class="song-key">'+esc(s.key||'—')+'</td><td class="song-bpm">'+esc(s.bpm||'—')+'</td><td class="song-bars">'+esc(s.bars||'—')+'</td><td><div class="row-actions">'+(s.file?'<a class="open-btn" href="'+fileHref+'">Open →</a>':'')+'<button class="action-btn" onclick="openAssignModal('+item.idx+','+item.isShared+')">⇄ Assign</button><button class="action-btn del" onclick="removeSong('+item.idx+','+item.isShared+')">✕</button></div></td>';tbody.appendChild(tr);});filterSongs();}
+function filterSongs(){var q=document.getElementById('search').value.toLowerCase().trim();var rows=document.querySelectorAll('#song-list .song-row');var v=0;rows.forEach(function(r){var show=(!q||r.dataset.search.includes(q))&&(activeKey==='all'||r.dataset.key===activeKey);r.style.display=show?'':'none';if(show)v++;});document.getElementById('stats').textContent=v+' เพลง';document.getElementById('no-results').style.display=v===0?'block':'none';}
+function setKeyFilter(btn,key){activeKey=key;document.querySelectorAll('.filter-pill').forEach(function(p){p.classList.remove('active');});btn.classList.add('active');filterSongs();}
+function clearFilters(){document.getElementById('search').value='';activeKey='all';document.querySelectorAll('.filter-pill').forEach(function(p,i){p.classList.toggle('active',i===0);});filterSongs();}
+function openAddModal(){['f-title','f-artist','f-key','f-bpm','f-bars','f-file'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('add-modal').classList.add('open');setTimeout(function(){document.getElementById('f-title').focus();},60);}
+function closeAddModal(){document.getElementById('add-modal').classList.remove('open');}
+function slugify(s){return s.toLowerCase().replace(/[àáâãäå]/g,'a').replace(/[èéêë]/g,'e').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
+function submitAddSong(){var title=document.getElementById('f-title').value.trim();if(!title){document.getElementById('f-title').style.borderColor='#ef4444';document.getElementById('f-title').focus();return;}document.getElementById('f-title').style.borderColor='';var song={title:title,artist:document.getElementById('f-artist').value.trim(),key:document.getElementById('f-key').value.trim(),bpm:document.getElementById('f-bpm').value.trim(),bars:document.getElementById('f-bars').value.trim(),file:document.getElementById('f-file').value.trim()||(slugify(title)+'.html')};SONGS.push(song);closeAddModal();saveToFile();renderSongs();registerSongs();}
+function removeSong(idx,isShared){if(!confirm('Remove this song from the list?'))return;if(isShared){var shared=getSharedSongs();shared.splice(idx,1);saveSharedSongs(shared);}else{SONGS.splice(idx,1);saveToFile();}renderSongs();registerSongs();}
+function openAssignModal(idx,isShared){assignIdx=idx;assignIsShared=isShared;var s=isShared?getSharedSongs()[idx]:SONGS[idx];document.getElementById('assign-title').textContent='Assign "'+( s.title||'')+'" to Bands';var list=document.getElementById('band-check-list');list.innerHTML='';ALL_BANDS.forEach(function(b){if(b.id===BAND_ID)return;var existing=[];try{existing=JSON.parse(localStorage.getItem('bandsheet_shared_'+b.id)||'[]');}catch(e){}var checked=existing.some(function(x){return x.title===s.title&&x.fromBand===BAND_ID;});var item=document.createElement('label');item.className='band-check-item';item.innerHTML='<input type="checkbox" value="'+b.id+'"'+(checked?' checked':'')+'><span class="band-check-dot" style="background:'+b.color+'"></span><span class="band-check-label">'+b.name+'</span>';list.appendChild(item);});document.getElementById('assign-modal').classList.add('open');}
+function closeAssignModal(){document.getElementById('assign-modal').classList.remove('open');}
+function submitAssign(){var s=assignIsShared?getSharedSongs()[assignIdx]:SONGS[assignIdx];var entry={title:s.title,artist:s.artist,key:s.key,bpm:s.bpm,bars:s.bars,file:s.file,fromBand:BAND_ID,fromBandName:BAND_NAME};document.querySelectorAll('#band-check-list input').forEach(function(inp){var bid=inp.value;try{var arr=JSON.parse(localStorage.getItem('bandsheet_shared_'+bid)||'[]');var idx2=arr.findIndex(function(x){return x.title===s.title&&x.fromBand===BAND_ID;});if(inp.checked){if(idx2===-1)arr.push(entry);else arr[idx2]=entry;}else{if(idx2!==-1)arr.splice(idx2,1);}localStorage.setItem('bandsheet_shared_'+bid,JSON.stringify(arr));}catch(e){}});closeAssignModal();}
+function saveToFile(){var src=document.documentElement.outerHTML;var json=JSON.stringify(SONGS,null,2);var re=/var SONGS\s*=\s*\[[\s\S]*?\];\s*\/\/ \u2500\u2500 END SONGS \u2500\u2500/;src=src.replace(re,'var SONGS = '+json+'; // \u2500\u2500 END SONGS \u2500\u2500');var blob=new Blob([src],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href);}
+document.getElementById('add-modal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
+document.getElementById('assign-modal').addEventListener('click',function(e){if(e.target===this)closeAssignModal();});
+renderSongs();
+registerSongs();
 </script>
 </body>
 </html>

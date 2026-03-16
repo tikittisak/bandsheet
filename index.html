@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Band Sheet — ti.guitar</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0e0e0e;
@@ -21,7 +21,6 @@ body {
   color: var(--text);
   font-family: 'IBM Plex Sans Thai', sans-serif;
   min-height: 100vh;
-  padding: 0;
 }
 header {
   padding: 48px 40px 32px;
@@ -49,6 +48,82 @@ h1 span { color: var(--muted); font-weight: 400; }
   color: var(--muted);
   margin-top: 8px;
 }
+
+/* ── GLOBAL SEARCH ── */
+.global-search-bar {
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border);
+  background: #111;
+}
+.global-search-inner {
+  max-width: 600px;
+  position: relative;
+}
+.global-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+.global-search-input {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 16px 10px 40px;
+  outline: none;
+  transition: border-color .15s;
+}
+.global-search-input::placeholder { color: var(--muted); }
+.global-search-input:focus { border-color: #555; }
+
+/* ── SEARCH RESULTS ── */
+#search-results {
+  padding: 20px 40px 40px;
+  max-width: 900px;
+}
+.results-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.result-table { width: 100%; border-collapse: collapse; }
+.result-table th {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.result-table th:first-child { padding-left: 0; }
+.result-row { border-bottom: 1px solid #222; transition: background .1s; }
+.result-row:hover { background: #141414; }
+.result-row td { padding: 12px 12px; font-size: 13px; vertical-align: middle; }
+.result-row td:first-child { padding-left: 0; }
+.result-title { font-weight: 500; color: var(--text); }
+.result-artist { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.result-band-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+.result-band-name { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); vertical-align: middle; }
+.result-meta { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); }
+.result-open { display: inline-block; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: .06em; color: #888; text-decoration: none; padding: 3px 9px; border: 1px solid #333; border-radius: 4px; transition: all .12s; white-space: nowrap; }
+.result-open:hover { color: var(--text); border-color: #555; }
+.no-search-results { padding: 24px 0; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 13px; }
+.search-hint { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+/* ── BANDS SECTION ── */
 main {
   padding: 40px;
   max-width: 900px;
@@ -102,6 +177,12 @@ main {
   font-size: 11px;
   color: var(--muted);
 }
+.band-song-count {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 6px;
+}
 .band-arrow {
   position: absolute;
   right: 18px; top: 50%;
@@ -129,36 +210,151 @@ footer {
   <h1>Band <span>/</span> Sheet</h1>
   <p class="sub">เลือกวงเพื่อดู song list และ band sheet</p>
 </header>
-<main>
-  <div class="section-label">5 วงดนตรี</div>
-  <div class="band-grid">
-    <a class="band-card" href="ti-muse/" style="--band-color:#60a5fa">
+
+<!-- GLOBAL SEARCH -->
+<div class="global-search-bar">
+  <div class="global-search-inner">
+    <span class="global-search-icon">🔍</span>
+    <input class="global-search-input" id="global-search" type="text"
+      placeholder="Search all songs across all bands..."
+      oninput="globalSearch()" autocomplete="off">
+  </div>
+</div>
+
+<!-- SEARCH RESULTS (hidden by default) -->
+<div id="search-results" style="display:none"></div>
+
+<!-- BANDS -->
+<main id="bands-section">
+  <div class="section-label" id="bands-label">5 วงดนตรี</div>
+  <div class="band-grid" id="band-grid">
+    <a class="band-card" href="ti-muse/" style="--band-color:#60a5fa" id="card-ti-muse">
       <div class="band-name">ti.muse</div>
       <div class="band-meta">Band Sheet Collection</div>
+      <div class="band-song-count" id="count-ti-muse"></div>
       <span class="band-arrow">→</span>
     </a>
-    <a class="band-card" href="the-maewjons/" style="--band-color:#f472b6">
+    <a class="band-card" href="the-maewjons/" style="--band-color:#f472b6" id="card-the-maewjons">
       <div class="band-name">THE MÆWJØNS</div>
       <div class="band-meta">Band Sheet Collection</div>
+      <div class="band-song-count" id="count-the-maewjons"></div>
       <span class="band-arrow">→</span>
     </a>
-    <a class="band-card" href="parkhaus108/" style="--band-color:#34d399">
+    <a class="band-card" href="parkhaus108/" style="--band-color:#34d399" id="card-parkhaus108">
       <div class="band-name">PARKHAUS108</div>
       <div class="band-meta">Band Sheet Collection</div>
+      <div class="band-song-count" id="count-parkhaus108"></div>
       <span class="band-arrow">→</span>
     </a>
-    <a class="band-card" href="90alter/" style="--band-color:#fbbf24">
+    <a class="band-card" href="90alter/" style="--band-color:#fbbf24" id="card-90alter">
       <div class="band-name">90Alter</div>
       <div class="band-meta">Band Sheet Collection</div>
+      <div class="band-song-count" id="count-90alter"></div>
       <span class="band-arrow">→</span>
     </a>
-    <a class="band-card" href="parkhaus-studio/" style="--band-color:#a78bfa">
+    <a class="band-card" href="parkhaus-studio/" style="--band-color:#a78bfa" id="card-parkhaus-studio">
       <div class="band-name">PARKHAUS Studio</div>
       <div class="band-meta">Band Sheet Collection</div>
+      <div class="band-song-count" id="count-parkhaus-studio"></div>
       <span class="band-arrow">→</span>
     </a>
   </div>
 </main>
+
 <footer>tikittisak.github.io/bandsheet · Generated with Claude</footer>
+
+<script>
+var BAND_COLORS = {
+  'ti-muse':          '#60a5fa',
+  'the-maewjons':     '#f472b6',
+  'parkhaus108':      '#34d399',
+  '90alter':          '#fbbf24',
+  'parkhaus-studio':  '#a78bfa'
+};
+
+/* ── LOAD REGISTRY ── */
+function getRegistry() {
+  try { return JSON.parse(localStorage.getItem('bandsheet_registry') || '{}'); } catch(e) { return {}; }
+}
+
+function updateSongCounts() {
+  var reg = getRegistry();
+  Object.keys(BAND_COLORS).forEach(function(bid) {
+    var el = document.getElementById('count-' + bid);
+    if (!el) return;
+    var entry = reg[bid];
+    var count = entry && entry.songs ? entry.songs.length : null;
+    el.textContent = count !== null ? count + ' เพลง' : '';
+  });
+}
+
+/* ── GLOBAL SEARCH ── */
+function globalSearch() {
+  var q = document.getElementById('global-search').value.toLowerCase().trim();
+  var resultsDiv = document.getElementById('search-results');
+  var bandsSection = document.getElementById('bands-section');
+
+  if (!q) {
+    resultsDiv.style.display = 'none';
+    bandsSection.style.display = '';
+    return;
+  }
+
+  bandsSection.style.display = 'none';
+  resultsDiv.style.display = 'block';
+
+  var reg = getRegistry();
+  var matches = [];
+
+  Object.keys(BAND_COLORS).forEach(function(bid) {
+    var entry = reg[bid];
+    if (!entry || !entry.songs) return;
+    entry.songs.forEach(function(s) {
+      var search = [(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();
+      if (search.includes(q)) {
+        matches.push({ s: s, band: bid, bandName: entry.name });
+      }
+    });
+  });
+
+  if (matches.length === 0) {
+    resultsDiv.innerHTML =
+      '<div class="results-label">Search results</div>' +
+      '<div class="no-search-results">ไม่พบเพลงที่ค้นหา "<strong>' + esc(q) + '</strong>"</div>' +
+      '<div class="search-hint">Note: visit each band page first so songs register for search.</div>';
+    return;
+  }
+
+  var html = '<div class="results-label">' + matches.length + ' result' + (matches.length !== 1 ? 's' : '') + ' for "' + esc(q) + '"</div>' +
+    '<table class="result-table">' +
+    '<thead><tr><th>ชื่อเพลง / ศิลปิน</th><th>Band</th><th>Key</th><th>BPM</th><th>Bars</th><th></th></tr></thead>' +
+    '<tbody>';
+
+  matches.forEach(function(m) {
+    var s = m.s;
+    var href = s.file ? (m.band + '/' + s.file) : (m.band + '/');
+    var color = BAND_COLORS[m.band] || '#888';
+    html +=
+      '<tr class="result-row">' +
+      '<td><div class="result-title">' + esc(s.title||'') + '</div><div class="result-artist">' + esc(s.artist||'—') + '</div></td>' +
+      '<td><span class="result-band-dot" style="background:' + color + '"></span><span class="result-band-name">' + esc(m.bandName||m.band) + '</span></td>' +
+      '<td class="result-meta">' + esc(s.key||'—') + '</td>' +
+      '<td class="result-meta">' + esc(s.bpm||'—') + '</td>' +
+      '<td class="result-meta">' + esc(s.bars||'—') + '</td>' +
+      '<td>' + (s.file ? '<a class="result-open" href="' + href + '">Open →</a>' : '') + '</td>' +
+      '</tr>';
+  });
+
+  html += '</tbody></table>';
+  resultsDiv.innerHTML = html;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── INIT ── */
+updateSongCounts();
+</script>
 </body>
 </html>
