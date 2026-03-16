@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleepwalk — Larry Carlton · Band Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e0ddd6;--border-strong:#c8c4bc;--text:#1a1917;--text-muted:#8a8780;--text-faint:#c4c1bb;--accent:#2a2a2a;--intro-bg:#eef4fd;--intro-bar:#3b82f6;--intro-lbl:#1e40af;--verse-bg:#edfaf3;--verse-bar:#16a34a;--verse-lbl:#14532d;--chorus-bg:#fdf7e8;--chorus-bar:#d97706;--chorus-lbl:#78350f;--bridge-bg:#f3f0fd;--bridge-bar:#7c3aed;--bridge-lbl:#3b0764;--solo-bg:#fdf0f6;--solo-bar:#db2777;--solo-lbl:#831843;--outro-bg:#eafaf4;--outro-bar:#059669;--outro-lbl:#064e3b;--cell-w:130px;--cell-h:72px;--gap:6px;--radius:5px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
+#toolbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#toolbar h1{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;flex:1;min-width:200px}
+#toolbar h1 span{color:var(--text-muted);font-weight:400}
+.tb-meta{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace}
+.tb-btn{font-size:11px;font-weight:500;padding:5px 12px;border:1px solid var(--border-strong);border-radius:4px;background:var(--surface);color:var(--text);cursor:pointer;transition:background .12s;font-family:inherit;white-space:nowrap}
+.tb-btn:hover{background:var(--bg);border-color:var(--accent)}
+.tb-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tb-btn.primary:hover{background:#333}
+.tb-sep{width:1px;height:20px;background:var(--border)}
+#legend{padding:10px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.leg{display:flex;align-items:center;gap:5px;cursor:pointer;padding:3px 8px;border-radius:3px;transition:background .1s}
+.leg:hover{background:var(--border)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-txt{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+#sheet{padding:8px 24px 24px}
+.section{margin-bottom:18px}
+.section-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:0 2px}
+.section-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+.section-note{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;border:none;background:transparent;outline:none;cursor:text;min-width:40px}
+.section-note:focus{background:var(--bg);border-radius:2px;padding:0 3px;color:var(--text)}
+.add-row-btn{margin-left:auto;font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:3px;padding:2px 8px;cursor:pointer;transition:all .12s;font-family:inherit}
+.add-row-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
+.bar-row{display:flex;flex-wrap:wrap;gap:var(--gap);min-height:calc(var(--cell-h) + 4px);padding:3px 2px;border-radius:4px;transition:background .1s;position:relative}
+.bar-row.drag-over{background:rgba(59,130,246,.07);outline:2px dashed #3b82f6;outline-offset:-2px}
+.bar-cell{width:var(--cell-w);height:var(--cell-h);border-radius:var(--radius);border:1px solid var(--border);border-left-width:3px;padding:6px 8px 5px;display:flex;flex-direction:column;gap:2px;cursor:grab;user-select:none;transition:box-shadow .12s,transform .1s,opacity .1s;position:relative;background:var(--surface)}
+.bar-cell:active{cursor:grabbing}
+.bar-cell.dragging{opacity:.3;transform:scale(.96)}
+.bar-cell.drag-over-left{border-left:3px solid #3b82f6 !important;box-shadow:-3px 0 0 #3b82f6}
+.bar-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.09);z-index:2}
+.bar-num{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-faint);line-height:1}
+.bar-chord{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--text);line-height:1.1;cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0}
+.bar-chord:focus{background:rgba(0,0,0,.04);border-radius:2px;padding:0 2px}
+.bar-ann{font-size:10px;color:var(--text-muted);cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0;font-family:inherit;line-height:1.2}
+.bar-ann:focus{background:rgba(0,0,0,.03);border-radius:2px;padding:0 2px}
+.bar-ann::placeholder{color:var(--text-faint);font-style:italic}
+.del-btn{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;background:none;border:none;color:var(--text-faint);font-size:11px;line-height:14px;text-align:center;cursor:pointer;display:none;padding:0}
+.bar-cell:hover .del-btn{display:block}
+.del-btn:hover{background:#fee2e2;color:#dc2626}
+.add-bar-cell{width:var(--cell-w);height:var(--cell-h);border-radius:var(--radius);border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-faint);font-size:20px;transition:all .12s;flex-shrink:0}
+.add-bar-cell:hover{border-color:var(--accent);color:var(--text);background:var(--bg)}
+.s-intro .bar-cell{background:var(--intro-bg);border-left-color:var(--intro-bar)}
+.s-verse .bar-cell{background:var(--verse-bg);border-left-color:var(--verse-bar)}
+.s-chorus .bar-cell{background:var(--chorus-bg);border-left-color:var(--chorus-bar)}
+.s-bridge .bar-cell{background:var(--bridge-bg);border-left-color:var(--bridge-bar)}
+.s-solo .bar-cell{background:var(--solo-bg);border-left-color:var(--solo-bar)}
+.s-outro .bar-cell{background:var(--outro-bg);border-left-color:var(--outro-bar)}
+.s-intro .section-tag{background:var(--intro-bg);color:var(--intro-lbl)}
+.s-verse .section-tag{background:var(--verse-bg);color:var(--verse-lbl)}
+.s-chorus .section-tag{background:var(--chorus-bg);color:var(--chorus-lbl)}
+.s-bridge .section-tag{background:var(--bridge-bg);color:var(--bridge-lbl)}
+.s-solo .section-tag{background:var(--solo-bg);color:var(--solo-lbl)}
+.s-outro .section-tag{background:var(--outro-bg);color:var(--outro-lbl)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'IBM Plex Mono',monospace;white-space:nowrap;z-index:999}
+#toast.show{opacity:1}
+@media print{#toolbar,#legend,.add-row-btn,.add-bar-cell,.del-btn{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <h1>Sleepwalk <span>— Larry Carlton</span></h1>
+  <span class="tb-meta">~133 BPM · C / Eb · 4/4</span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="addSection()">+ Section</button>
+  <button class="tb-btn" onclick="renumberAll()">Renumber</button>
+  <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
+  <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
+</div>
+<div id="legend">
+  <span style="font-size:11px;color:var(--text-muted);margin-right:4px">Section:</span>
+  <span class="leg" onclick="scrollTo('intro')"><span class="leg-dot" style="background:var(--intro-bar)"></span><span class="leg-txt" style="color:var(--intro-lbl)">Intro</span></span>
+  <span class="leg" onclick="scrollTo('verse')"><span class="leg-dot" style="background:var(--verse-bar)"></span><span class="leg-txt" style="color:var(--verse-lbl)">Verse</span></span>
+  <span class="leg" onclick="scrollTo('chorus')"><span class="leg-dot" style="background:var(--chorus-bar)"></span><span class="leg-txt" style="color:var(--chorus-lbl)">Chorus</span></span>
+  <span class="leg" onclick="scrollTo('bridge')"><span class="leg-dot" style="background:var(--bridge-bar)"></span><span class="leg-txt" style="color:var(--bridge-lbl)">Bridge</span></span>
+  <span class="leg" onclick="scrollTo('solo')"><span class="leg-dot" style="background:var(--solo-bar)"></span><span class="leg-txt" style="color:var(--solo-lbl)">Solo</span></span>
+  <span class="leg" onclick="scrollTo('outro')"><span class="leg-dot" style="background:var(--outro-bar)"></span><span class="leg-txt" style="color:var(--outro-lbl)">Outro</span></span>
+</div>
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<script>
+// ── DATA (replaced on each Save) ──
+var SECTIONS = [{"id":"intro","label":"Intro","note":"","bars":[{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"Cm9","a":""},{"c":"Ebmaj7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""}]},{"id":"verse","label":"Verse / A","note":"C major","bars":[{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"Bb7","a":""}]},{"id":"chorus","label":"Chorus / B","note":"","bars":[{"c":"Cmaj7","a":""},{"c":"C7","a":""},{"c":"Fmaj7","a":""},{"c":"Fmaj7","a":""},{"c":"Dm7b5","a":""},{"c":"Fm","a":""},{"c":"Cmaj7","a":""},{"c":"Fmaj9","a":""},{"c":"Cmaj7","a":""},{"c":"Dm7","a":""},{"c":"Dm7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Cmaj7","a":""},{"c":"Cmaj7","a":""}]},{"id":"verse","label":"Verse / A","note":"return","bars":[{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""},{"c":"G7","a":""},{"c":"Cmaj7","a":""},{"c":"Dm7","a":""},{"c":"G7","a":""},{"c":"C","a":""},{"c":"Am7","a":""},{"c":"Dm7b5","a":""}]},{"id":"bridge","label":"Bridge","note":"Eb major","bars":[{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"C7","a":""},{"c":"Cm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Eb","a":""},{"c":"Abmaj7","a":""},{"c":"Fm7b5","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Abmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7b5","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""}]},{"id":"solo","label":"Solo","note":"","bars":[{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Cm7","a":""},{"c":"Ebmaj7","a":""}]},{"id":"outro","label":"Outro","note":"","bars":[{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""},{"c":"Ebmaj7","a":""},{"c":"Ebmaj7","a":""},{"c":"Fm7","a":""},{"c":"Bb7","a":""},{"c":"Ebmaj7","a":""},{"c":"Cm7","a":""},{"c":"Fm7","a":""}]}];
+// ── END DATA ──
+
+var dragSrc = null, dragOver = null;
+var COLS = 8;
+
+function render() {
+  var sheet = document.getElementById('sheet');
+  sheet.innerHTML = '';
+  var n = 1;
+  SECTIONS.forEach(function(sec, si) {
+    var div = document.createElement('div');
+    div.className = 'section s-' + sec.id;
+    div.dataset.si = si;
+    // head
+    var head = document.createElement('div');
+    head.className = 'section-head';
+    var tag = document.createElement('span');
+    tag.className = 'section-tag';
+    tag.textContent = sec.label;
+    var noteEl = document.createElement('input');
+    noteEl.className = 'section-note';
+    noteEl.value = sec.note;
+    noteEl.placeholder = 'note...';
+    noteEl.oninput = (function(idx){ return function(){ SECTIONS[idx].note = this.value; }; })(si);
+    var addRowBtn = document.createElement('button');
+    addRowBtn.className = 'add-row-btn';
+    addRowBtn.textContent = '+ row';
+    addRowBtn.onclick = (function(idx){ return function(){ addRow(idx); }; })(si);
+    head.appendChild(tag);
+    head.appendChild(noteEl);
+    head.appendChild(addRowBtn);
+    div.appendChild(head);
+    // rows
+    for (var r = 0; r * COLS < sec.bars.length; r++) {
+      var row = document.createElement('div');
+      row.className = 'bar-row';
+      row.dataset.si = si;
+      var start = r * COLS, end = Math.min(start + COLS, sec.bars.length);
+      for (var i = start; i < end; i++) {
+        row.appendChild(makeCell(sec.bars[i], si, i, n++));
+      }
+      // add-bar btn only on last row
+      if (end === sec.bars.length) {
+        var addBtn = document.createElement('div');
+        addBtn.className = 'add-bar-cell';
+        addBtn.title = 'เพิ่มห้อง';
+        addBtn.textContent = '+';
+        addBtn.onclick = (function(idx){ return function(){ SECTIONS[idx].bars.push({c:'—',a:''}); render(); }; })(si);
+        row.appendChild(addBtn);
+      }
+      setupDrop(row);
+      div.appendChild(row);
+    }
+    sheet.appendChild(div);
+  });
+}
+
+function makeCell(bar, si, bi, num) {
+  var cell = document.createElement('div');
+  cell.className = 'bar-cell';
+  cell.draggable = true;
+  cell.dataset.si = si;
+  cell.dataset.bi = bi;
+
+  var numEl = document.createElement('span');
+  numEl.className = 'bar-num';
+  numEl.textContent = num;
+
+  var chordEl = document.createElement('input');
+  chordEl.className = 'bar-chord';
+  chordEl.value = bar.c;
+  chordEl.oninput = (function(s,b){ return function(){ SECTIONS[s].bars[b].c = this.value; }; })(si, bi);
+  chordEl.onmousedown = function(e){ e.stopPropagation(); };
+  chordEl.onclick    = function(e){ e.stopPropagation(); };
+
+  var annEl = document.createElement('input');
+  annEl.className = 'bar-ann';
+  annEl.value = bar.a || '';
+  annEl.placeholder = 'annotation...';
+  annEl.oninput = (function(s,b){ return function(){ SECTIONS[s].bars[b].a = this.value; }; })(si, bi);
+  annEl.onmousedown = function(e){ e.stopPropagation(); };
+  annEl.onclick    = function(e){ e.stopPropagation(); };
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'del-btn';
+  delBtn.title = 'ลบห้องนี้';
+  delBtn.textContent = '×';
+  delBtn.onclick = (function(s,b){ return function(e){ e.stopPropagation(); deleteBar(s,b); }; })(si, bi);
+
+  cell.appendChild(numEl);
+  cell.appendChild(chordEl);
+  cell.appendChild(annEl);
+  cell.appendChild(delBtn);
+
+  // drag
+  cell.addEventListener('dragstart', function(e) {
+    dragSrc = cell;
+    cell.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', si + ',' + bi);
+  });
+  cell.addEventListener('dragend', function() {
+    cell.classList.remove('dragging');
+    clearHighlights();
+    dragSrc = null;
+  });
+  return cell;
+}
+
+function setupDrop(row) {
+  row.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    row.classList.add('drag-over');
+    var after = getAfter(row, e.clientX);
+    clearHighlights();
+    if (after) after.classList.add('drag-over-left');
+  });
+  row.addEventListener('dragleave', function(e) {
+    if (!row.contains(e.relatedTarget)) {
+      row.classList.remove('drag-over');
+      clearHighlights();
+    }
+  });
+  row.addEventListener('drop', function(e) {
+    e.preventDefault();
+    row.classList.remove('drag-over');
+    clearHighlights();
+    if (!dragSrc) return;
+    var parts = e.dataTransfer.getData('text/plain').split(',');
+    var fromSi = parseInt(parts[0]), fromBi = parseInt(parts[1]);
+    var toSi = parseInt(row.dataset.si);
+    var after = getAfter(row, e.clientX);
+    var toBi;
+    if (!after) {
+      toBi = SECTIONS[toSi].bars.length;
+    } else {
+      toBi = parseInt(after.dataset.bi);
+    }
+    var moved = SECTIONS[fromSi].bars.splice(fromBi, 1)[0];
+    if (fromSi === toSi && toBi > fromBi) toBi--;
+    SECTIONS[toSi].bars.splice(toBi, 0, moved);
+    render();
+    toast('สลับห้องแล้ว ✓');
+  });
+}
+
+function getAfter(row, x) {
+  var cells = Array.from(row.querySelectorAll('.bar-cell:not(.dragging)'));
+  var res = null, best = -Infinity;
+  cells.forEach(function(c) {
+    var box = c.getBoundingClientRect();
+    var offset = x - box.left - box.width / 2;
+    if (offset < 0 && offset > best) { best = offset; res = c; }
+  });
+  return res;
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.drag-over-left').forEach(function(el){ el.classList.remove('drag-over-left'); });
+}
+
+function deleteBar(si, bi) {
+  if (SECTIONS[si].bars.length <= 1) return toast('ต้องมีอย่างน้อย 1 ห้อง');
+  SECTIONS[si].bars.splice(bi, 1);
+  render();
+}
+
+function addRow(si) {
+  for (var i = 0; i < 8; i++) SECTIONS[si].bars.push({c:'—', a:''});
+  render();
+  toast('เพิ่มแถวแล้ว (8 ห้อง)');
+}
+
+function renumberAll() { render(); toast('Renumber เรียบร้อย'); }
+
+function addSection() {
+  var name = prompt('ชื่อ section ใหม่ (เช่น Verse, Bridge):');
+  if (!name) return;
+  var types = ['intro','verse','chorus','bridge','solo','outro'];
+  var id = 'verse';
+  for (var i = 0; i < types.length; i++) {
+    if (name.toLowerCase().indexOf(types[i]) >= 0) { id = types[i]; break; }
+  }
+  SECTIONS.push({id:id, label:name, note:'', bars:[{c:'C',a:''}]});
+  render();
+  toast('เพิ่ม section แล้ว');
+}
+
+function scrollTo(id) {
+  var el = document.querySelector('.s-' + id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── SAVE: rebuild clean HTML with current data baked in ──
+function saveToFile() {
+  var html = document.documentElement.outerHTML;
+  var dataStr = JSON.stringify(SECTIONS);
+  // Replace between the data markers
+  html = html.replace(
+    /var SECTIONS = \[[\s\S]*?\];\s*\/\/ ── END DATA ──/,
+    'var SECTIONS = ' + dataStr + ';\n// ── END DATA ──'
+  );
+  var blob = new Blob(['<!DOCTYPE html>\n' + html], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sleepwalk_bandsheet.html';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
+  toast('บันทึกแล้ว — อัปโหลดไปยัง Google Drive ได้เลย ✓');
+}
+
+var toastTimer;
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2400);
+}
+
+render();
+</script>
+</body>
+</html>

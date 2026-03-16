@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ti.muse — Band Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0e;
+  --surface: #181818;
+  --border: #2a2a2a;
+  --text: #f0ede8;
+  --muted: #666;
+  --faint: #2a2a2a;
+  --accent: #60a5fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  min-height: 100vh;
+}
+header {
+  padding: 32px 40px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  margin-bottom: 14px;
+}
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+.breadcrumb a:hover { color: var(--text); }
+.band-tag {
+  display: inline-block;
+  background: rgba(96,165,250,.12);
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(96,165,250,.2);
+}
+h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.stats {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.toolbar {
+  padding: 12px 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.search {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 7px 12px;
+  outline: none;
+  width: 220px;
+  transition: border-color .12s;
+}
+.search::placeholder { color: var(--muted); }
+.search:focus { border-color: #444; }
+.filter-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .12s;
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(96,165,250,.08);
+}
+main { padding: 24px 40px 60px; max-width: 960px; }
+.song-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.song-table th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  padding: 0 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.song-table th:first-child { padding-left: 0; width: 36px; }
+.song-row {
+  border-bottom: 1px solid var(--faint);
+  transition: background .1s;
+  cursor: pointer;
+}
+.song-row:hover { background: #141414; }
+.song-row td {
+  padding: 13px 12px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+.song-row td:first-child { padding-left: 0; }
+.song-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  width: 36px;
+}
+.song-title {
+  font-weight: 500;
+  color: var(--text);
+}
+.song-artist {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.song-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  width: 60px;
+}
+.song-bpm {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  width: 60px;
+}
+.song-bars {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  width: 60px;
+}
+.open-btn {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid rgba(96,165,250,.3);
+  border-radius: 4px;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.open-btn:hover {
+  background: rgba(96,165,250,.1);
+  border-color: var(--accent);
+}
+.empty-row td {
+  padding: 32px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  border-bottom: none;
+}
+.add-song-row {
+  border-top: 1px dashed var(--border);
+}
+.add-song-row td {
+  padding: 14px 0;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+footer {
+  padding: 20px 40px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  display: flex;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="breadcrumb"><a href="../">Band Sheet</a> / ti.muse</div>
+  <div class="band-tag">ti.muse</div>
+  <h1>Song List</h1>
+  <div class="stats" id="stats">1 เพลง</div>
+</header>
+<div class="toolbar">
+  <input class="search" type="text" placeholder="ค้นหาเพลง..." oninput="filterSongs(this.value)" id="search">
+</div>
+<main>
+  <table class="song-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>ชื่อเพลง / ศิลปิน</th>
+        <th>Key</th>
+        <th>BPM</th>
+        <th>Bars</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="song-list">
+      <tr class="song-row" data-title="sleepwalk larry carlton">
+        <td class="song-num">01</td>
+        <td>
+          <div class="song-title">Sleepwalk</div>
+          <div class="song-artist">Larry Carlton</div>
+        </td>
+        <td class="song-key">C / Eb</td>
+        <td class="song-bpm">~133</td>
+        <td class="song-bars">136</td>
+        <td><a class="open-btn" href="sleepwalk.html">Open →</a></td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+<footer>
+  <span>ti.muse · Band Sheet</span>
+  <span><a href="../" style="color:var(--muted);text-decoration:none">← back to all bands</a></span>
+</footer>
+
+<script>
+function filterSongs(q) {
+  q = q.toLowerCase();
+  const rows = document.querySelectorAll('#song-list .song-row');
+  let visible = 0;
+  rows.forEach(r => {
+    const match = r.dataset.title.includes(q);
+    r.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  document.getElementById('stats').textContent = visible + ' เพลง';
+}
+</script>
+</body>
+</html>

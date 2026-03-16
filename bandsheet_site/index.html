@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Band Sheet — ti.guitar</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0e;
+  --surface: #181818;
+  --border: #2a2a2a;
+  --text: #f0ede8;
+  --muted: #666;
+  --faint: #333;
+  --accent: #f0ede8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  min-height: 100vh;
+  padding: 0;
+}
+header {
+  padding: 48px 40px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.site-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+h1 span { color: var(--muted); font-weight: 400; }
+.sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+main {
+  padding: 40px;
+  max-width: 900px;
+}
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.band-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 48px;
+}
+.band-card {
+  display: block;
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 22px;
+  transition: border-color .15s, background .15s;
+  position: relative;
+  overflow: hidden;
+}
+.band-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--band-color, #444);
+  border-radius: 8px 0 0 8px;
+}
+.band-card:hover {
+  border-color: #444;
+  background: #1e1e1e;
+}
+.band-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -.01em;
+}
+.band-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+.band-arrow {
+  position: absolute;
+  right: 18px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  font-size: 16px;
+  transition: color .15s, transform .15s;
+}
+.band-card:hover .band-arrow {
+  color: var(--muted);
+  transform: translateY(-50%) translateX(2px);
+}
+footer {
+  padding: 24px 40px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="site-label">ti.guitar · Band Sheet Archive</div>
+  <h1>Band <span>/</span> Sheet</h1>
+  <p class="sub">เลือกวงเพื่อดู song list และ band sheet</p>
+</header>
+<main>
+  <div class="section-label">5 วงดนตรี</div>
+  <div class="band-grid">
+    <a class="band-card" href="ti-muse/" style="--band-color:#60a5fa">
+      <div class="band-name">ti.muse</div>
+      <div class="band-meta">Band Sheet Collection</div>
+      <span class="band-arrow">→</span>
+    </a>
+    <a class="band-card" href="the-maewjons/" style="--band-color:#f472b6">
+      <div class="band-name">THE MÆWJØNS</div>
+      <div class="band-meta">Band Sheet Collection</div>
+      <span class="band-arrow">→</span>
+    </a>
+    <a class="band-card" href="parkhaus108/" style="--band-color:#34d399">
+      <div class="band-name">PARKHAUS108</div>
+      <div class="band-meta">Band Sheet Collection</div>
+      <span class="band-arrow">→</span>
+    </a>
+    <a class="band-card" href="90alter/" style="--band-color:#fbbf24">
+      <div class="band-name">90Alter</div>
+      <div class="band-meta">Band Sheet Collection</div>
+      <span class="band-arrow">→</span>
+    </a>
+    <a class="band-card" href="parkhaus-studio/" style="--band-color:#a78bfa">
+      <div class="band-name">PARKHAUS Studio</div>
+      <div class="band-meta">Band Sheet Collection</div>
+      <span class="band-arrow">→</span>
+    </a>
+  </div>
+</main>
+<footer>tikittisak.github.io/bandsheet · Generated with Claude</footer>
+</body>
+</html>
