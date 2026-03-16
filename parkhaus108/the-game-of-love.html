@@ -375,7 +375,7 @@ function addSection() {
   render(); toast('เพิ่ม section แล้ว');
 }
 function scrollTo(id) {
-  var el = document.querySelector('[data-id="'+id+'"]');
+  var el = document.querySelector('[data-si="'+id+'"]');
   if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
