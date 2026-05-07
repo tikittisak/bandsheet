@@ -389,7 +389,7 @@ async function publishToGitHub(){
     });
     if(infoResp.status===401||infoResp.status===403){
       localStorage.removeItem('gh_pat');
-      alert('Token rejected ('+infoResp.status+'). It may have expired or missing Contents permission. Click Publish to enter a new token.');
+      alert('Token rejected ('+infoResp.status+').\n\nUse a Classic token (not fine-grained):\ngithub.com/settings/tokens/new → check "repo" → Generate.\n\nClick Publish to enter the new token.');
       btn.className='gh-btn';btn.textContent='⬆ Publish';return;
     }
     if(!infoResp.ok)throw new Error('Could not read file from GitHub ('+infoResp.status+')');
