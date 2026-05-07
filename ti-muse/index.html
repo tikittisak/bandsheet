@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
+<html lang="th"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ti.muse — Band Sheet</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=IBM+Plex+Sans+Thai:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0e0e0e;--surface:#181818;--border:#2a2a2a;--border-strong:#3a3a3a;--text:#f0ede8;--muted:#666;--faint:#2a2a2a;--accent:#60a5fa;--accent-rgb:96,165,250}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -87,7 +85,7 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
   <div class="breadcrumb"><a href="../">Band Sheet</a> / ti.muse</div>
   <div class="band-tag">ti.muse</div>
   <h1>Song List</h1>
-  <div class="stats" id="stats"></div>
+  <div class="stats" id="stats">3 เพลง</div>
 </header>
 
 <div class="toolbar">
@@ -98,7 +96,7 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
   <div class="filter-group" id="key-filters">
     <span class="filter-label">Key:</span>
     <button class="filter-pill active" data-key="all" onclick="setKeyFilter(this,'all')">All</button>
-  </div>
+  <button class="filter-pill" data-key="ab">Ab</button><button class="filter-pill" data-key="c / eb">C / Eb</button><button class="filter-pill" data-key="em">Em</button></div>
   <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
   <button class="add-song-btn" onclick="openAddModal()">＋ New Song</button>
 </div>
@@ -115,9 +113,9 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
         <th></th>
       </tr>
     </thead>
-    <tbody id="song-list"></tbody>
+    <tbody id="song-list"><tr class="song-row" data-title="sleepwalk" data-artist="larry carlton" data-key="c / eb" data-search="sleepwalk larry carlton c / eb"><td class="song-num">01</td><td><div class="song-title">Sleepwalk</div><div class="song-artist">Larry Carlton</div></td><td class="song-key">C / Eb</td><td class="song-bpm">~133</td><td class="song-bars">136</td><td><div class="row-actions"><a class="open-btn" href="sleepwalk.html">Open →</a><button class="action-btn" onclick="openAssignModal(0,false)">⇄ Assign</button><button class="action-btn del" onclick="removeSong(0,false)">✕</button></div></td></tr><tr class="song-row" data-title="jesus of suburbia" data-artist="green day" data-key="ab" data-search="jesus of suburbia green day ab"><td class="song-num">02</td><td><div class="song-title">Jesus of Suburbia</div><div class="song-artist">Green Day</div></td><td class="song-key">Ab</td><td class="song-bpm">~174</td><td class="song-bars">380</td><td><div class="row-actions"><a class="open-btn" href="jesus-of-suburbia.html">Open →</a><button class="action-btn" onclick="openAssignModal(1,false)">⇄ Assign</button><button class="action-btn del" onclick="removeSong(1,false)">✕</button></div></td></tr><tr class="song-row" data-title="the game of love" data-artist="santana" data-key="em" data-search="the game of love santana em"><td class="song-num">03</td><td><div class="song-title">The Game of Love</div><div class="song-artist">Santana</div></td><td class="song-key">Em</td><td class="song-bpm">~120</td><td class="song-bars">124</td><td><div class="row-actions"><a class="open-btn" href="the-game-of-love.html">Open →</a><button class="action-btn" onclick="openAssignModal(2,false)">⇄ Assign</button><button class="action-btn del" onclick="removeSong(2,false)">✕</button></div></td></tr><tr class="song-row" data-title="virtual insanity" data-artist="jamiroquai" data-key="ebm" data-search="virtual insanity jamiroquai ebm"><td class="song-num">04</td><td><div class="song-title">Virtual Insanity</div><div class="song-artist">Jamiroquai</div></td><td class="song-key">Ebm</td><td class="song-bpm">92</td><td class="song-bars">150</td><td><div class="row-actions"><a class="open-btn" href="virtual-insanity.html">Open →</a><button class="action-btn" onclick="openAssignModal(3,false)">⇄ Assign</button><button class="action-btn del" onclick="removeSong(3,false)">✕</button></div></td></tr></tbody>
   </table>
-  <div class="no-results" id="no-results">ไม่พบเพลงที่ค้นหา</div>
+  <div class="no-results" id="no-results" style="display: none;">ไม่พบเพลงที่ค้นหา</div>
 </main>
 
 <footer>
@@ -191,9 +189,38 @@ var ALL_BANDS = [
 ];
 
 var SONGS = [
-  {"title":"Sleepwalk","artist":"Larry Carlton","key":"C / Eb","bpm":"~133","bars":"136","file":"sleepwalk.html"},
-  {"title":"Jesus of Suburbia","artist":"Green Day","key":"Ab","bpm":"~174","bars":"380","file":"jesus-of-suburbia.html"},
-  {"title":"The Game of Love","artist":"Santana","key":"Em","bpm":"~120","bars":"124","file":"the-game-of-love.html"}
+  {
+    "title": "Sleepwalk",
+    "artist": "Larry Carlton",
+    "key": "C / Eb",
+    "bpm": "~133",
+    "bars": "136",
+    "file": "sleepwalk.html"
+  },
+  {
+    "title": "Jesus of Suburbia",
+    "artist": "Green Day",
+    "key": "Ab",
+    "bpm": "~174",
+    "bars": "380",
+    "file": "jesus-of-suburbia.html"
+  },
+  {
+    "title": "The Game of Love",
+    "artist": "Santana",
+    "key": "Em",
+    "bpm": "~120",
+    "bars": "124",
+    "file": "the-game-of-love.html"
+  },
+  {
+    "title": "Virtual Insanity",
+    "artist": "Jamiroquai",
+    "key": "Ebm",
+    "bpm": "92",
+    "bars": "150",
+    "file": "virtual-insanity.html"
+  }
 ]; // ── END SONGS ──
 
 var activeKey = 'all';
@@ -423,5 +450,6 @@ document.getElementById('assign-modal').addEventListener('click', function(e){ i
 renderSongs();
 registerSongs();
 </script>
-</body>
-</html>
+
+
+</body></html>
