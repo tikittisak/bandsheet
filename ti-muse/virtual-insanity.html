@@ -160,6 +160,7 @@ body.view-mini .row-ctrl{display:none!important}
   <div class="tb-sep"></div>
   <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
   <button class="gh-btn" id="gh-btn" onclick="publishToGitHub()">⬆ Publish</button>
+  <button class="tb-btn" id="gh-reset" onclick="resetGhToken()" title="Clear saved token" style="display:none;font-size:10px;padding:5px 8px;color:var(--text-muted)">🔑 ×</button>
   <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
 </div>
 <div id="metabar">
@@ -206,7 +207,7 @@ function render(){
     tag.style.background=col.bg;tag.style.color=col.lbl;tag.style.borderColor=col.bar+'44';
     tag.onclick=(function(idx,el){return function(e){openColorPicker(idx,el,e)}})(si,tag);
     tag.title='คลิกเพื่อเปลี่ยนสี · ดับเบิลคลิกเพื่อเปลี่ยนชื่อ';
-    tag.ondblclick=(function(idx,el){return function(e){e.stopPropagation();closeColorPicker();var inp=document.createElement('input');inp.className='section-label-inp';inp.value=SECTIONS[idx].label;inp.style.background=(SECTIONS[idx].color||{}).bg||'#eef';inp.style.color=(SECTIONS[idx].color||{}).lbl||'#333';inp.style.borderColor=(SECTIONS[idx].color||{}).bar||'#888';el.parentNode.replaceChild(inp,el);inp.focus();inp.select();function done(){var v=inp.value.trim();if(v)SECTIONS[idx].label=v;render();}inp.onblur=done;inp.onkeydown=function(ev){if(ev.key==='Enter'){inp.blur();}if(ev.key==='Escape'){render();}};}})(si,tag);
+    tag.ondblclick=(function(idx,el){return function(e){e.stopPropagation();closeColorPicker();var inp=document.createElement('input');inp.className='section-label-inp';inp.value=SECTIONS[idx].label;inp.style.background=(SECTIONS[idx].color||{}).bg||'#eef';inp.style.color=(SECTIONS[idx].color||{}).lbl||'#333';inp.style.borderColor=(SECTIONS[idx].color||{}).bar||'#888';el.parentNode.replaceChild(inp,el);inp.focus();inp.select();function done(){var v=inp.value.trim();if(v)SECTIONS[idx].label=v;render();updateResetBtn();}inp.onblur=done;inp.onkeydown=function(ev){if(ev.key==='Enter'){inp.blur();}if(ev.key==='Escape'){render();}};}})(si,tag);
     var noteEl=document.createElement('input');noteEl.className='section-note';noteEl.value=sec.note;noteEl.placeholder='note...';
     noteEl.oninput=(function(idx){return function(){SECTIONS[idx].note=this.value}})(si);
     var acts=document.createElement('div');acts.className='section-actions';
@@ -357,15 +358,22 @@ function ghToken(){
     t=(prompt('Paste your GitHub Personal Access Token:\n\n1. github.com → Settings → Developer settings\n2. Personal access tokens → Fine-grained tokens → Generate new token\n3. Repository: bandsheet · Permission: Contents = Read & write\n4. Copy token (starts with github_pat_)')||'').trim();
     if(!t)return null;
     localStorage.setItem('gh_pat',t);
+    updateResetBtn();
   }
   return t;
 }
 
-function clearGhToken(){
+function resetGhToken(){
   localStorage.removeItem('gh_pat');
-  var btn=document.getElementById('gh-btn');
-  btn.className='gh-btn';btn.textContent='⬆ Publish';
-  toast('Token cleared — will ask next time');
+  document.getElementById('gh-btn').className='gh-btn';
+  document.getElementById('gh-btn').textContent='⬆ Publish';
+  document.getElementById('gh-reset').style.display='none';
+  toast('Token cleared — click Publish to enter new one');
+}
+function clearGhToken(){resetGhToken();}
+function updateResetBtn(){
+  var el=document.getElementById('gh-reset');
+  if(el)el.style.display=localStorage.getItem('gh_pat')?'':'none';
 }
 
 async function publishToGitHub(){
@@ -405,6 +413,7 @@ async function publishToGitHub(){
       throw new Error((e.message||'PUT failed')+' ('+putResp.status+')');
     }
     btn.className='gh-btn ready';btn.textContent='✓ Published';
+    updateResetBtn();
     toast('Published ✓  — live in ~30s');
     setTimeout(function(){btn.textContent='⬆ Publish';},5000);
   }catch(err){
