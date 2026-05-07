@@ -342,43 +342,75 @@ function saveToFile(){
 }
 
 var GH_OWNER='tikittisak',GH_REPO='bandsheet',GH_PATH='ti-muse/virtual-insanity.html';
+
+/* UTF-8 safe base64 using TextEncoder */
+function toBase64(str){
+  var bytes=new TextEncoder().encode(str);
+  var bin='';
+  bytes.forEach(function(b){bin+=String.fromCharCode(b)});
+  return btoa(bin);
+}
+
 function ghToken(){
-  var t=localStorage.getItem('gh_pat');
-  if(!t){t=prompt('GitHub Personal Access Token\n(Settings → Developer settings → Personal access tokens → Fine-grained)\nScope needed: Contents = Read & write');if(!t)return null;localStorage.setItem('gh_pat',t);}
+  var t=(localStorage.getItem('gh_pat')||'').trim();
+  if(!t){
+    t=(prompt('Paste your GitHub Personal Access Token:\n\n1. github.com → Settings → Developer settings\n2. Personal access tokens → Fine-grained tokens → Generate new token\n3. Repository: bandsheet · Permission: Contents = Read & write\n4. Copy token (starts with github_pat_)')||'').trim();
+    if(!t)return null;
+    localStorage.setItem('gh_pat',t);
+  }
   return t;
 }
-function clearGhToken(){localStorage.removeItem('gh_pat');document.getElementById('gh-btn').className='gh-btn';document.getElementById('gh-btn').textContent='⬆ Publish';toast('Token cleared')}
+
+function clearGhToken(){
+  localStorage.removeItem('gh_pat');
+  var btn=document.getElementById('gh-btn');
+  btn.className='gh-btn';btn.textContent='⬆ Publish';
+  toast('Token cleared — will ask next time');
+}
+
 async function publishToGitHub(){
   var btn=document.getElementById('gh-btn');
-  var token=ghToken();if(!token)return;
+  var token=ghToken();
+  if(!token)return;
   btn.className='gh-btn busy';btn.textContent='Publishing…';
   try{
-    // Sync inputs
-    ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time'].forEach(function(id){var el=document.getElementById(id);if(el)el.setAttribute('value',el.value);});
+    ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.setAttribute('value',el.value);
+    });
     var fn=(document.getElementById('tb-filename')||{}).value||'band-sheet';
     var ar=(document.getElementById('tb-artist')||{}).value||'';
     var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
     var dataStr=JSON.stringify(SECTIONS);
     html=html.replace(/var SECTIONS = \[[\s\S]*?\];\s*\/\/ ── END DATA ──/,'var SECTIONS = '+dataStr+';\n// ── END DATA ──');
     html=html.replace(/<title>[^<]*<\/title>/,'<title>'+fn+(ar?' '+ar:'')+' · Band Sheet<\/title>');
-    // Get current SHA
-    var info=await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH,{headers:{'Authorization':'Bearer '+token}});
-    if(info.status===401){localStorage.removeItem('gh_pat');toast('Token invalid — please re-enter');btn.className='gh-btn';btn.textContent='⬆ Publish';return;}
-    if(!info.ok)throw new Error('GET '+info.status);
-    var sha=(await info.json()).sha;
-    // Push
-    var encoded=btoa(unescape(encodeURIComponent(html)));
-    var put=await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH,{
-      method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
-      body:JSON.stringify({message:'Update '+fn+' via band sheet editor',content:encoded,sha:sha})
+
+    var infoResp=await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH,{
+      headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
     });
-    if(!put.ok){var e=await put.json();throw new Error(e.message||put.status);}
+    if(infoResp.status===401||infoResp.status===403){
+      localStorage.removeItem('gh_pat');
+      alert('Token rejected ('+infoResp.status+'). It may have expired or missing Contents permission. Click Publish to enter a new token.');
+      btn.className='gh-btn';btn.textContent='⬆ Publish';return;
+    }
+    if(!infoResp.ok)throw new Error('Could not read file from GitHub ('+infoResp.status+')');
+    var sha=(await infoResp.json()).sha;
+
+    var putResp=await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH,{
+      method:'PUT',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+      body:JSON.stringify({message:'Update '+fn+' via band sheet editor',content:toBase64(html),sha:sha})
+    });
+    if(!putResp.ok){
+      var e=await putResp.json();
+      throw new Error((e.message||'PUT failed')+' ('+putResp.status+')');
+    }
     btn.className='gh-btn ready';btn.textContent='✓ Published';
-    toast('Published to GitHub ✓ — Pages updates in ~30s');
-    setTimeout(function(){btn.className='gh-btn ready';btn.textContent='⬆ Publish';},4000);
+    toast('Published ✓  — live in ~30s');
+    setTimeout(function(){btn.textContent='⬆ Publish';},5000);
   }catch(err){
     btn.className='gh-btn';btn.textContent='⬆ Publish';
-    toast('Publish failed: '+err.message);
+    alert('Publish failed: '+err.message);
+    console.error('publishToGitHub error:',err);
   }
 }
 
