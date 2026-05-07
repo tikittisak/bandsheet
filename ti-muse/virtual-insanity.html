@@ -354,9 +354,16 @@ function toBase64(str){
 
 function ghToken(){
   var t=(localStorage.getItem('gh_pat')||'').trim();
+  if(t&&t.startsWith('github_pat_')){
+    localStorage.removeItem('gh_pat');updateResetBtn();t='';
+  }
   if(!t){
-    t=(prompt('Paste your GitHub Personal Access Token:\n\n1. github.com → Settings → Developer settings\n2. Personal access tokens → Fine-grained tokens → Generate new token\n3. Repository: bandsheet · Permission: Contents = Read & write\n4. Copy token (starts with github_pat_)')||'').trim();
+    t=(prompt('Paste a GitHub Classic Token (starts with ghp_)\n\nHow to create one:\n1. Go to: github.com/settings/tokens/new\n   (NOT fine-grained — use the classic page)\n2. Give it any name\n3. Check the box: repo (full control)\n4. Click Generate token\n5. Copy the ghp_... token and paste here')||'').trim();
     if(!t)return null;
+    if(t.startsWith('github_pat_')){
+      alert('That is a Fine-grained token (github_pat_...).\nPlease create a Classic token instead at:\ngithub.com/settings/tokens/new');
+      return null;
+    }
     localStorage.setItem('gh_pat',t);
     updateResetBtn();
   }
