@@ -385,10 +385,12 @@ function updateResetBtn(){
 
 async function publishToGitHub(){
   var btn=document.getElementById('gh-btn');
-  var token=ghToken();
-  if(!token)return;
   btn.className='gh-btn busy';btn.textContent='Publishing…';
+  var errMsg='';
   try{
+    var token=ghToken();
+    if(!token){btn.className='gh-btn';btn.textContent='⬆ Publish';return;}
+
     ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time'].forEach(function(id){
       var el=document.getElementById(id);if(el)el.setAttribute('value',el.value);
     });
@@ -399,34 +401,50 @@ async function publishToGitHub(){
     html=html.replace(/var SECTIONS = \[[\s\S]*?\];\s*\/\/ ── END DATA ──/,'var SECTIONS = '+dataStr+';\n// ── END DATA ──');
     html=html.replace(/<title>[^<]*<\/title>/,'<title>'+fn+(ar?' '+ar:'')+' · Band Sheet<\/title>');
 
+    var controller=new AbortController();
+    var timer=setTimeout(function(){controller.abort();},15000);
+
     var infoResp=await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH,{
-      headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
+      signal:controller.signal,
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json'}
     });
+    clearTimeout(timer);
+
     if(infoResp.status===401||infoResp.status===403){
-      localStorage.removeItem('gh_pat');
-      alert('Token rejected ('+infoResp.status+').\n\nUse a Classic token (not fine-grained):\ngithub.com/settings/tokens/new → check "repo" → Generate.\n\nClick Publish to enter the new token.');
-      btn.className='gh-btn';btn.textContent='⬆ Publish';return;
+      localStorage.removeItem('gh_pat');updateResetBtn();
+      errMsg='Token error ('+infoResp.status+') — token cleared. Click Publish to enter a new ghp_... token.';
+      return;
     }
-    if(!infoResp.ok)throw new Error('Could not read file from GitHub ('+infoResp.status+')');
+    if(!infoResp.ok){errMsg='GitHub read error: '+infoResp.status;return;}
     var sha=(await infoResp.json()).sha;
 
+    var timer2=setTimeout(function(){controller.abort();},30000);
     var putResp=await fetch('https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO+'/contents/'+GH_PATH,{
+      signal:controller.signal,
       method:'PUT',
-      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+      headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
       body:JSON.stringify({message:'Update '+fn+' via band sheet editor',content:toBase64(html),sha:sha})
     });
+    clearTimeout(timer2);
+
     if(!putResp.ok){
-      var e=await putResp.json();
-      throw new Error((e.message||'PUT failed')+' ('+putResp.status+')');
+      var e=await putResp.json().catch(function(){return {};});
+      errMsg='Publish error '+putResp.status+': '+(e.message||'unknown');
+      return;
     }
     btn.className='gh-btn ready';btn.textContent='✓ Published';
     updateResetBtn();
-    toast('Published ✓  — live in ~30s');
+    toast('Published ✓ — live in ~30s');
     setTimeout(function(){btn.textContent='⬆ Publish';},5000);
+    return;
   }catch(err){
-    btn.className='gh-btn';btn.textContent='⬆ Publish';
-    alert('Publish failed: '+err.message);
-    console.error('publishToGitHub error:',err);
+    errMsg=err.name==='AbortError'?'Timed out — check internet and try again':('Error: '+err.message);
+  }finally{
+    if(errMsg){
+      btn.className='gh-btn';btn.textContent='⬆ Publish';
+      toast(errMsg);
+      console.error('[Publish]',errMsg);
+    }
   }
 }
 
