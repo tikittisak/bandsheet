@@ -97,11 +97,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .img-del-btn:hover{background:#dc2626}
 .img-add-btn{font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:4px;padding:4px 10px;cursor:pointer;transition:all .12s;font-family:inherit;align-self:flex-start}
 .img-add-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
-.gh-btn{font-size:11px;font-weight:500;padding:5px 12px;border:1px solid var(--border-strong);border-radius:4px;background:var(--surface);color:var(--text);cursor:pointer;transition:background .12s;font-family:inherit;white-space:nowrap}
-.gh-btn:hover{background:var(--bg);border-color:var(--accent)}
-.gh-btn.ready{background:#24292f;color:#fff;border-color:#24292f}
-.gh-btn.ready:hover{background:#32383e}
-.gh-btn.busy{opacity:.6;cursor:wait}
+
 @media print{#toolbar,#metabar,.add-row-btn,.sec-btn,.add-bar-cell,.del-btn,.color-popup,.img-add-btn,.img-del-btn,.highlight-btn{display:none!important}body{padding:0;background:#fff}#sheet{padding:12px}.bar-cell{break-inside:avoid}}
 /* ── MINI VIEW ── */
 body.view-mini{--cell-w:112px;--cell-h:36px;--gap:3px}
@@ -342,14 +338,25 @@ function saveToFile(){
   toast('บันทึกแล้ว ✓');
 }
 
-var GH_OWNER='tikittisak',GH_REPO='bandsheet',GH_PATH='ti-muse/virtual-insanity.html';
-
-/* UTF-8 safe base64 using TextEncoder */
-function toBase64(str){
-  var bytes=new TextEncoder().encode(str);
-  var bin='';
-  bytes.forEach(function(b){bin+=String.fromCharCode(b)});
-  return btoa(bin);
+function saveAndUpload(){
+  // Step 1: save file locally (same as Save HTML)
+  ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time'].forEach(function(id){var el=document.getElementById(id);if(el)el.setAttribute('value',el.value);});
+  var fn=(document.getElementById('tb-filename')||{value:'virtual-insanity'}).value||'virtual-insanity';
+  var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  var dataStr=JSON.stringify(SECTIONS);
+  html=html.replace(/var SECTIONS = \[[\s\S]*?\];\s*\/\/ ── END DATA ──/,'var SECTIONS = '+dataStr+';\n// ── END DATA ──');
+  var ar=(document.getElementById('tb-artist')||{}).value||'';
+  html=html.replace(/<title>[^<]*<\/title>/,'<title>'+fn+(ar?' '+ar:'')+' · Band Sheet<\/title>');
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='virtual-insanity.html';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href)},100);
+  // Step 2: open GitHub upload page
+  setTimeout(function(){
+    window.open('https://github.com/tikittisak/bandsheet/upload/main/ti-muse','_blank');
+    toast('ไฟล์ดาวน์โหลดแล้ว — ลาก virtual-insanity.html ไปที่หน้า GitHub แล้วกด Commit ✓');
+  },800);
 }
 
 function ghToken(){
