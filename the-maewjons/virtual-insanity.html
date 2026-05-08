@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="th" style="--cell-w: 122px; --chord-font: 'Lato';"><head>
+<html lang="th" style="--cell-w: 127px; --chord-font: 'Lato';"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Virtual Insanity — Jamiroquai · Band Sheet</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Lato:wght@400;700&amp;family=Inter:wght@400;500;600&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600&amp;display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:'Petaluma';src:url('https://cdn.jsdelivr.net/gh/musescore/MuseScore@master/fonts/petaluma/PetalumaScript.otf') format('opentype');font-weight:normal;font-style:normal;font-display:swap}
-:root{--bg:#f7f6f2;--surface:#fff;--border:#e0ddd6;--border-strong:#c8c4bc;--text:#1a1917;--text-muted:#8a8780;--text-faint:#c4c1bb;--accent:#2a2a2a;--cell-w:130px;--cell-h:88px;--gap:6px;--radius:5px;--chord-font:'Lato'}
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e0ddd6;--border-strong:#c8c4bc;--text:#1a1917;--text-muted:#8a8780;--text-faint:#c4c1bb;--accent:#2a2a2a;--cell-w:130px;--cell-h:64px;--gap:6px;--radius:5px;--chord-font:'Lato'}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
 /* ── Toolbar ── */
@@ -173,7 +173,7 @@ body:not(.edit-mode) .footer-add-link{display:none}
 /* ── MINI VIEW ── */
 body.view-mini{--cell-h:38px;--gap:3px}
 body.view-mini .bar-ann{display:none!important}
-body.view-mini .bar-cell{display:flex;flex-direction:row;align-items:center;padding:0 24px 0 8px}
+body.view-mini .bar-cell{display:flex;flex-direction:row;align-items:center;padding:0 6px 0 8px}
 body.view-mini .bar-num{font-size:8px;top:3px;left:4px;opacity:.75}
 body.view-mini .bar-chord{font-weight:700;flex:1;min-width:0;padding:0}
 body.view-mini .highlight-btn{width:13px;height:13px;font-size:10px;line-height:13px;bottom:2px;left:2px}
@@ -193,7 +193,7 @@ body.notes-hidden .note-type-sec{display:none!important}
 }
 /* ── Mobile ── */
 @media(max-width:768px){
-  :root{--cell-h:82px}
+  :root{--cell-h:58px}
   #toolbar{padding:6px 12px;gap:6px}
   #sheet{padding:4px 12px 16px}
   #metabar{padding:4px 12px}
