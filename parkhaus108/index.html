@@ -151,6 +151,14 @@ var ALL_BANDS = [
   {id:'parkhaus-studio',name:'PARKHAUS Studio',color:'#a78bfa'}
 ];
 var SONGS = [
+  {
+    "title": "Stay With Me",
+    "artist": "Miki Matsubara",
+    "key": "F",
+    "bpm": "107",
+    "bars": "108",
+    "file": "stay-with-me.html"
+  }
 ]; // ── END SONGS ──
 var activeKey='all',assignIdx=-1,assignIsShared=false;
 function registerSongs(){try{var r=JSON.parse(localStorage.getItem('bandsheet_registry')||'{}');r[BAND_ID]={band:BAND_ID,name:BAND_NAME,songs:SONGS};localStorage.setItem('bandsheet_registry',JSON.stringify(r));}catch(e){}}
