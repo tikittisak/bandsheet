@@ -143,8 +143,7 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
 <script>
 var BAND_ID='90alter',BAND_NAME='90Alter';
 var ALL_BANDS=[{id:'ti-muse',name:'ti.muse',color:'#60a5fa'},{id:'the-maewjons',name:'THE MÆWJØNS',color:'#f472b6'},{id:'parkhaus108',name:'PARKHAUS108',color:'#34d399'},{id:'90alter',name:'90Alter',color:'#fbbf24'},{id:'parkhaus-studio',name:'PARKHAUS Studio',color:'#a78bfa'}];
-var SONGS = [
-]; // ── END SONGS ──
+var SONGS = []; // -- END SONGS --
 var activeKey='all',assignIdx=-1,assignIsShared=false;
 function registerSongs(){try{var r=JSON.parse(localStorage.getItem('bandsheet_registry')||'{}');r[BAND_ID]={band:BAND_ID,name:BAND_NAME,songs:SONGS};localStorage.setItem('bandsheet_registry',JSON.stringify(r));}catch(e){}}
 function getSharedSongs(){try{var r=localStorage.getItem('bandsheet_shared_'+BAND_ID);return r?JSON.parse(r):[];}catch(e){return[];}}

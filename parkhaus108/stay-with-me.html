@@ -222,12 +222,14 @@ body.notes-hidden .note-type-sec{display:none!important}
 </head>
 <body class="view-mini">
 <div id="toolbar">
+  <a class="tb-btn" href="https://tikittisak.github.io/bandsheet/" target="_blank" rel="noopener noreferrer" style="text-decoration:none">🏠 Home</a>
+  <div class="tb-sep"></div>
   <button class="tb-btn" onclick="addSection()">+ Section</button>
   <button class="tb-btn" onclick="addNoteSection()">+ Note</button>
+  <button class="tb-btn" id="notes-btn" onclick="toggleNotesView()" title="Show/hide all section notes">≡ Notes</button>
   <button class="tb-btn" onclick="renumberAll()">Renumber</button>
   <div class="tb-sep"></div>
   <button class="tb-btn" id="edit-btn" onclick="toggleEditMode()">✏ Edit</button>
-  <button class="tb-btn" id="notes-btn" onclick="toggleNotesView()" title="Show/hide all section notes">≡ Notes</button>
   <select class="font-sel" id="font-sel" onchange="changeChordFont(this.value)" title="Chord font">
     <option value="DM Sans">DM Sans</option>
     <option value="Petaluma">Petaluma</option>
@@ -253,12 +255,10 @@ body.notes-hidden .note-type-sec{display:none!important}
   <div class="tb-sep"></div>
   <button class="tb-btn primary" id="mini-btn" onclick="toggleMini()">Full</button>
   <div class="tb-sep"></div>
-  <button class="tb-btn" onclick="newSong()">🎵 New Song</button>
+  <a class="tb-btn primary" href="https://github.com/tikittisak/bandsheet" target="_blank" rel="noopener noreferrer" style="text-decoration:none">⬆ Upload</a>
   <button class="tb-btn" onclick="saveToFile()">💾 Save HTML</button>
-  <a class="tb-btn" href="https://github.com/tikittisak/bandsheet" target="_blank" rel="noopener noreferrer" style="text-decoration:none">⬆ Upload</a>
-  <a class="tb-btn" href="https://tikittisak.github.io/bandsheet/" target="_blank" rel="noopener noreferrer" style="text-decoration:none">🏠 Home</a>
   <button class="tb-btn primary" onclick="window.print()">🖨 Print / PDF</button>
-  <span class="tb-version">Band Sheet v2</span>
+  <span class="tb-version">Band Sheet v2.1</span>
 </div>
 <div id="metabar">
   <input class="tb-filename" id="tb-filename" value="Stay With Me" oninput="updateTitle()">
@@ -678,7 +678,6 @@ function injectData(html){
   swap('// ── END SETTINGS ──','var SETTINGS = ',JSON.stringify(SETTINGS));
   return html;
 }
-function newSong(){window.open('_template.html','_blank');}
 function saveToFile(){
   ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time','meta-vocalist'].forEach(function(id){var el=document.getElementById(id);if(el)el.setAttribute('value',el.value)});
   var fn=(document.getElementById('tb-filename')||{value:'band-sheet'}).value||'band-sheet';

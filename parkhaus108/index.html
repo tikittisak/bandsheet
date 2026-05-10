@@ -314,12 +314,12 @@ var SONGS = [
   {
     "title": "Stay With Me",
     "artist": "Miki Matsubara",
-    "key": "F",
+    "key": "E",
     "bpm": "107",
     "bars": "",
     "file": "stay-with-me.html"
   }
-]; // ── END SONGS ──
+]; // -- END SONGS --
 var activeKey='all',assignIdx=-1,assignIsShared=false;
 function registerSongs(){try{var r=JSON.parse(localStorage.getItem('bandsheet_registry')||'{}');r[BAND_ID]={band:BAND_ID,name:BAND_NAME,songs:SONGS};localStorage.setItem('bandsheet_registry',JSON.stringify(r));}catch(e){}}
 function getSharedSongs(){try{var r=localStorage.getItem('bandsheet_shared_'+BAND_ID);return r?JSON.parse(r):[];}catch(e){return[];}}

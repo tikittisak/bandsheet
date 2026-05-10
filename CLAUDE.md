@@ -1,0 +1,208 @@
+# Bandsheet Project — Claude Code Instructions
+
+## Project Overview
+สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
+Template อยู่ที่ `_template.html` — **current version: v2.1**
+
+---
+
+## Workflow ทุกครั้งที่รับคำสั่ง
+
+### Step 1 — หา Metadata (web search)
+ค้นหาเฉพาะ:
+- **Key** (เช่น F major, D minor)
+- **BPM**
+- **Time signature** (เกือบทั้งหมดเป็น 4/4)
+- **Song structure** — ชื่อ section และลำดับ (Intro / Verse / Pre-Chorus / Chorus / Bridge / Solo / Outro)
+
+Sources ที่ดีที่สุด: Tunebat → Songdata.io → SongBPM
+**ห้ามหา chord จาก web** — user จะให้ chord มาเอง
+
+### Step 2 — รับ Chord Chart จาก User
+User จะ paste text หรือ upload image chord chart มาให้
+รอจนกว่าจะได้รับก่อน generate
+
+### Step 3 — Parse Chord Chart
+แปลง chord chart เป็น SECTIONS JSON ตาม format ด้านล่าง
+
+### Step 4 — Generate HTML
+Read `_template.html` → inject ข้อมูล → save เป็น `{band-folder}/{song-title}.html`
+(ไม่ต้อง copy ก่อน — inject แล้ว write ไปยัง path ใหม่ตรงๆ)
+
+---
+
+## File Structure
+```
+Bandsheet/
+├── CLAUDE.md
+├── _template.html               ← template v2.1
+├── backup/                      ← เก็บ snapshot ของแต่ละ version
+│   ├── _template-v2.html
+│   ├── virtual-insanity-v2.html
+│   └── stay-with-me-v2.html
+├── the-maewjons/
+│   └── virtual-insanity.html
+└── parkhaus108/
+    ├── index.html
+    └── stay-with-me.html
+```
+
+**Version bump workflow:**
+1. Backup ไฟล์ปัจจุบันไปที่ `backup/{name}-v{current}.html`
+2. แก้ `_template.html` + song files ทุกไฟล์พร้อมกัน (ใช้ Python script)
+3. อัพเดต version badge ใน template และ CLAUDE.md
+
+---
+
+## HTML Injection — จุดที่ต้องแก้ (v2.1)
+
+Fields: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, **`meta-vocalist`** (ใหม่ใน v2.1)
+
+Data markers: `// ── END DATA ──`, `// ── END FOOTER ──`, `// ── END SETTINGS ──`
+
+Python snippet สำหรับ inject (ใช้ swap function เหมือน template):
+```python
+import json, re
+
+def inject(tmpl, title, artist, key, bpm, time_sig, vocalist, sections_json,
+           footer_json='{"notes":[],"links":[]}',
+           settings_json='{"chordSize":12.5,"chordFont":"Lato","transpose":0,"noteSize":13}'):
+    html = tmpl
+    html = html.replace('<title>New Song · Band Sheet</title>', f'<title>{title} · Band Sheet</title>')
+    html = re.sub(r'(id="tb-filename"[^>]*value=")[^"]*(")', rf'\g<1>{title}\g<2>', html)
+    html = re.sub(r'(id="tb-artist"[^>]*value=")[^"]*(")', rf'\g<1>{artist}\g<2>', html)
+    html = re.sub(r'(id="meta-key"[^>]*value=")[^"]*(")', rf'\g<1>{key}\g<2>', html)
+    html = re.sub(r'(id="meta-bpm"[^>]*value=")[^"]*(")', rf'\g<1>{bpm}\g<2>', html)
+    html = re.sub(r'(id="meta-time"[^>]*value=")[^"]*(")', rf'\g<1>{time_sig}\g<2>', html)
+    html = re.sub(r'(id="meta-vocalist"[^>]*value=")[^"]*(")', rf'\g<1>{vocalist}\g<2>', html)
+    def swap(html, marker, decl, payload):
+        i = html.find(marker)
+        if i < 0: return html
+        s = html.rfind(decl, 0, i)
+        if s < 0: return html
+        return html[:s] + decl + payload + ';\n' + html[i:]
+    html = swap(html, '// ── END DATA ──',     'var SECTIONS = ', sections_json)
+    html = swap(html, '// ── END FOOTER ──',   'var FOOTER = ',   footer_json)
+    html = swap(html, '// ── END SETTINGS ──', 'var SETTINGS = ', settings_json)
+    return html
+
+with open('_template.html', 'r', encoding='utf-8') as f:
+    tmpl = f.read()
+
+html = inject(tmpl, title, f'— {artist}', key, bpm, '4/4', vocalist,
+              json.dumps(sections, ensure_ascii=False))
+
+with open(f'{band_folder}/{slug}.html', 'w', encoding='utf-8') as f:
+    f.write('<!DOCTYPE html>\n' + html)
+```
+
+---
+
+## SECTIONS JSON Format
+
+### Chord Section (ปกติ)
+```json
+{
+  "id": "verse1",
+  "label": "Verse 1",
+  "note": "optional note text",
+  "noteHidden": true,
+  "lyric": "",
+  "color": {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"},
+  "bars": [
+    {"c": "Gm", "a": "", "h": false},
+    {"c": "Am7", "a": "", "h": false}
+  ],
+  "rowSizes": [4, 4]
+}
+```
+
+### Lyric Note Block (ใส่เนื้อร้อง)
+```json
+{
+  "id": "note-sec",
+  "type": "note",
+  "label": "Lyric — Verse 1",
+  "cols": ["<p>เนื้อร้อง line 1<br>line 2<br>line 3</p>", ""],
+  "color": {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"}
+}
+```
+ใส่ note block ไว้ **ใต้** chord section ที่เกี่ยวข้องทันที
+
+---
+
+## Chord Notation Rules
+
+| Notation | ความหมาย | ตัวอย่าง |
+|---|---|---|
+| `Chord` | 1 chord ทั้ง bar | `Gm7` |
+| `C1\|C2` | 2 chord ใน 1 bar (beat 1-2 / 3-4) | `Bbmaj7\|F/A` |
+| `C1-C2` | passing chord / chromatic | `Abm7-Bb7` |
+| `C1/bass` | slash chord | `A/C#`, `G/B` |
+
+---
+
+## Color Palette — Section Types
+
+| Section | bar | bg | lbl |
+|---|---|---|---|
+| Intro / Outro | `#ff3b30` | `#fff1f0` | `#b00008` |
+| Verse | `#3b82f6` | `#eef4fd` | `#1e40af` |
+| Pre-Chorus | `#f59e0b` | `#fffbeb` | `#78350f` |
+| Chorus | `#ffcc00` | `#fffbe6` | `#7a5e00` |
+| Bridge | `#059669` | `#eafaf4` | `#064e3b` |
+| Solo / Instrument | `#8b5cf6` | `#f5f3ff` | `#4c1d95` |
+| Groove / Vamp | `#ff6b30` | `#fff3ed` | `#8a2e00` |
+| Modulation key | `#af52de` | `#f8f0fd` | `#6a2a90` |
+
+---
+
+## rowSizes Rules
+- `rowSizes: []` — แสดงทุก bar ใน row เดียว (auto)
+- `rowSizes: [4, 4]` — row แรก 4 bars, row ที่สอง 4 bars
+- `rowSizes: [7]` — row แรก 7 bars, ที่เหลือ auto
+- คิดจากโครงสร้างเพลง: Chorus 2 phrase → `[9, 9]`, Verse 2 สายกีตาร์ → `[4, 7, 7]`
+
+---
+
+## ตัวอย่าง Section Order ทั่วไป
+
+```
+Intro → [Lyric block]
+Groove/Vamp (ถ้ามี)
+Verse 1 → [Lyric block]
+Pre-Chorus (ถ้ามี) → [Lyric block]
+Chorus → [Lyric block]
+Groove/Vamp (ถ้ามี)
+Verse 2 → [Lyric block]
+Pre-Chorus 2
+Chorus 2 → [Lyric block]
+Bridge / Solo / Sax Solo
+Chorus 3 Final → [Lyric block]
+Outro
+```
+
+---
+
+## คำสั่งที่รองรับ
+
+```bash
+# สร้าง bandsheet ใหม่
+claude "สร้าง bandsheet เพลง {ชื่อเพลง} — {ศิลปิน}"
+
+# rebuild จาก chord ใหม่ที่ user ให้มา
+claude "rebuild {filename}.html จาก chord นี้: [chord text]"
+
+# แก้เฉพาะ section
+claude "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่]"
+```
+
+---
+
+## ข้อควรระวัง
+- **ห้ามหา chord จาก web** — ผิดพลาดได้ง่าย user จะให้มาเอง
+- **อย่าแก้ `_template.html` โดยตรงเพื่อสร้างเพลง** — ใช้ inject แล้ว write ไปยัง path ใหม่
+- **ถ้า update template** (เพิ่ม feature, เปลี่ยน layout) — backup ก่อน แล้ว update ทุก song file พร้อมกัน
+- **ตรวจ marker** `// ── END DATA ──`, `// ── END FOOTER ──`, `// ── END SETTINGS ──` ก่อน inject
+- Lyric note block ต้องใช้ `"type": "note"` — ถ้าไม่มี field นี้จะ render เป็น chord section แทน
+- Song files อัพโหลดผ่าน ⬆ Upload button (เปิด github.com/tikittisak/bandsheet) — drag & drop ขึ้น GitHub
