@@ -206,3 +206,34 @@ claude "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่
 - **ตรวจ marker** `// ── END DATA ──`, `// ── END FOOTER ──`, `// ── END SETTINGS ──` ก่อน inject
 - Lyric note block ต้องใช้ `"type": "note"` — ถ้าไม่มี field นี้จะ render เป็น chord section แทน
 - Song files อัพโหลดผ่าน ⬆ Upload button (เปิด github.com/tikittisak/bandsheet) — drag & drop ขึ้น GitHub
+
+---
+
+## GitHub Auto-Push Workflow (ใหม่)
+
+### หลัง save/แก้ไฟล์ ให้ run:
+```bash
+osascript -e 'do shell script "cd /Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet && bash push.sh 2>&1" '
+```
+หรือถ้าต้องการใส่ commit message เอง:
+```bash
+osascript -e 'do shell script "cd /Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet && bash push.sh \"add: song-name.html\" 2>&1" '
+```
+
+### push.sh จะทำ:
+1. `python3 update_index.py` — อัพเดต SONGS array ในทุก band/index.html อัตโนมัติ
+2. `git add -A` — stage ไฟล์ทั้งหมด
+3. `git commit -m "..."` — commit
+4. `git push origin main` — push ไป github.com/tikittisak/bandsheet
+
+### Bandsheet Folder Path (ถูกต้อง):
+```
+/Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet/
+```
+
+### คำสั่ง write ไฟล์ใน Cowork (ต้องใช้ osascript):
+```python
+# ใช้ osascript เพื่อเขียนไฟล์ไปยัง Vault path
+do shell script "python3 -c '...' > /Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet/{band}/{song}.html"
+```
+
