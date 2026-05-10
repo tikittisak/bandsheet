@@ -45,10 +45,11 @@ def update_band_index(band_dir):
     songs_json = json.dumps(songs, ensure_ascii=False, indent=2)
     repl = "var SONGS = " + songs_json + "; // -- END SONGS --"
     pat = r"var SONGS\s*=\s*\[.*?\];\s*//[^\n]*END SONGS[^\n]*"
-    new_idx = re.sub(pat, repl, idx, flags=re.DOTALL)
-    if new_idx == idx:
+    # Use search first to confirm marker exists, then sub
+    if not re.search(pat, idx, flags=re.DOTALL):
         print(f"  WARNING: marker not found in {os.path.basename(band_dir)}/index.html")
         return 0
+    new_idx = re.sub(pat, repl, idx, flags=re.DOTALL)
     with open(index_path, "w", encoding="utf-8") as f:
         f.write(new_idx)
     print(f"  OK {os.path.basename(band_dir)}/index.html - {len(songs)} songs")
