@@ -2,7 +2,7 @@
 
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
-Template อยู่ที่ `_template.html` — **current version: v2.1**
+Template อยู่ที่ `_template.html` — **current version: v3.0**
 
 ---
 
