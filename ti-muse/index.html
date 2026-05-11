@@ -78,6 +78,16 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
 .band-check-item input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
 .band-check-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .band-check-label{font-family:'Inter',sans-serif;font-size:12px;color:var(--text)}
+
+.th-sortable{cursor:pointer;user-select:none;white-space:nowrap}
+.th-sortable:hover{color:var(--text)}
+.song-setlist{width:52px;text-align:center}
+.setlist-input{font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:1px solid transparent;border-radius:4px;color:var(--muted);width:44px;text-align:center;padding:2px 4px;outline:none;-moz-appearance:textfield}
+.setlist-input::-webkit-outer-spin-button,.setlist-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.setlist-input:hover{border-color:var(--border);color:var(--text)}
+.setlist-input:focus{border-color:#444;color:var(--text);background:#1a1a1a}
+.sort-ind{font-size:9px;opacity:.45;margin-left:2px;transition:opacity .12s}
+.sort-ind.on{opacity:1;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -195,7 +205,8 @@ var SONGS = [
     "key": "Ab",
     "bpm": "~174 BPM",
     "bars": "",
-    "file": "jesus-of-suburbia.html"
+    "file": "jesus-of-suburbia.html",
+    "setlist": ""
   },
   {
     "title": "Sleepwalk",
@@ -203,7 +214,8 @@ var SONGS = [
     "key": "C / Eb",
     "bpm": "~133 BPM",
     "bars": "",
-    "file": "sleepwalk.html"
+    "file": "sleepwalk.html",
+    "setlist": ""
   },
   {
     "title": "The Game of Love",
@@ -211,7 +223,8 @@ var SONGS = [
     "key": "Em",
     "bpm": "~120 BPM",
     "bars": "",
-    "file": "the-game-of-love.html"
+    "file": "the-game-of-love.html",
+    "setlist": ""
   }
 ]; // -- END SONGS --
 
@@ -439,6 +452,8 @@ document.getElementById('add-modal').addEventListener('click', function(e){ if(e
 document.getElementById('assign-modal').addEventListener('click', function(e){ if(e.target===this) closeAssignModal(); });
 
 /* ── INIT ── */
+function setSortBy(col){if(sortCol===col){sortDir=-sortDir;}else{sortCol=col;sortDir=1;}renderSongs();}
+function updateSetlist(idx,val,isShared){var n=parseInt(val);var v=(isNaN(n)||n<1)?'':(n);if(isShared){var sh=getSharedSongs();if(sh[idx])sh[idx].setlist=v;saveSharedSongs(sh);}else{if(SONGS[idx])SONGS[idx].setlist=v;}if(sortCol==='setlist')renderSongs();}
 renderSongs();
 registerSongs();
 </script>

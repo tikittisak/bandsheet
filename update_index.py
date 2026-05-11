@@ -31,15 +31,32 @@ def extract_meta(filepath):
     return {"title": title, "artist": artist, "key": key, "bpm": bpm,
             "bars": "", "file": os.path.basename(filepath)}
 
+def read_existing_setlists(index_path):
+    """Read existing SONGS array and return {filename: setlist_value} mapping."""
+    try:
+        with open(index_path, encoding="utf-8") as f:
+            content = f.read()
+        m = re.search(r'var SONGS\s*=\s*(\[.*?\]);\s*//[^\n]*END SONGS', content, re.DOTALL)
+        if m:
+            existing = json.loads(m.group(1))
+            return {s["file"]: s.get("setlist", "") for s in existing if "file" in s}
+    except Exception:
+        pass
+    return {}
+
 def update_band_index(band_dir):
     index_path = os.path.join(band_dir, "index.html")
     if not os.path.exists(index_path):
         print(f"  skip {os.path.basename(band_dir)} - no index.html")
         return 0
+    existing_setlists = read_existing_setlists(index_path)
     html_files = sorted([f for f in os.listdir(band_dir)
                          if f.endswith(".html") and f not in SKIP_FILES])
     songs = [m for f in html_files
              for m in [extract_meta(os.path.join(band_dir, f))] if m]
+    # Preserve setlist values from existing index
+    for s in songs:
+        s["setlist"] = existing_setlists.get(s["file"], "")
     with open(index_path, encoding="utf-8") as f:
         idx = f.read()
     songs_json = json.dumps(songs, ensure_ascii=False, indent=2)

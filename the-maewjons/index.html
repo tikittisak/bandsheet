@@ -76,6 +76,16 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
 .band-check-item input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
 .band-check-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .band-check-label{font-family:'Inter',sans-serif;font-size:12px;color:var(--text)}
+
+.th-sortable{cursor:pointer;user-select:none;white-space:nowrap}
+.th-sortable:hover{color:var(--text)}
+.song-setlist{width:52px;text-align:center}
+.setlist-input{font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:1px solid transparent;border-radius:4px;color:var(--muted);width:44px;text-align:center;padding:2px 4px;outline:none;-moz-appearance:textfield}
+.setlist-input::-webkit-outer-spin-button,.setlist-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.setlist-input:hover{border-color:var(--border);color:var(--text)}
+.setlist-input:focus{border-color:#444;color:var(--text);background:#1a1a1a}
+.sort-ind{font-size:9px;opacity:.45;margin-left:2px;transition:opacity .12s}
+.sort-ind.on{opacity:1;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -99,7 +109,7 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
 </div>
 <main>
   <table class="song-table">
-    <thead><tr><th>#</th><th>ชื่อเพลง / ศิลปิน</th><th>Key</th><th>BPM</th><th>Bars</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')" title="Sort by setlist number">Set <span class="sort-ind" id="sort-set-ind">↕</span></th><th>ชื่อเพลง / ศิลปิน</th><th>Key</th><th>BPM</th><th>Bars</th><th></th></tr></thead>
     <tbody id="song-list"></tbody>
   </table>
   <div class="no-results" id="no-results">ไม่พบเพลงที่ค้นหา</div>
@@ -157,7 +167,8 @@ var SONGS = [
     "key": "G",
     "bpm": "105",
     "bars": "",
-    "file": "01-black-hole-sun.html"
+    "file": "01-black-hole-sun.html",
+    "setlist": ""
   },
   {
     "title": "Starlight",
@@ -165,7 +176,8 @@ var SONGS = [
     "key": "E",
     "bpm": "122",
     "bars": "",
-    "file": "02-starlight.html"
+    "file": "02-starlight.html",
+    "setlist": ""
   },
   {
     "title": "Somebody Told Me",
@@ -173,7 +185,8 @@ var SONGS = [
     "key": "Bbm",
     "bpm": "138",
     "bars": "",
-    "file": "03-somebody-told-me.html"
+    "file": "03-somebody-told-me.html",
+    "setlist": ""
   },
   {
     "title": "I Put A Spell On You",
@@ -181,7 +194,8 @@ var SONGS = [
     "key": "E",
     "bpm": "58",
     "bars": "",
-    "file": "04-i-put-a-spell-on-you.html"
+    "file": "04-i-put-a-spell-on-you.html",
+    "setlist": ""
   },
   {
     "title": "The Man Who Can't Be Moved",
@@ -189,7 +203,8 @@ var SONGS = [
     "key": "Bb",
     "bpm": "100",
     "bars": "",
-    "file": "05-the-man-who-cant-be-moved.html"
+    "file": "05-the-man-who-cant-be-moved.html",
+    "setlist": ""
   },
   {
     "title": "Supersonic",
@@ -197,7 +212,8 @@ var SONGS = [
     "key": "A",
     "bpm": "104",
     "bars": "",
-    "file": "06-supersonic.html"
+    "file": "06-supersonic.html",
+    "setlist": ""
   },
   {
     "title": "Live Forever",
@@ -205,7 +221,8 @@ var SONGS = [
     "key": "Am",
     "bpm": "91",
     "bars": "",
-    "file": "07-live-forever.html"
+    "file": "07-live-forever.html",
+    "setlist": ""
   },
   {
     "title": "Sweet Disposition",
@@ -213,7 +230,8 @@ var SONGS = [
     "key": "G",
     "bpm": "129",
     "bars": "",
-    "file": "08-sweet-disposition.html"
+    "file": "08-sweet-disposition.html",
+    "setlist": ""
   },
   {
     "title": "Crazy",
@@ -221,7 +239,8 @@ var SONGS = [
     "key": "Dm",
     "bpm": "112",
     "bars": "",
-    "file": "09-crazy.html"
+    "file": "09-crazy.html",
+    "setlist": ""
   },
   {
     "title": "Vampire",
@@ -229,7 +248,8 @@ var SONGS = [
     "key": "F",
     "bpm": "138",
     "bars": "",
-    "file": "10-vampire.html"
+    "file": "10-vampire.html",
+    "setlist": ""
   },
   {
     "title": "Yellow",
@@ -237,7 +257,8 @@ var SONGS = [
     "key": "B",
     "bpm": "87",
     "bars": "",
-    "file": "11-yellow.html"
+    "file": "11-yellow.html",
+    "setlist": ""
   },
   {
     "title": "Use Somebody",
@@ -245,7 +266,8 @@ var SONGS = [
     "key": "C",
     "bpm": "137",
     "bars": "",
-    "file": "12-use-somebody.html"
+    "file": "12-use-somebody.html",
+    "setlist": ""
   },
   {
     "title": "Beautiful Ones",
@@ -253,7 +275,8 @@ var SONGS = [
     "key": "C",
     "bpm": "99",
     "bars": "",
-    "file": "13-beautiful-ones.html"
+    "file": "13-beautiful-ones.html",
+    "setlist": ""
   },
   {
     "title": "Forever Young",
@@ -261,7 +284,8 @@ var SONGS = [
     "key": "B",
     "bpm": "113",
     "bars": "",
-    "file": "14-forever-young.html"
+    "file": "14-forever-young.html",
+    "setlist": ""
   },
   {
     "title": "Lovefool",
@@ -269,7 +293,8 @@ var SONGS = [
     "key": "Am",
     "bpm": "112",
     "bars": "",
-    "file": "15-lovefool.html"
+    "file": "15-lovefool.html",
+    "setlist": ""
   },
   {
     "title": "Toxic",
@@ -277,7 +302,8 @@ var SONGS = [
     "key": "Cm",
     "bpm": "143",
     "bars": "",
-    "file": "16-toxic.html"
+    "file": "16-toxic.html",
+    "setlist": ""
   },
   {
     "title": "Bad Guy",
@@ -285,7 +311,8 @@ var SONGS = [
     "key": "Gm",
     "bpm": "135",
     "bars": "",
-    "file": "17-bad-guy.html"
+    "file": "17-bad-guy.html",
+    "setlist": ""
   },
   {
     "title": "When You Were Young",
@@ -293,7 +320,8 @@ var SONGS = [
     "key": "B",
     "bpm": "130",
     "bars": "",
-    "file": "18-when-you-were-young.html"
+    "file": "18-when-you-were-young.html",
+    "setlist": ""
   },
   {
     "title": "Beggin'",
@@ -301,7 +329,8 @@ var SONGS = [
     "key": "Bm",
     "bpm": "134",
     "bars": "",
-    "file": "19-beggin.html"
+    "file": "19-beggin.html",
+    "setlist": ""
   },
   {
     "title": "Bring Me To Life",
@@ -309,7 +338,8 @@ var SONGS = [
     "key": "Em",
     "bpm": "95",
     "bars": "",
-    "file": "20-bring-me-to-life.html"
+    "file": "20-bring-me-to-life.html",
+    "setlist": ""
   },
   {
     "title": "Hysteria",
@@ -317,7 +347,8 @@ var SONGS = [
     "key": "Am",
     "bpm": "186",
     "bars": "",
-    "file": "21-hysteria.html"
+    "file": "21-hysteria.html",
+    "setlist": ""
   },
   {
     "title": "Be With You",
@@ -325,7 +356,8 @@ var SONGS = [
     "key": "Ab",
     "bpm": "70",
     "bars": "",
-    "file": "be-with-you.html"
+    "file": "be-with-you.html",
+    "setlist": ""
   },
   {
     "title": "Heathens",
@@ -333,7 +365,8 @@ var SONGS = [
     "key": "Em",
     "bpm": "90",
     "bars": "",
-    "file": "heathens.html"
+    "file": "heathens.html",
+    "setlist": ""
   },
   {
     "title": "Too Sweet",
@@ -341,7 +374,8 @@ var SONGS = [
     "key": "Bb",
     "bpm": "117",
     "bars": "",
-    "file": "too-sweet.html"
+    "file": "too-sweet.html",
+    "setlist": ""
   },
   {
     "title": "Virtual Insanity",
@@ -349,7 +383,8 @@ var SONGS = [
     "key": "Dbm",
     "bpm": "92 BPM",
     "bars": "",
-    "file": "virtual-insanity.html"
+    "file": "virtual-insanity.html",
+    "setlist": ""
   }
 ]; // -- END SONGS --
 var activeKey = 'all';
@@ -360,7 +395,7 @@ function getSharedSongs(){try{var r=localStorage.getItem('bandsheet_shared_'+BAN
 function saveSharedSongs(a){try{localStorage.setItem('bandsheet_shared_'+BAND_ID,JSON.stringify(a));}catch(e){}}
 function buildKeyFilters(){var keys={};SONGS.concat(getSharedSongs()).forEach(function(s){if(s.key)keys[s.key.toLowerCase()]=s.key;});var fg=document.getElementById('key-filters');Array.from(fg.querySelectorAll('[data-key]:not([data-key="all"])')).forEach(function(el){el.remove();});Object.keys(keys).sort().forEach(function(kl){var btn=document.createElement('button');btn.className='filter-pill'+(activeKey===kl?' active':'');btn.dataset.key=kl;btn.textContent=keys[kl];btn.onclick=function(){setKeyFilter(btn,kl);};fg.appendChild(btn);});}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function renderSongs(){buildKeyFilters();var tbody=document.getElementById('song-list');tbody.innerHTML='';var shared=getSharedSongs();var all=SONGS.map(function(s,i){return{s:s,idx:i,isShared:false};}).concat(shared.map(function(s,i){return{s:s,idx:i,isShared:true};}));all.forEach(function(item,num){var s=item.s;var fileHref=item.isShared?('../'+(s.fromBand||'')+'/'+s.file):s.file;var tr=document.createElement('tr');tr.className='song-row';tr.dataset.title=(s.title||'').toLowerCase();tr.dataset.artist=(s.artist||'').toLowerCase();tr.dataset.key=(s.key||'').toLowerCase();tr.dataset.search=[(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();tr.innerHTML='<td class="song-num">'+String(num+1).padStart(2,'0')+'</td><td><div class="song-title">'+esc(s.title||'')+(item.isShared?'<span class="shared-badge">'+esc(s.fromBandName||'shared')+'</span>':'')+'</div><div class="song-artist">'+esc(s.artist||'—')+'</div></td><td class="song-key">'+esc(s.key||'—')+'</td><td class="song-bpm">'+esc(s.bpm||'—')+'</td><td class="song-bars">'+esc(s.bars||'—')+'</td><td><div class="row-actions">'+(s.file?'<a class="open-btn" href="'+fileHref+'">Open →</a>':'')+'<button class="action-btn" onclick="openAssignModal('+item.idx+','+item.isShared+')">⇄ Assign</button><button class="action-btn del" onclick="removeSong('+item.idx+','+item.isShared+')">✕</button></div></td>';tbody.appendChild(tr);});filterSongs();}
+var sortCol='default';var sortDir=1;function renderSongs(){buildKeyFilters();var tbody=document.getElementById('song-list');tbody.innerHTML='';var shared=getSharedSongs();var all=SONGS.map(function(s,i){return{s:s,idx:i,isShared:false};}).concat(shared.map(function(s,i){return{s:s,idx:i,isShared:true};}));if(sortCol==='setlist'){all.sort(function(a,b){var sa=parseInt(a.s.setlist)||0,sb=parseInt(b.s.setlist)||0;if(!sa&&!sb)return 0;if(!sa)return 1;if(!sb)return-1;return(sa-sb)*sortDir;});}all.forEach(function(item,num){var s=item.s;var fileHref=item.isShared?('../'+(s.fromBand||'')+'/'+s.file):s.file;var tr=document.createElement('tr');tr.className='song-row';tr.dataset.title=(s.title||'').toLowerCase();tr.dataset.artist=(s.artist||'').toLowerCase();tr.dataset.key=(s.key||'').toLowerCase();tr.dataset.search=[(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();var setV=(s.setlist&&s.setlist>0)?s.setlist:'';tr.innerHTML='<td class="song-num">'+String(num+1).padStart(2,'0')+'</td>'+'<td class="song-setlist"><input type="number" class="setlist-input" value="'+setV+'" min="1" placeholder="—" onchange="updateSetlist('+item.idx+',this.value,'+item.isShared+')" onclick="event.stopPropagation()"></td>'+'<td><div class="song-title">'+esc(s.title||'')+(item.isShared?'<span class="shared-badge">'+esc(s.fromBandName||'shared')+'</span>':'')+'</div><div class="song-artist">'+esc(s.artist||'—')+'</div></td><td class="song-key">'+esc(s.key||'—')+'</td><td class="song-bpm">'+esc(s.bpm||'—')+'</td><td class="song-bars">'+esc(s.bars||'—')+'</td><td><div class="row-actions">'+(s.file?'<a class="open-btn" href="'+fileHref+'">Open →</a>':'')+'<button class="action-btn" onclick="openAssignModal('+item.idx+','+item.isShared+')">⇄ Assign</button><button class="action-btn del" onclick="removeSong('+item.idx+','+item.isShared+')">✕</button></div></td>';tbody.appendChild(tr);});var ind=document.getElementById('sort-set-ind');if(ind){ind.textContent=sortCol==='setlist'?(sortDir===1?'↑':'↓'):'↕';ind.className='sort-ind'+(sortCol==='setlist'?' on':'');}filterSongs();};}).concat(shared.map(function(s,i){return{s:s,idx:i,isShared:true};}));all.forEach(function(item,num){var s=item.s;var fileHref=item.isShared?('../'+(s.fromBand||'')+'/'+s.file):s.file;var tr=document.createElement('tr');tr.className='song-row';tr.dataset.title=(s.title||'').toLowerCase();tr.dataset.artist=(s.artist||'').toLowerCase();tr.dataset.key=(s.key||'').toLowerCase();tr.dataset.search=[(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();tr.innerHTML='<td class="song-num">'+String(num+1).padStart(2,'0')+'</td><td><div class="song-title">'+esc(s.title||'')+(item.isShared?'<span class="shared-badge">'+esc(s.fromBandName||'shared')+'</span>':'')+'</div><div class="song-artist">'+esc(s.artist||'—')+'</div></td><td class="song-key">'+esc(s.key||'—')+'</td><td class="song-bpm">'+esc(s.bpm||'—')+'</td><td class="song-bars">'+esc(s.bars||'—')+'</td><td><div class="row-actions">'+(s.file?'<a class="open-btn" href="'+fileHref+'">Open →</a>':'')+'<button class="action-btn" onclick="openAssignModal('+item.idx+','+item.isShared+')">⇄ Assign</button><button class="action-btn del" onclick="removeSong('+item.idx+','+item.isShared+')">✕</button></div></td>';tbody.appendChild(tr);});filterSongs();}
 function filterSongs(){var q=document.getElementById('search').value.toLowerCase().trim();var rows=document.querySelectorAll('#song-list .song-row');var v=0;rows.forEach(function(r){var show=(!q||r.dataset.search.includes(q))&&(activeKey==='all'||r.dataset.key===activeKey);r.style.display=show?'':'none';if(show)v++;});document.getElementById('stats').textContent=v+' เพลง';document.getElementById('no-results').style.display=v===0?'block':'none';}
 function setKeyFilter(btn,key){activeKey=key;document.querySelectorAll('.filter-pill').forEach(function(p){p.classList.remove('active');});btn.classList.add('active');filterSongs();}
 function clearFilters(){document.getElementById('search').value='';activeKey='all';document.querySelectorAll('.filter-pill').forEach(function(p,i){p.classList.toggle('active',i===0);});filterSongs();}
@@ -375,6 +410,8 @@ function submitAssign(){var s=assignIsShared?getSharedSongs()[assignIdx]:SONGS[a
 function saveToFile(){var src=document.documentElement.outerHTML;var json=JSON.stringify(SONGS,null,2);var re=/var SONGS\s*=\s*\[[\s\S]*?\];\s*\/\/ \u2500\u2500 END SONGS \u2500\u2500/;src=src.replace(re,'var SONGS = '+json+'; // \u2500\u2500 END SONGS \u2500\u2500');var blob=new Blob([src],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href);}
 document.getElementById('add-modal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
 document.getElementById('assign-modal').addEventListener('click',function(e){if(e.target===this)closeAssignModal();});
+function setSortBy(col){if(sortCol===col){sortDir=-sortDir;}else{sortCol=col;sortDir=1;}renderSongs();}
+function updateSetlist(idx,val,isShared){var n=parseInt(val);var v=(isNaN(n)||n<1)?'':(n);if(isShared){var sh=getSharedSongs();if(sh[idx])sh[idx].setlist=v;saveSharedSongs(sh);}else{if(SONGS[idx])SONGS[idx].setlist=v;}if(sortCol==='setlist')renderSongs();}
 renderSongs();
 registerSongs();
 </script>
