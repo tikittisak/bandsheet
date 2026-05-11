@@ -44,7 +44,7 @@ main{padding:0 40px 60px}
 .song-artist{font-size:11px;color:var(--muted);margin-top:2px}
 .song-key{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:70px}
 .song-bpm{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:60px}
-.song-bars{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);width:60px}
+
 .row-actions{display:flex;gap:5px;align-items:center}
 .open-btn{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:500;letter-spacing:.06em;color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid rgba(var(--accent-rgb),.3);border-radius:4px;transition:all .12s;white-space:nowrap}
 .open-btn:hover{background:rgba(var(--accent-rgb),.1);border-color:var(--accent)}
@@ -119,7 +119,7 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
         <th>ชื่อเพลง / ศิลปิน</th>
         <th>Key</th>
         <th>BPM</th>
-        <th>Bars</th>
+        
         <th></th>
       </tr>
     </thead>
@@ -300,7 +300,6 @@ function renderSongs() {
       '<td>' + titleCell + '</td>' +
       '<td class="song-key">' + esc(s.key||'—') + '</td>' +
       '<td class="song-bpm">' + esc(s.bpm||'—') + '</td>' +
-      '<td class="song-bars">' + esc(s.bars||'—') + '</td>' +
       '<td>' + actionsCell + '</td>';
     tbody.appendChild(tr);
   });
