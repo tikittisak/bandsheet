@@ -116,6 +116,7 @@ footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color
     <thead>
       <tr>
         <th>#</th>
+        <th class="th-sortable" onclick="setSortBy('setlist')" title="Sort by setlist number">Set <span class="sort-ind" id="sort-set-ind">↕</span></th>
         <th>ชื่อเพลง / ศิลปิน</th>
         <th>Key</th>
         <th>BPM</th>
@@ -271,6 +272,7 @@ function buildKeyFilters() {
 }
 
 /* ── RENDER ── */
+var sortCol = 'default'; var sortDir = 1;
 function renderSongs() {
   buildKeyFilters();
   var tbody = document.getElementById('song-list');
@@ -278,6 +280,15 @@ function renderSongs() {
   var shared = getSharedSongs();
   var all = SONGS.map(function(s,i){ return {s:s, idx:i, isShared:false}; })
               .concat(shared.map(function(s,i){ return {s:s, idx:i, isShared:true}; }));
+  if (sortCol === 'setlist') {
+    all.sort(function(a,b) {
+      var sa = parseInt(a.s.setlist)||0, sb = parseInt(b.s.setlist)||0;
+      if (!sa && !sb) return 0;
+      if (!sa) return 1;
+      if (!sb) return -1;
+      return (sa - sb) * sortDir;
+    });
+  }
   all.forEach(function(item, num) {
     var s = item.s;
     var fileHref = item.isShared ? ('../' + (s.fromBand||'') + '/' + s.file) : s.file;
@@ -287,22 +298,26 @@ function renderSongs() {
     tr.dataset.artist = (s.artist||'').toLowerCase();
     tr.dataset.key = (s.key||'').toLowerCase();
     tr.dataset.search = [(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();
+    var setV = (s.setlist && s.setlist > 0) ? s.setlist : '';
     var titleCell = '<div class="song-title">' + esc(s.title||'') +
       (item.isShared ? '<span class="shared-badge">' + esc(s.fromBandName||'shared') + '</span>' : '') +
       '</div><div class="song-artist">' + esc(s.artist||'—') + '</div>';
     var actionsCell = '<div class="row-actions">' +
-      (s.file ? '<a class="open-btn" href="' + fileHref + '">Open →</a>' : '') +
+      (s.file ? '<a class="open-btn" href="' + fileHref + '" target="_blank" rel="noopener">Open →</a>' : '') +
       '<button class="action-btn" onclick="openAssignModal(' + item.idx + ',' + item.isShared + ')">⇄ Assign</button>' +
       '<button class="action-btn del" onclick="removeSong(' + item.idx + ',' + item.isShared + ')">✕</button>' +
       '</div>';
     tr.innerHTML =
       '<td class="song-num">' + String(num+1).padStart(2,'0') + '</td>' +
+      '<td class="song-setlist"><input type="number" class="setlist-input" value="' + setV + '" min="1" placeholder="—" onchange="updateSetlist(' + item.idx + ',this.value,' + item.isShared + ')" onclick="event.stopPropagation()"></td>' +
       '<td>' + titleCell + '</td>' +
       '<td class="song-key">' + esc(s.key||'—') + '</td>' +
       '<td class="song-bpm">' + esc(s.bpm||'—') + '</td>' +
       '<td>' + actionsCell + '</td>';
     tbody.appendChild(tr);
   });
+  var ind = document.getElementById('sort-set-ind');
+  if (ind) { ind.textContent = sortCol === 'setlist' ? (sortDir === 1 ? '↑' : '↓') : '↕'; ind.className = 'sort-ind' + (sortCol === 'setlist' ? ' on' : ''); }
   filterSongs();
 }
 
