@@ -10,7 +10,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
 /* ── Toolbar ── */
-#toolbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;display:flex;align-items:center;gap:2px;height:38px;font-family:-apple-system,'SF Pro Text',BlinkMacSystemFont,'Helvetica Neue',sans-serif;flex-wrap:nowrap}
+#toolbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;display:flex;align-items:center;gap:2px;height:38px;font-family:-apple-system,'SF Pro Text',BlinkMacSystemFont,'Helvetica Neue',sans-serif;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#toolbar::-webkit-scrollbar{display:none}
 .tb-sep{width:1px;height:16px;background:rgba(0,0,0,0.10);flex-shrink:0;margin:0 5px}
 .tb-group-label{font-size:10px;font-weight:500;color:rgba(0,0,0,0.30);letter-spacing:.02em;padding:0 3px 0 5px;user-select:none;white-space:nowrap;flex-shrink:0}
 .tb-btn{font-size:12px;font-weight:400;padding:4px 9px;border:none;border-radius:6px;background:transparent;color:rgba(0,0,0,0.75);cursor:pointer;transition:background .1s,color .1s;font-family:inherit;white-space:nowrap;height:28px;display:inline-flex;align-items:center;gap:4px;letter-spacing:-.01em;flex-shrink:0}
@@ -87,7 +88,7 @@ body:not(.edit-mode) .rte-toolbar{display:none!important}
 .row-cols-inp:hover{border-color:var(--border-strong);background:var(--bg);color:var(--text)}
 .row-cols-inp:focus{border-color:var(--accent);background:var(--surface);color:var(--text);cursor:text}
 /* ── Bar cells ── */
-.bar-cell{width:var(--cell-w);min-height:var(--cell-h);border-radius:var(--radius);border:1px solid var(--border);border-left-width:3px;padding:12px 8px 5px;display:flex;flex-direction:column;gap:2px;cursor:grab;user-select:none;transition:box-shadow .12s,transform .1s,opacity .1s;position:relative;background:var(--surface)}
+.bar-cell{width:var(--cell-w);min-height:var(--cell-h);border-radius:var(--radius);border:1px solid var(--border);border-left-width:3px;padding:12px 8px 24px;display:flex;flex-direction:column;gap:2px;cursor:grab;user-select:none;transition:box-shadow .12s,transform .1s,opacity .1s;position:relative;background:var(--surface)}
 .bar-cell:active{cursor:grabbing}
 .bar-cell.dragging{opacity:.12;transform:scale(.93);pointer-events:none;transition:none}
 .bar-cell.drag-over-left{box-shadow:none}
@@ -108,10 +109,15 @@ body:not(.edit-mode) .rte-toolbar{display:none!important}
 /* Highlight */
 .bar-cell.highlighted{outline-offset:-1px;z-index:3}
 /* Highlight btn — bottom LEFT */
-.highlight-btn{position:absolute;bottom:3px;left:3px;width:16px;height:16px;border-radius:3px;background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;display:none;padding:0;line-height:16px;text-align:center}
-.bar-cell:hover .highlight-btn{display:block}
+.bar-bottom{position:absolute;bottom:4px;left:4px;display:flex;gap:3px;align-items:center}
+.highlight-btn{width:16px;height:16px;border-radius:3px;background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;display:none;padding:0;line-height:16px;text-align:center}
+.hollow-btn{width:16px;height:16px;border-radius:3px;background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;display:none;padding:0;line-height:16px;text-align:center}
+.hollow-btn:hover{background:rgba(0,0,0,.06);color:var(--text)}
+.bar-cell:hover .highlight-btn,.bar-cell:hover .hollow-btn{display:block}
 .bar-cell.highlighted .highlight-btn{display:block;color:rgba(255,255,255,0.7)}
+.bar-cell.hollow .hollow-btn{display:block}
 .highlight-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+.bar-cell.highlighted .bar-bottom button:hover,.bar-cell.hollow.highlighted .bar-bottom button:hover{background:rgba(255,255,255,.15);color:#fff}
 /* ── Edit mode ── */
 body:not(.edit-mode) .del-btn{display:none!important}
 body:not(.edit-mode) .add-bar-cell{display:none!important}
@@ -185,12 +191,14 @@ body.edit-mode .fl-ctrl{display:flex}
 .footer-add-link:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
 body:not(.edit-mode) .footer-add-link{display:none}
 /* ── MINI VIEW ── */
-body.view-mini{--cell-h:38px;--gap:3px}
+body.view-mini{--cell-h:48px;--gap:3px}
 body.view-mini .bar-ann{display:none!important}
-body.view-mini .bar-cell{display:flex;flex-direction:row;align-items:flex-start;padding:14px 6px 4px 8px}
+body.view-mini .bar-cell{display:flex;flex-direction:row;align-items:flex-start;padding:14px 6px 20px 8px}
 body.view-mini .bar-num{font-size:8px;top:3px;left:4px;opacity:.75}
 body.view-mini .bar-chord{font-weight:700;flex:1;min-width:0;padding:0}
-body.view-mini .highlight-btn{width:13px;height:13px;font-size:10px;line-height:13px;bottom:2px;left:2px}
+body.view-mini .bar-bottom{bottom:3px;left:3px;gap:2px}
+body.view-mini .highlight-btn{width:13px;height:13px;font-size:10px;line-height:13px}
+body.view-mini .hollow-btn{width:13px;height:13px;font-size:10px;line-height:13px}
 body.view-mini .section-note{display:none!important}
 body.view-mini .note-toggle{display:none!important}
 body.notes-hidden .section-note{display:none!important}
@@ -198,7 +206,7 @@ body.notes-hidden .note-toggle{display:none!important}
 body.notes-hidden .note-type-sec{display:none!important}
 /* ── PRINT ── */
 @media print{
-  #toolbar,#metabar,.sec-btn,.section-actions,.add-bar-cell,.del-btn,.color-popup,.highlight-btn,.note-toggle,.row-ctrl,.footer-add-link,.footer-add-note,.fn-ctrl,.fl-ctrl,.rte-toolbar{display:none!important}
+  #toolbar,#metabar,.sec-btn,.section-actions,.add-bar-cell,.del-btn,.color-popup,.bar-bottom,.note-toggle,.row-ctrl,.footer-add-link,.footer-add-note,.fn-ctrl,.fl-ctrl,.rte-toolbar{display:none!important}
   body{padding:0;background:#fff}
   #sheet{padding:12px}
   .bar-cell{break-inside:avoid}
@@ -440,12 +448,16 @@ function render(){
 
 function makeCell(bar,si,bi,num,col){
   var cell=document.createElement('div');
-  cell.className='bar-cell'+(bar.h?' highlighted':'');
+  cell.className='bar-cell'+(bar.h?' highlighted':'')+(bar.hollow?' hollow':'');
   if(bar.h){
     var hlBg=darken(col.bar,0.28);
     cell.style.background=hlBg;
     cell.style.borderLeftColor=darken(col.bar,0.5);
     cell.style.outline='2px solid '+darken(col.bar,0.15);
+  } else if(bar.hollow){
+    cell.style.border='1px dotted '+col.bar;
+    cell.style.borderLeftWidth='3px';
+    cell.style.background=col.bg;
   } else {
     cell.style.borderLeftColor=col.bar;
     cell.style.background=col.bg;
@@ -467,8 +479,13 @@ function makeCell(bar,si,bi,num,col){
   delBtn.onclick=(function(s,b){return function(e){e.stopPropagation();deleteBar(s,b)}})(si,bi);
   var hlBtn=document.createElement('button');hlBtn.className='highlight-btn';hlBtn.textContent='★';hlBtn.title='Toggle highlight';
   hlBtn.onclick=(function(s,b){return function(e){e.stopPropagation();SECTIONS[s].bars[b].h=!SECTIONS[s].bars[b].h;render()}})(si,bi);
+  var hvBtn=document.createElement('button');hvBtn.className='hollow-btn';hvBtn.textContent='◎';hvBtn.title='Hollow bar';
+  if(bar.h){hvBtn.style.color='rgba(255,255,255,0.7)'}else if(bar.hollow){hvBtn.style.color=col.bar;}
+  hvBtn.onclick=(function(s,b){return function(e){e.stopPropagation();SECTIONS[s].bars[b].hollow=!SECTIONS[s].bars[b].hollow;render()}})(si,bi);
+  var barBottom=document.createElement('div');barBottom.className='bar-bottom';
+  barBottom.appendChild(hlBtn);barBottom.appendChild(hvBtn);
   cell.appendChild(numEl);cell.appendChild(chordEl);cell.appendChild(annEl);
-  cell.appendChild(delBtn);cell.appendChild(hlBtn);
+  cell.appendChild(delBtn);cell.appendChild(barBottom);
   cell.addEventListener('dragstart',function(e){
     dragSrc=cell;cell.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',si+','+bi);
     var ghost=cell.cloneNode(true);
@@ -727,7 +744,7 @@ function printPDF(){
   var sheet=document.getElementById('sheet');
   var sheetClone=sheet.cloneNode(true);
   // Remove edit-mode UI from clone
-  sheetClone.querySelectorAll('.sec-btn,.section-actions,.add-bar-cell,.del-btn,.highlight-btn,.note-toggle,.row-ctrl').forEach(function(el){el.remove();});
+  sheetClone.querySelectorAll('.sec-btn,.section-actions,.add-bar-cell,.del-btn,.bar-bottom,.note-toggle,.row-ctrl').forEach(function(el){el.remove();});
   wrap.appendChild(sheetClone);
   document.body.appendChild(wrap);
 
