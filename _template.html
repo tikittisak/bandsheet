@@ -10,9 +10,11 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
 /* ── Toolbar ── */
-#toolbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;display:flex;align-items:center;gap:2px;height:38px;font-family:-apple-system,'SF Pro Text',BlinkMacSystemFont,'Helvetica Neue',sans-serif;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-#toolbar::-webkit-scrollbar{display:none}
-.tb-sep{width:1px;height:16px;background:rgba(0,0,0,0.10);flex-shrink:0;margin:0 5px}
+#toolbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.08);padding:3px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:0;row-gap:2px;font-family:-apple-system,'SF Pro Text',BlinkMacSystemFont,'Helvetica Neue',sans-serif}
+.tb-group{display:flex;align-items:center;gap:2px;padding:2px 0;flex-shrink:0}
+.tb-group+.tb-group{border-left:1px solid rgba(0,0,0,0.10);margin-left:5px;padding-left:7px}
+.tb-group-export{margin-left:auto;padding-left:0;border-left:none!important}
+.tb-sep{display:none}
 .tb-group-label{font-size:10px;font-weight:500;color:rgba(0,0,0,0.30);letter-spacing:.02em;padding:0 3px 0 5px;user-select:none;white-space:nowrap;flex-shrink:0}
 .tb-btn{font-size:12px;font-weight:400;padding:4px 9px;border:none;border-radius:6px;background:transparent;color:rgba(0,0,0,0.75);cursor:pointer;transition:background .1s,color .1s;font-family:inherit;white-space:nowrap;height:28px;display:inline-flex;align-items:center;gap:4px;letter-spacing:-.01em;flex-shrink:0}
 .tb-btn:hover{background:rgba(0,0,0,0.06)}
@@ -23,7 +25,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .tb-btn.primary:hover{background:#2c2c2e}
 .tb-btn.ghost{color:rgba(0,0,0,0.40)}
 .tb-btn.ghost:hover{background:rgba(0,0,0,0.05);color:rgba(0,0,0,0.65)}
-.tb-version{font-size:10px;font-family:'Inter',-apple-system,sans-serif;color:rgba(0,0,0,0.28);margin-left:auto;padding:0 4px;white-space:nowrap;flex-shrink:0;letter-spacing:.02em}
+.tb-version{font-size:10px;font-family:'Inter',-apple-system,sans-serif;color:rgba(0,0,0,0.28);margin-left:8px;padding:0 4px;white-space:nowrap;flex-shrink:0;letter-spacing:.02em;border-left:1px solid rgba(0,0,0,0.10)}
 .font-sel{font-size:12px;font-family:inherit;padding:4px 20px 4px 8px;border:none;border-radius:6px;background:transparent;color:rgba(0,0,0,0.75);cursor:pointer;outline:none;height:28px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(0,0,0,0.35)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
 .font-sel:hover{background-color:rgba(0,0,0,0.06);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(0,0,0,0.35)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
 .seg-ctrl{display:flex;align-items:center;background:rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;height:26px;flex-shrink:0}
@@ -150,7 +152,6 @@ body:not(.edit-mode) .sec-order-inp{display:none!important}
 .note-size-ctrl .nsc-btn:last-child{border-left:1px solid var(--border-strong)}
 .note-size-ctrl .nsc-btn:hover{background:var(--bg);color:var(--text)}
 .note-size-ctrl .nsc-val{font-size:10px;font-family:'Inter',sans-serif;color:var(--text-muted);padding:0 6px;min-width:26px;text-align:center;user-select:none}
-.tb-version{font-size:10px;font-family:'Inter',sans-serif;color:var(--text-faint);padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg);white-space:nowrap;margin-left:auto;align-self:center;flex-shrink:0;letter-spacing:.03em}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:'Inter',sans-serif;white-space:nowrap;z-index:999}
 #toast.show{opacity:1}
 /* ── Footer ── */
@@ -216,7 +217,7 @@ body.notes-hidden .note-type-sec{display:none!important}
 /* ── Mobile ── */
 @media(max-width:768px){
   :root{--cell-h:58px}
-  #toolbar{padding:6px 12px;gap:6px}
+  #toolbar{padding:3px 10px;row-gap:3px}
   #sheet{padding:4px 12px 16px}
   #metabar{padding:4px 12px}
   .footer-links-grid{grid-template-columns:1fr}
@@ -227,44 +228,51 @@ body.notes-hidden .note-type-sec{display:none!important}
 </head>
 <body class="view-mini">
 <div id="toolbar">
-  <a class="tb-btn" href="https://tikittisak.github.io/bandsheet/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;font-size:15px;padding:4px 8px" title="bandsheet home">🏠</a>
-  <div class="tb-sep"></div>
-  <button class="tb-btn" onclick="addSection()">+ Section</button>
-  <button class="tb-btn" onclick="addNoteSection()">+ Note</button>
-  <div class="tb-sep"></div>
-  <span class="tb-group-label">View</span>
-  <button class="tb-btn" id="chords-toggle-btn" onclick="toggleAllChords()" title="Hide / show all chord bars">Chord</button>
-  <button class="tb-btn" id="notes-btn" onclick="toggleNotesView()" title="Hide / show all section notes">Note</button>
-  <div class="tb-sep"></div>
-  <select class="font-sel" id="font-sel" onchange="changeChordFont(this.value)" title="Chord font">
-    <option value="DM Sans">DM Sans</option>
-    <option value="Petaluma">Petaluma</option>
-    <option value="Inter">Inter</option>
-    <option value="Lato">Lato</option>
-  </select>
-  <div class="seg-ctrl" title="Chord size">
-    <button class="seg-btn" onclick="changeChordSize(-1)">A−</button>
-    <span class="seg-val" id="chord-size-val">12.5</span>
-    <button class="seg-btn" onclick="changeChordSize(1)">A+</button>
+  <div class="tb-group">
+    <a class="tb-btn" href="https://tikittisak.github.io/bandsheet/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;font-size:15px;padding:4px 8px" title="bandsheet home">🏠</a>
   </div>
-  <div class="seg-ctrl" title="Note text size">
-    <button class="seg-btn" onclick="changeNoteSize(-1)">N−</button>
-    <span class="seg-val" id="note-size-val">13</span>
-    <button class="seg-btn" onclick="changeNoteSize(1)">N+</button>
+  <div class="tb-group">
+    <button class="tb-btn" onclick="addSection()">+ Section</button>
+    <button class="tb-btn" onclick="addNoteSection()">+ Note</button>
   </div>
-  <div class="tb-sep"></div>
-  <button class="tb-btn" id="edit-btn" onclick="toggleEditMode()" title="Toggle edit mode">✏ Edit</button>
-  <div class="seg-ctrl" title="Transpose · click value to reset">
-    <button class="seg-btn" onclick="transposeKey(-1)">♭</button>
-    <span class="seg-val clickable" id="key-val" onclick="resetTranspose()" title="Click to reset to original key">±0</span>
-    <button class="seg-btn" onclick="transposeKey(1)">♯</button>
+  <div class="tb-group">
+    <span class="tb-group-label">View</span>
+    <button class="tb-btn" id="chords-toggle-btn" onclick="toggleAllChords()" title="Hide / show all chord bars">Chord</button>
+    <button class="tb-btn" id="notes-btn" onclick="toggleNotesView()" title="Hide / show all section notes">Note</button>
   </div>
-  <button class="tb-btn" onclick="renumberAll()" title="Renumber all bars">ReNo.</button>
-  <div class="tb-sep"></div>
-  <button class="tb-btn ghost" onclick="saveToFile()" title="Save as HTML file">💾 Save</button>
-  <button class="tb-btn primary" id="pdf-btn" onclick="printPDF()">🖨 Print / PDF</button>
-  <button class="tb-btn ghost" onclick="downloadTemplate()" title="Download blank template to share">⬇ Template</button>
-  <span class="tb-version">bandsheet v3.0</span>
+  <div class="tb-group">
+    <select class="font-sel" id="font-sel" onchange="changeChordFont(this.value)" title="Chord font">
+      <option value="DM Sans">DM Sans</option>
+      <option value="Petaluma">Petaluma</option>
+      <option value="Inter">Inter</option>
+      <option value="Lato">Lato</option>
+    </select>
+    <div class="seg-ctrl" title="Chord size">
+      <button class="seg-btn" onclick="changeChordSize(-1)">A−</button>
+      <span class="seg-val" id="chord-size-val">12.5</span>
+      <button class="seg-btn" onclick="changeChordSize(1)">A+</button>
+    </div>
+    <div class="seg-ctrl" title="Note text size">
+      <button class="seg-btn" onclick="changeNoteSize(-1)">N−</button>
+      <span class="seg-val" id="note-size-val">13</span>
+      <button class="seg-btn" onclick="changeNoteSize(1)">N+</button>
+    </div>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn" id="edit-btn" onclick="toggleEditMode()" title="Toggle edit mode">✏ Edit</button>
+    <div class="seg-ctrl" title="Transpose · click value to reset">
+      <button class="seg-btn" onclick="transposeKey(-1)">♭</button>
+      <span class="seg-val clickable" id="key-val" onclick="resetTranspose()" title="Click to reset to original key">±0</span>
+      <button class="seg-btn" onclick="transposeKey(1)">♯</button>
+    </div>
+    <button class="tb-btn" onclick="renumberAll()" title="Renumber all bars">ReNo.</button>
+  </div>
+  <div class="tb-group tb-group-export">
+    <button class="tb-btn ghost" onclick="saveToFile()" title="Save as HTML file">💾 Save</button>
+    <button class="tb-btn primary" id="pdf-btn" onclick="printPDF()">🖨 Print / PDF</button>
+    <button class="tb-btn ghost" onclick="downloadTemplate()" title="Download blank template to share">⬇ Template</button>
+    <span class="tb-version">bandsheet v3.0</span>
+  </div>
 </div>
 <div id="metabar">
   <input class="tb-filename" id="tb-filename" value="Song Title" oninput="updateTitle()">
