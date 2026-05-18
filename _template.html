@@ -98,6 +98,11 @@ body:not(.edit-mode) .rte-toolbar{display:none!important}
 .bar-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.09);z-index:2}
 /* Bar number — top left, accent colour set inline */
 .bar-num{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;line-height:1;position:absolute;top:4px;left:6px;opacity:.7}
+/* Bar special note — top right, section lbl colour */
+.bar-snote{position:absolute;top:4px;left:calc(6px + 20px + 4px);right:6px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;line-height:1;background:transparent;border:none;outline:none;text-align:right;cursor:text;white-space:nowrap;padding:0;min-width:0}
+.bar-snote::placeholder{color:transparent}
+body.edit-mode .bar-snote::placeholder{color:var(--text-faint);font-weight:400;font-style:italic;font-size:9px}
+body.view-mini .bar-snote{font-size:9px;top:3px}
 .bar-chord{font-family:var(--chord-font),sans-serif;font-size:15px;font-weight:600;color:var(--text);line-height:1.2;cursor:text;outline:none;width:100%;padding:0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;flex:1}
 .bar-chord:focus{background:rgba(0,0,0,.04);border-radius:2px;padding:0 2px;margin:0 -2px}
 .bar-ann{font-size:10px;color:var(--text-muted);cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0;font-family:inherit;line-height:1.2}
@@ -500,6 +505,12 @@ function makeCell(bar,si,bi,num,col){
   // Bar number — top left, accent colour
   var numEl=document.createElement('span');numEl.className='bar-num';numEl.textContent=num;
   numEl.style.color=bar.h?'rgba(255,255,255,0.75)':col.lbl;
+  // Special note — top right, same lbl colour
+  var snoteEl=document.createElement('input');snoteEl.type='text';snoteEl.className='bar-snote';
+  snoteEl.value=bar.sn||'';snoteEl.placeholder='note…';
+  snoteEl.style.color=bar.h?'rgba(255,255,255,0.85)':col.lbl;
+  snoteEl.oninput=(function(s,b){return function(){SECTIONS[s].bars[b].sn=this.value}})(si,bi);
+  snoteEl.onmousedown=snoteEl.onclick=function(e){e.stopPropagation()};
   var chordEl=document.createElement('div');chordEl.className='bar-chord';chordEl.contentEditable='true';
   chordEl.textContent=bar.c;chordEl.style.fontSize=CHORD_SIZE+'px';
   if(bar.h)chordEl.style.color='#fff';
@@ -518,7 +529,7 @@ function makeCell(bar,si,bi,num,col){
   hvBtn.onclick=(function(s,b){return function(e){e.stopPropagation();SECTIONS[s].bars[b].hollow=!SECTIONS[s].bars[b].hollow;render()}})(si,bi);
   var barBottom=document.createElement('div');barBottom.className='bar-bottom';
   barBottom.appendChild(hlBtn);barBottom.appendChild(hvBtn);
-  cell.appendChild(numEl);cell.appendChild(chordEl);cell.appendChild(annEl);
+  cell.appendChild(numEl);cell.appendChild(snoteEl);cell.appendChild(chordEl);cell.appendChild(annEl);
   cell.appendChild(delBtn);cell.appendChild(barBottom);
   cell.addEventListener('dragstart',function(e){
     dragSrc=cell;cell.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',si+','+bi);
