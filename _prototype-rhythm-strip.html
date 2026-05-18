@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rhythm Strip — Option C Prototype · bandsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Petaluma';
+  src: url('https://cdn.jsdelivr.net/gh/musescore/MuseScore@master/fonts/petaluma/PetalumaScript.otf') format('opentype');
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+
+:root {
+  --bg: #f7f6f2;
+  --surface: #fff;
+  --border: #e0ddd6;
+  --border-strong: #c8c4bc;
+  --text: #1a1917;
+  --text-muted: #8a8780;
+  --text-faint: #c4c1bb;
+  --accent: #2a2a2a;
+  --cell-w: 130px;
+  --cell-h: 64px;
+  --rhythm-h: 36px;
+  --gap: 6px;
+  --radius: 5px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'IBM Plex Sans Thai', sans-serif; color: var(--text); min-height: 100vh; padding: 0 0 80px; }
+
+/* ── Toolbar ── */
+#toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.96);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding: 6px 20px;
+  display: flex; align-items: center; gap: 8px;
+  font-family: -apple-system, sans-serif;
+}
+#toolbar h2 { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-right: 4px; }
+.proto-badge { font-size: 10px; background: #fff3cd; color: #7a5e00; border: 1px solid #ffcc00; border-radius: 20px; padding: 1px 8px; font-weight: 600; }
+.tb-sep { width: 1px; height: 20px; background: rgba(0,0,0,0.1); margin: 0 4px; }
+.tb-btn {
+  font-size: 12px; font-weight: 400; padding: 4px 10px; border: none;
+  border-radius: 6px; background: transparent; color: rgba(0,0,0,0.75);
+  cursor: pointer; font-family: inherit; white-space: nowrap; height: 28px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.tb-btn:hover { background: rgba(0,0,0,0.06); }
+.tb-btn.active { background: #1c1c1e; color: #fff; }
+.tb-btn.active:hover { background: #2c2c2e; }
+
+/* ── Sheet ── */
+#sheet { padding: 20px 24px; }
+.section { margin-bottom: 24px; }
+
+/* Section header */
+.section-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px; padding: 0 2px;
+}
+.section-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 3px;
+}
+.rhythm-toggle-btn {
+  font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  border: 1px dashed var(--border-strong); background: none;
+  color: var(--text-muted); cursor: pointer; font-family: inherit;
+  transition: all .12s;
+}
+.rhythm-toggle-btn:hover { border-color: var(--accent); color: var(--text); }
+.rhythm-toggle-btn.on { border-style: solid; border-color: var(--accent); color: var(--text); background: var(--bg); }
+
+/* ── Bar row ── */
+.bar-row-wrap { display: flex; flex-wrap: wrap; gap: var(--gap); padding: 2px; }
+
+/* ── Single bar column (rhythm strip + chord cell stacked) ── */
+.bar-col { display: flex; flex-direction: column; gap: 0; flex-shrink: 0; width: var(--cell-w); }
+
+/* ── Rhythm strip ── */
+.rhythm-strip {
+  width: 100%;
+  height: var(--rhythm-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background .1s;
+}
+.rhythm-strip:hover { background: #fafaf8; }
+.rhythm-strip.empty-strip { cursor: pointer; }
+.rhythm-strip.empty-strip .beat-slots { opacity: 0; }
+.rhythm-strip.empty-strip:hover .beat-slots { opacity: 0.3; }
+.rhythm-strip-hidden { display: none !important; }
+
+/* Beat slots inside rhythm strip */
+.beat-slots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding: 2px 6px;
+  transition: opacity .12s;
+}
+.beat-slot {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .1s;
+  position: relative;
+  min-width: 0;
+}
+.beat-slot:hover { background: rgba(0,0,0,0.05); }
+.beat-slot.active-slot { background: rgba(0,0,0,0.04); }
+
+/* Note symbol inside a beat slot */
+.note-sym {
+  font-family: 'Petaluma', 'Segoe UI Symbol', serif;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text);
+  user-select: none;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
+}
+.note-sym.small { font-size: 15px; gap: 0px; }
+.note-sym.xsmall { font-size: 12px; }
+
+/* Add pattern hint */
+.add-rhythm-hint {
+  font-size: 9px; color: var(--text-faint);
+  font-family: 'Inter', sans-serif; letter-spacing: .04em;
+  pointer-events: none; position: absolute;
+}
+
+/* ── Chord cell ── */
+.bar-cell {
+  width: 100%;
+  min-height: var(--cell-h);
+  border-radius: 0 0 var(--radius) var(--radius);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-top: none;
+  padding: 4px 8px 22px;
+  display: flex; flex-direction: column; gap: 2px;
+  position: relative;
+  background: var(--surface);
+}
+/* When rhythm strip is hidden, restore full border-radius */
+.bar-col.no-rhythm .bar-cell {
+  border-radius: var(--radius);
+  border-top: 1px solid var(--border);
+}
+.bar-num {
+  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+  line-height: 1; opacity: .7;
+}
+.bar-chord {
+  font-family: 'Lato', sans-serif; font-size: 16px; font-weight: 700;
+  color: var(--text); margin-top: 2px;
+}
+
+/* ── Picker Popup ── */
+#rhythmPicker {
+  position: fixed;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+  padding: 10px;
+  width: 280px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+}
+#rhythmPicker.open { display: flex; }
+.picker-title {
+  font-size: 10px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-muted);
+  padding: 0 2px;
+}
+.picker-group { display: flex; flex-direction: column; gap: 4px; }
+.picker-group-label {
+  font-size: 9px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint);
+  padding: 0 2px;
+}
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+.picker-item {
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-family: 'Petaluma', 'Segoe UI Symbol', serif;
+  font-size: 18px;
+  transition: all .1s;
+  position: relative;
+}
+.picker-item:hover { background: #f0ede8; border-color: var(--border-strong); transform: scale(1.05); }
+.picker-item.selected { border-color: #1c1c1e; background: #1c1c1e; color: #fff; }
+.picker-item[data-label]::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: 2px; left: 50%; transform: translateX(-50%);
+  font-size: 7px; font-family: 'Inter', sans-serif;
+  color: var(--text-faint); letter-spacing: 0; font-weight: 500;
+  line-height: 1; white-space: nowrap;
+}
+.picker-sep { height: 1px; background: var(--border); margin: 2px 0; }
+.picker-clear {
+  font-size: 11px; color: var(--text-muted); background: none;
+  border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px;
+  cursor: pointer; font-family: inherit; width: 100%; text-align: center;
+  transition: all .1s;
+}
+.picker-clear:hover { border-color: #dc2626; color: #dc2626; background: #fff1f1; }
+
+/* Beat cycle popup (small) */
+#beatPicker {
+  position: fixed;
+  z-index: 1001;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+  padding: 6px;
+  display: none;
+  gap: 3px;
+  flex-wrap: wrap;
+  width: 180px;
+  font-family: 'Inter', sans-serif;
+}
+#beatPicker.open { display: flex; }
+.beat-picker-item {
+  width: 32px; height: 32px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-family: 'Petaluma', 'Segoe UI Symbol', serif;
+  font-size: 17px;
+  transition: all .1s;
+}
+.beat-picker-item:hover { background: #f0ede8; border-color: var(--border-strong); }
+.beat-picker-item.selected { border-color: #1c1c1e; background: #1c1c1e; color: #fff; }
+.beat-picker-sep { width: 100%; height: 1px; background: var(--border); margin: 1px 0; }
+
+/* Info bar */
+#infoBar {
+  background: #fffdf0; border-bottom: 1px solid #ffe880;
+  padding: 8px 24px; font-size: 11px; color: #7a5e00;
+  font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 8px;
+}
+#infoBar strong { font-weight: 600; }
+.info-dot { width: 6px; height: 6px; border-radius: 50%; background: #ffcc00; flex-shrink: 0; }
+
+/* Overlay to close popups */
+#overlay { position: fixed; inset: 0; z-index: 999; display: none; }
+#overlay.open { display: block; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h2>Rhythm Strip</h2>
+  <span class="proto-badge">Prototype — Option C</span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn active" id="editToggle" onclick="toggleEdit()">✏️ Edit Mode</button>
+  <button class="tb-btn" onclick="toggleAllRhythm()">𝅗 Rhythm rows</button>
+</div>
+
+<div id="infoBar">
+  <span class="info-dot"></span>
+  <span><strong>Click a rhythm strip</strong> to open the pattern picker &nbsp;·&nbsp; <strong>Click a beat slot</strong> to cycle individual note values &nbsp;·&nbsp; <strong>♩ toggle</strong> per section to show/hide rhythm row</span>
+</div>
+
+<div id="sheet"></div>
+
+<!-- Overlay -->
+<div id="overlay" onclick="closeAllPopups()"></div>
+
+<!-- ── Rhythm Picker Popup ── -->
+<div id="rhythmPicker">
+  <div class="picker-title">Rhythm Pattern</div>
+
+  <div class="picker-group">
+    <div class="picker-group-label">Notes — Single beat</div>
+    <div class="picker-grid" id="pg-single"></div>
+  </div>
+
+  <div class="picker-sep"></div>
+
+  <div class="picker-group">
+    <div class="picker-group-label">Notes — Full bar patterns</div>
+    <div class="picker-grid" id="pg-full"></div>
+  </div>
+
+  <div class="picker-sep"></div>
+
+  <div class="picker-group">
+    <div class="picker-group-label">Rests</div>
+    <div class="picker-grid" id="pg-rests"></div>
+  </div>
+
+  <div class="picker-sep"></div>
+
+  <div class="picker-group">
+    <div class="picker-group-label">Mixed patterns</div>
+    <div class="picker-grid" id="pg-mixed"></div>
+  </div>
+
+  <button class="picker-clear" onclick="clearCurrentBar()">✕ Clear rhythm</button>
+</div>
+
+<!-- ── Beat Cycle Picker (small popup) ── -->
+<div id="beatPicker" id="beatPicker"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// NOTE SYMBOL DEFINITIONS
+// Using Unicode + Petaluma font
+// ─────────────────────────────────────────────
+
+// Each symbol: { sym, label, beats }
+// beats = how many quarter-note beats it occupies
+var NOTE_SYMBOLS = {
+  // ── Notes ──
+  'w':   { sym: '𝅝',   label: 'whole',    beats: 4 },
+  'h':   { sym: '𝅗𝅥',  label: 'half',     beats: 2 },
+  'dq':  { sym: '♩.',  label: 'dot-q',    beats: 1.5 },
+  'q':   { sym: '♩',   label: 'quarter',  beats: 1 },
+  'de':  { sym: '♪.',  label: 'dot-e',    beats: 0.75 },
+  'e':   { sym: '♪',   label: '8th',      beats: 0.5 },
+  'ee':  { sym: '♫',   label: '2×8th',    beats: 1 },
+  's':   { sym: '𝅘𝅥𝅯',  label: '16th',     beats: 0.25 },
+  'ssss':{ sym: '♬♬',  label: '4×16th',   beats: 1 },
+
+  // ── Rests ──
+  'rw':  { sym: '𝄻',   label: 'w.rest',   beats: 4 },
+  'rh':  { sym: '𝄼',   label: 'h.rest',   beats: 2 },
+  'rq':  { sym: '𝄽',   label: 'q.rest',   beats: 1 },
+  're':  { sym: '𝄾',   label: 'e.rest',   beats: 0.5 },
+  'rs':  { sym: '𝄿',   label: '16.rest',  beats: 0.25 },
+};
+
+// ── Preset patterns shown in picker ──
+var PICKER_SINGLE = ['w','h','q','e','ee','s','ssss','dq','de'];
+var PICKER_FULL   = [
+  { id:'q-q-q-q',  syms:['q','q','q','q'],      label:'4 quarters' },
+  { id:'h-h',      syms:['h','h'],               label:'2 halves' },
+  { id:'w',        syms:['w'],                   label:'whole' },
+  { id:'ee-ee-ee-ee', syms:['ee','ee','ee','ee'],label:'8 eighths' },
+  { id:'ssss-ssss-ssss-ssss', syms:['ssss','ssss','ssss','ssss'], label:'16 sixteenths' },
+  { id:'q-ee-q',   syms:['q','ee','q'],          label:'q+2e+q' },
+  { id:'ee-q-ee',  syms:['ee','q','ee'],         label:'2e+q+2e' },
+  { id:'q-q-ee',   syms:['q','q','ee'],          label:'q+q+2e' },
+  { id:'dq-e-q-q', syms:['dq','e','q','q'],      label:'dq+e+q+q' },
+  { id:'q-dq-e',   syms:['q','dq','e'],          label:'q+dq+e' },
+];
+var PICKER_RESTS  = [
+  { id:'rw',       syms:['rw'],                  label:'whole rest' },
+  { id:'rh-rh',    syms:['rh','rh'],             label:'2 h.rests' },
+  { id:'rq-rq-rq-rq', syms:['rq','rq','rq','rq'],label:'4 q.rests' },
+  { id:'re-re-re-re', syms:['re','re','re','re'],label:'4 e.rests' },
+  { id:'rq-q-rq-q',syms:['rq','q','rq','q'],    label:'rest+q' },
+];
+var PICKER_MIXED  = [
+  { id:'rq-q-q-q', syms:['rq','q','q','q'],     label:'rest+3q' },
+  { id:'q-rq-q-q', syms:['q','rq','q','q'],     label:'q+rest+2q' },
+  { id:'q-q-rq-q', syms:['q','q','rq','q'],     label:'2q+rest+q' },
+  { id:'rq-ee-rq-q',syms:['rq','ee','rq','q'],  label:'r+2e+r+q' },
+  { id:'rq-ee-q-rq',syms:['rq','ee','q','rq'],  label:'r+2e+q+r' },
+  { id:'re-e-re-e', syms:['re','e','re','e'],   label:'e.rest alt' },
+  { id:'rh-q-q',   syms:['rh','q','q'],         label:'h.rest+2q' },
+  { id:'rq-ssss-rq-ssss', syms:['rq','ssss','rq','ssss'], label:'r+16+r+16' },
+];
+
+// ── Beat cycle sequence (for per-beat click) ──
+var BEAT_CYCLE = ['q','ee','ssss','dq','e','h','rq','re','rh'];
+
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+var EDIT_MODE = true;
+var RHYTHM_ALL = true;
+
+var SECTIONS = [
+  {
+    id: 'chorus', label: 'Chorus',
+    color: { bar:'#ffcc00', bg:'#fffbe6', lbl:'#7a5e00' },
+    rhythmOn: true,
+    bars: [
+      { c:'Bm',  r:['q'] },
+      { c:'Em',  r:['q'] },
+      { c:'C#m', r:['rq','ee','q'] },
+      { c:'F#',  r:['q','q','q','q'] },
+      { c:'Bm',  r:['q','ee'] },
+      { c:'Em',  r:['q','ee'] },
+      { c:'C#m', r:['ee','q'] },
+      { c:'F#',  r:['q','q','q','q'] },
+    ],
+    rowSizes: [4,4]
+  },
+  {
+    id: 'verse1', label: 'Verse 1',
+    color: { bar:'#3b82f6', bg:'#eef4fd', lbl:'#1e40af' },
+    rhythmOn: false,
+    bars: [
+      { c:'Am',  r:[] },
+      { c:'F',   r:[] },
+      { c:'C',   r:[] },
+      { c:'G',   r:[] },
+      { c:'Am',  r:[] },
+      { c:'F',   r:[] },
+      { c:'C',   r:['q','q','ee','q'] },
+      { c:'G',   r:[] },
+    ],
+    rowSizes: [4,4]
+  },
+  {
+    id: 'bridge', label: 'Bridge',
+    color: { bar:'#059669', bg:'#eafaf4', lbl:'#064e3b' },
+    rhythmOn: true,
+    bars: [
+      { c:'Dm7', r:['rq','ssss','q'] },
+      { c:'G7',  r:['ee','ee','q'] },
+      { c:'Cmaj7', r:['w'] },
+      { c:'Am7', r:['h','rh'] },
+      { c:'Dm7', r:['rq','ee','rq','ee'] },
+      { c:'G7',  r:['ssss','ssss','q'] },
+      { c:'C',   r:['w'] },
+    ],
+    rowSizes: [4,3]
+  },
+];
+
+// State
+var activeBarRef = null; // { si, bi }
+var activeBeatRef = null; // { si, bi, slotIdx }
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function render() {
+  var sheet = document.getElementById('sheet');
+  sheet.innerHTML = '';
+  SECTIONS.forEach(function(sec, si) {
+    var secEl = document.createElement('div');
+    secEl.className = 'section';
+
+    // Section head
+    var head = document.createElement('div');
+    head.className = 'section-head';
+    var tag = document.createElement('span');
+    tag.className = 'section-tag';
+    tag.textContent = sec.label;
+    tag.style.background = sec.color.bg;
+    tag.style.color = sec.color.lbl;
+    tag.style.border = '1px solid ' + sec.color.bar + '55';
+    var rBtn = document.createElement('button');
+    rBtn.className = 'rhythm-toggle-btn' + (sec.rhythmOn ? ' on' : '');
+    rBtn.innerHTML = (sec.rhythmOn ? '♩ Rhythm on' : '♩ Rhythm off');
+    rBtn.onclick = (function(idx){ return function(){ SECTIONS[idx].rhythmOn = !SECTIONS[idx].rhythmOn; render(); }; })(si);
+    head.appendChild(tag);
+    head.appendChild(rBtn);
+    secEl.appendChild(head);
+
+    // Bar rows
+    var rows = makeRowGroups(sec.bars, sec.rowSizes);
+    rows.forEach(function(rowBars) {
+      var rowWrap = document.createElement('div');
+      rowWrap.className = 'bar-row-wrap';
+      rowBars.forEach(function(barIdx) {
+        rowWrap.appendChild(makeBarCol(sec, si, barIdx));
+      });
+      secEl.appendChild(rowWrap);
+    });
+
+    sheet.appendChild(secEl);
+  });
+}
+
+function makeRowGroups(bars, rowSizes) {
+  if (!rowSizes || rowSizes.length === 0) return [bars.map(function(_,i){return i;})];
+  var groups = []; var pos = 0;
+  rowSizes.forEach(function(n){ groups.push(bars.slice(pos,pos+n).map(function(_,i){return pos+i;})); pos+=n; });
+  if (pos < bars.length) groups.push(bars.slice(pos).map(function(_,i){return pos+i;}));
+  return groups;
+}
+
+function makeBarCol(sec, si, bi) {
+  var bar = sec.bars[bi];
+  var col = sec.color;
+  var hasRhythm = sec.rhythmOn && RHYTHM_ALL;
+
+  var barCol = document.createElement('div');
+  barCol.className = 'bar-col' + (hasRhythm ? '' : ' no-rhythm');
+
+  // ── Rhythm strip ──
+  var strip = document.createElement('div');
+  strip.className = 'rhythm-strip' + (!hasRhythm ? ' rhythm-strip-hidden' : '');
+  strip.style.borderLeftColor = col.bar;
+  strip.style.background = col.bg;
+
+  var slots = bar.r && bar.r.length > 0 ? bar.r : [];
+  var isEmpty = slots.length === 0;
+
+  if (isEmpty) {
+    strip.classList.add('empty-strip');
+    var hint = document.createElement('span');
+    hint.className = 'add-rhythm-hint';
+    hint.textContent = EDIT_MODE ? '+ rhythm' : '';
+    strip.appendChild(hint);
+    // Click to open picker
+    strip.onclick = (function(s,b,el){ return function(e){ e.stopPropagation(); openPicker(s,b,el); }; })(si,bi,strip);
+  } else {
+    // Render beat slots
+    var slotsWrap = document.createElement('div');
+    slotsWrap.className = 'beat-slots';
+    slots.forEach(function(noteId, slotIdx) {
+      var def = NOTE_SYMBOLS[noteId];
+      if (!def) return;
+      var slot = document.createElement('div');
+      slot.className = 'beat-slot';
+      slot.title = def.label;
+      var sym = document.createElement('span');
+      sym.className = 'note-sym' + (slots.length > 4 ? ' small' : '') + (slots.length > 6 ? ' xsmall' : '');
+      sym.textContent = def.sym;
+      sym.style.color = col.lbl;
+      slot.appendChild(sym);
+      if (EDIT_MODE) {
+        slot.onclick = (function(s,b,idx,el){ return function(e){ e.stopPropagation(); openBeatPicker(s,b,idx,el); }; })(si,bi,slotIdx,slot);
+      }
+      slotsWrap.appendChild(slot);
+    });
+    strip.appendChild(slotsWrap);
+    // Long-click / right-click to open full picker
+    if (EDIT_MODE) {
+      strip.oncontextmenu = (function(s,b,el){ return function(e){ e.preventDefault(); e.stopPropagation(); openPicker(s,b,el); }; })(si,bi,strip);
+      // Double-click also opens picker
+      strip.ondblclick = (function(s,b,el){ return function(e){ e.stopPropagation(); openPicker(s,b,el); }; })(si,bi,strip);
+    }
+  }
+  barCol.appendChild(strip);
+
+  // ── Chord cell ──
+  var cell = document.createElement('div');
+  cell.className = 'bar-cell';
+  cell.style.borderLeftColor = col.bar;
+  cell.style.background = col.bg;
+  if (!hasRhythm) {
+    cell.style.borderRadius = 'var(--radius)';
+    cell.style.borderTop = '1px solid var(--border)';
+  }
+  var numEl = document.createElement('span');
+  numEl.className = 'bar-num';
+  numEl.style.color = col.lbl;
+  numEl.textContent = bi + 1;
+  var chordEl = document.createElement('div');
+  chordEl.className = 'bar-chord';
+  chordEl.textContent = bar.c;
+  cell.appendChild(numEl);
+  cell.appendChild(chordEl);
+  barCol.appendChild(cell);
+
+  return barCol;
+}
+
+// ─────────────────────────────────────────────
+// PICKER — full bar pattern
+// ─────────────────────────────────────────────
+function buildPickerGrids() {
+  // Single beat
+  var pg = document.getElementById('pg-single');
+  PICKER_SINGLE.forEach(function(id) {
+    var def = NOTE_SYMBOLS[id];
+    if (!def) return;
+    var item = document.createElement('div');
+    item.className = 'picker-item';
+    item.textContent = def.sym;
+    item.title = def.label;
+    item.dataset.label = def.label;
+    item.onclick = function(e) { e.stopPropagation(); applyPattern([id]); };
+    pg.appendChild(item);
+  });
+
+  // Full patterns
+  function buildGroup(containerId, patterns) {
+    var cont = document.getElementById(containerId);
+    patterns.forEach(function(pat) {
+      var item = document.createElement('div');
+      item.className = 'picker-item';
+      var symsStr = pat.syms.map(function(id){ return NOTE_SYMBOLS[id]?NOTE_SYMBOLS[id].sym:''; }).join('');
+      item.innerHTML = '<span style="font-family:Petaluma,serif;font-size:'+(pat.syms.length>3?'13':'16')+'px;letter-spacing:1px">' + symsStr + '</span>';
+      item.title = pat.label;
+      item.dataset.label = pat.label;
+      item.onclick = function(e) { e.stopPropagation(); applyPattern(pat.syms); };
+      cont.appendChild(item);
+    });
+  }
+  buildGroup('pg-full', PICKER_FULL);
+  buildGroup('pg-rests', PICKER_RESTS);
+  buildGroup('pg-mixed', PICKER_MIXED);
+}
+
+function openPicker(si, bi, anchorEl) {
+  if (!EDIT_MODE) return;
+  activeBarRef = { si: si, bi: bi };
+  var picker = document.getElementById('rhythmPicker');
+  var rect = anchorEl.getBoundingClientRect();
+  picker.style.left = Math.min(rect.left, window.innerWidth - 300) + 'px';
+  picker.style.top  = (rect.bottom + 6) + 'px';
+  picker.classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+
+  // Highlight current pattern
+  var cur = SECTIONS[si].bars[bi].r || [];
+  var curId = cur.join('-');
+  picker.querySelectorAll('.picker-item').forEach(function(el){ el.classList.remove('selected'); });
+}
+
+function applyPattern(syms) {
+  if (!activeBarRef) return;
+  SECTIONS[activeBarRef.si].bars[activeBarRef.bi].r = syms.slice();
+  closeAllPopups();
+  render();
+}
+
+function clearCurrentBar() {
+  if (!activeBarRef) return;
+  SECTIONS[activeBarRef.si].bars[activeBarRef.bi].r = [];
+  closeAllPopups();
+  render();
+}
+
+// ─────────────────────────────────────────────
+// BEAT PICKER — per-slot cycling
+// ─────────────────────────────────────────────
+function buildBeatPicker() {
+  var bp = document.getElementById('beatPicker');
+  bp.innerHTML = '';
+  BEAT_CYCLE.forEach(function(id) {
+    var def = NOTE_SYMBOLS[id];
+    if (!def) return;
+    var item = document.createElement('div');
+    item.className = 'beat-picker-item';
+    item.textContent = def.sym;
+    item.title = def.label;
+    item.onclick = function(e) {
+      e.stopPropagation();
+      applyBeat(id);
+    };
+    bp.appendChild(item);
+  });
+  // Add delete slot button
+  var sep = document.createElement('div');
+  sep.className = 'beat-picker-sep';
+  bp.appendChild(sep);
+  var del = document.createElement('div');
+  del.className = 'beat-picker-item';
+  del.style.fontSize = '13px'; del.style.fontFamily = 'sans-serif'; del.style.color = '#dc2626';
+  del.textContent = '✕';
+  del.title = 'Remove beat';
+  del.onclick = function(e) { e.stopPropagation(); deleteBeat(); };
+  bp.appendChild(del);
+}
+
+function openBeatPicker(si, bi, slotIdx, anchorEl) {
+  if (!EDIT_MODE) return;
+  activeBeatRef = { si: si, bi: bi, slotIdx: slotIdx };
+  var bp = document.getElementById('beatPicker');
+  var rect = anchorEl.getBoundingClientRect();
+  bp.style.left = Math.min(rect.left, window.innerWidth - 190) + 'px';
+  bp.style.top  = (rect.bottom + 4) + 'px';
+
+  // Highlight current
+  var curId = SECTIONS[si].bars[bi].r[slotIdx];
+  bp.querySelectorAll('.beat-picker-item').forEach(function(el, i){
+    el.classList.toggle('selected', BEAT_CYCLE[i] === curId);
+  });
+
+  bp.classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function applyBeat(noteId) {
+  if (!activeBeatRef) return;
+  var bar = SECTIONS[activeBeatRef.si].bars[activeBeatRef.bi];
+  bar.r[activeBeatRef.slotIdx] = noteId;
+  closeAllPopups();
+  render();
+}
+
+function deleteBeat() {
+  if (!activeBeatRef) return;
+  var bar = SECTIONS[activeBeatRef.si].bars[activeBeatRef.bi];
+  bar.r.splice(activeBeatRef.slotIdx, 1);
+  closeAllPopups();
+  render();
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function closeAllPopups() {
+  document.getElementById('rhythmPicker').classList.remove('open');
+  document.getElementById('beatPicker').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  activeBarRef = null;
+  activeBeatRef = null;
+}
+
+function toggleEdit() {
+  EDIT_MODE = !EDIT_MODE;
+  var btn = document.getElementById('editToggle');
+  btn.classList.toggle('active', EDIT_MODE);
+  btn.textContent = EDIT_MODE ? '✏️ Edit Mode' : '👁 View Mode';
+  render();
+}
+
+function toggleAllRhythm() {
+  RHYTHM_ALL = !RHYTHM_ALL;
+  render();
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+buildPickerGrids();
+buildBeatPicker();
+render();
+</script>
+</body>
+</html>
