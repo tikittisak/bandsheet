@@ -57,12 +57,13 @@ body{background:var(--bg);font-family:"IBM Plex Sans Thai",sans-serif;color:var(
 .bar-bottom-row{position:absolute;bottom:4px;left:4px;right:4px;display:flex;align-items:center;justify-content:space-between}
 .bar-bottom-left{display:flex;gap:3px;align-items:center}
 .bar-bottom-right{display:flex;gap:2px;align-items:center}
-.hollow-btn,.highlight-btn,.rhythm-bar-btn{width:16px;height:16px;border-radius:3px;background:none;border:none;font-size:11px;cursor:pointer;display:none;padding:0;line-height:16px;text-align:center;color:var(--text-faint);transition:all .1s}
+.hollow-btn,.highlight-btn{width:16px;height:16px;border-radius:3px;background:none;border:none;font-size:11px;cursor:pointer;display:none;padding:0;line-height:16px;text-align:center;color:var(--text-faint);transition:all .1s}
 .hollow-btn:hover,.highlight-btn:hover{background:rgba(0,0,0,0.06);color:var(--text)}
-.bar-cell:hover .hollow-btn,.bar-cell:hover .highlight-btn,.bar-cell:hover .rhythm-bar-btn{display:block}
-/* Rhythm bar toggle — always visible when rhythmOff=true */
-.rhythm-bar-btn.forced-show{display:block!important;color:var(--text-muted)}
-.rhythm-bar-btn:hover{background:rgba(0,0,0,0.06);color:var(--text)}
+.bar-cell:hover .hollow-btn,.bar-cell:hover .highlight-btn,.bar-cell:hover .rhythm-bar-btn{display:flex}
+/* Rhythm bar toggle — minimal circle */
+.rhythm-bar-btn{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--text-faint);background:transparent;cursor:pointer;display:none;padding:0;transition:all .15s;flex-shrink:0}
+.rhythm-bar-btn.forced-show{display:flex!important;background:currentColor;border-color:currentColor;opacity:.45}
+.rhythm-bar-btn:hover{opacity:1!important;border-color:var(--text-muted)}
 
 /* Full picker popup */
 #rhythmPicker{position:fixed;z-index:1000;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08);padding:10px;width:330px;display:none;flex-direction:column;gap:7px;font-family:"Inter",sans-serif;max-height:82vh;overflow-y:auto}
@@ -309,7 +310,6 @@ function makeBarCol(sec,si,bi,showSec){
   var rbarBtn=document.createElement('button');
   rbarBtn.className='rhythm-bar-btn'+(bar.rhythmOff?' forced-show':'');
   rbarBtn.title=bar.rhythmOff?'Rhythm hidden — click to show':'Hide rhythm for this bar';
-  rbarBtn.textContent=bar.rhythmOff?'𝄽':'♩';
   rbarBtn.style.color=bar.rhythmOff?col.lbl:'';
   rbarBtn.onclick=(function(s,b){return function(e){
     e.stopPropagation();
