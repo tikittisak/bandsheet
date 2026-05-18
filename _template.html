@@ -37,7 +37,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .seg-val.transposed{color:#007AFF;font-weight:600}
 
 /* ── Metabar ── */
-#metabar{background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#metabar{background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;transition:margin-top .22s ease,opacity .22s ease}
 .meta-label{font-size:10px;color:var(--text-faint);font-family:'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
 .meta-input{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--text);border:none;background:transparent;outline:none;min-width:20px;max-width:80px;padding:2px 4px;border-radius:3px;transition:background .12s}
 .meta-input:hover{background:var(--bg)}
@@ -223,22 +223,30 @@ body.notes-hidden .note-type-sec{display:none!important}
   .footer-links-grid{grid-template-columns:1fr}
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-// ── Auto-hide toolbar on scroll ──
-(function(){
-  var lastY=window.scrollY,ticking=false,tb=document.getElementById('toolbar');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ── Auto-hide toolbar + metabar on scroll (rehearsal mode) ──
+document.addEventListener('DOMContentLoaded',function(){
+  var lastY=window.scrollY,ticking=false;
+  var tb=document.getElementById('toolbar');
+  var mb=document.getElementById('metabar');
   window.addEventListener('scroll',function(){
     if(ticking)return;ticking=true;
     requestAnimationFrame(function(){
       var y=window.scrollY;
-      if(tb){
-        if(y>lastY&&y>60){tb.style.top='-'+tb.offsetHeight+'px';}
-        else if(y<lastY){tb.style.top='0';}
+      if(y>lastY&&y>60){
+        // scrolling down — hide both bars
+        if(tb){tb.style.top='-'+(tb.offsetHeight+2)+'px';}
+        if(mb){mb.style.marginTop='-'+(mb.offsetHeight+2)+'px';mb.style.opacity='0';}
+      } else if(y<lastY){
+        // scrolling up — show both bars
+        if(tb){tb.style.top='0';}
+        if(mb){mb.style.marginTop='0';mb.style.opacity='1';}
       }
       lastY=y;ticking=false;
     });
   },{passive:true});
-})();
+});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
