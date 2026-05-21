@@ -79,7 +79,7 @@ body:not(.edit-mode) .rte-toolbar{display:none!important}
 .rte-editor:focus{background:var(--bg)}
 .rte-editor:empty::before{content:attr(data-ph);color:var(--text-faint);font-style:italic;pointer-events:none}
 .rte-editor a{color:#2563eb;text-decoration:underline}
-.rte-editor img{max-width:100%;border-radius:4px;margin:4px 0;display:block}
+.rte-editor img{max-width:100%;border-radius:4px;margin:4px 0;display:block}.rte-editor *{font-family:'IBM Plex Sans Thai',sans-serif;}.rte-editor p,.rte-editor div{margin:0;padding:0;}
 @media(max-width:768px){.sec-note-cols{grid-template-columns:1fr}}
 /* ── Bar rows ── */
 .bar-row{display:flex;flex-wrap:wrap;gap:var(--gap);min-height:calc(var(--cell-h) + 4px);padding:3px 2px;border-radius:4px;transition:background .1s}
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <button class="tb-btn ghost" onclick="saveToFile()" title="Save as HTML file">💾 Save</button>
     <button class="tb-btn primary" id="pdf-btn" onclick="printPDF()">🖨 Print / PDF</button>
     <button class="tb-btn ghost" onclick="downloadTemplate()" title="Download blank template to share">⬇ Template</button>
-    <span class="tb-version">bandsheet v4.0</span>
+    <span class="tb-version">bandsheet v4.1</span>
   </div>
 </div>
 <div id="metabar">
@@ -542,7 +542,7 @@ function render(){
         ed.setAttribute('data-ph','Add note...');ed.innerHTML=colHtml||'';
         ed.style.borderLeftColor=col.bar;
         ed.oninput=ed.onblur=(function(s,c){return function(){SECTIONS[s].cols[c]=this.innerHTML}})(si,ci);
-        ed.onmousedown=ed.onclick=function(e){e.stopPropagation()};
+        ed.onmousedown=ed.onclick=function(e){e.stopPropagation()};ed.addEventListener('paste',function(e){e.preventDefault();var plain=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,plain);});
         colWrap.appendChild(tb);colWrap.appendChild(ed);
         colsDiv.appendChild(colWrap);
       });
@@ -905,7 +905,7 @@ function changeChordSize(delta){
 function changeNoteSize(delta){
   NOTE_SIZE=Math.max(9,Math.min(22,NOTE_SIZE+delta));
   SETTINGS.noteSize=NOTE_SIZE;
-  document.querySelectorAll('.rte-editor,.footer-note-ta').forEach(function(el){el.style.fontSize=NOTE_SIZE+'px'});
+  document.querySelectorAll('.rte-editor,.footer-note-ta').forEach(function(el){el.style.fontSize=NOTE_SIZE+'px';el.querySelectorAll('[style*="font-size"]').forEach(function(c){c.style.fontSize='';});});
   var v=document.getElementById('note-size-val');if(v)v.textContent=NOTE_SIZE;
 }
 
@@ -1110,7 +1110,7 @@ buildRhythmPicker();buildBeatPicker();
 var eb=document.getElementById('edit-btn');if(eb){eb.classList.toggle('primary',EDIT_MODE);eb.textContent=EDIT_MODE?'✏ Edit ✓':'✏ Edit';}
   var csv=document.getElementById('chord-size-val');if(csv)csv.textContent=CHORD_SIZE;
   var nsv=document.getElementById('note-size-val');if(nsv)nsv.textContent=NOTE_SIZE;
-  document.querySelectorAll('.rte-editor,.footer-note-ta').forEach(function(el){el.style.fontSize=NOTE_SIZE+'px'});
+  document.querySelectorAll('.rte-editor,.footer-note-ta').forEach(function(el){el.style.fontSize=NOTE_SIZE+'px';el.querySelectorAll('[style*="font-size"]').forEach(function(c){c.style.fontSize='';});});
   document.documentElement.style.setProperty('--chord-font',"'"+CHORD_FONT+"'");
   var fsf=document.getElementById('font-sel');if(fsf)fsf.value=CHORD_FONT;
   var kv=document.getElementById('key-val');
