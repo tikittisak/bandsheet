@@ -8,5 +8,6 @@ Backup/
 PDF/
 *.pdf
 backup/
+*_diff*.txt
 __pycache__/
 *.pyc

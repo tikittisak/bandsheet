@@ -1,4 +1,4 @@
-# Bandsheet Project — Claude Code Instructions
+# Bandsheet Project — Codex Instructions
 
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
@@ -34,7 +34,7 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 ## File Structure
 ```
 Bandsheet/
-├── CLAUDE.md
+├── AGENTS.md
 ├── _template.html               ← template v6.0 prototype
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
 │   ├── _template-v2.html
@@ -50,7 +50,7 @@ Bandsheet/
 **Version bump workflow:**
 1. Backup ไฟล์ปัจจุบันไปที่ `backup/{name}-v{current}.html`
 2. แก้ `_template.html` + song files ทุกไฟล์พร้อมกัน (ใช้ Python script)
-3. อัพเดต version badge ใน template และ CLAUDE.md
+3. อัพเดต version badge ใน template และ AGENTS.md
 
 ---
 
@@ -196,13 +196,13 @@ Outro
 
 ```bash
 # สร้าง bandsheet ใหม่
-claude "สร้าง bandsheet เพลง {ชื่อเพลง} — {ศิลปิน}"
+Codex "สร้าง bandsheet เพลง {ชื่อเพลง} — {ศิลปิน}"
 
 # rebuild จาก chord ใหม่ที่ user ให้มา
-claude "rebuild {filename}.html จาก chord นี้: [chord text]"
+Codex "rebuild {filename}.html จาก chord นี้: [chord text]"
 
 # แก้เฉพาะ section
-claude "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่]"
+Codex "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่]"
 ```
 
 ---
