@@ -6,7 +6,7 @@ import re
 import subprocess
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = "bandsheet v6.02"
+VERSION = "bandsheet v6.03"
 UPDATED = "2026-05-28"
 
 SKIP_DIRS = {"backup", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
@@ -400,6 +400,9 @@ def update_version_files():
         doc = doc.replace("current version: v6.01", "current version: v6.02")
         doc = doc.replace("template v6.01", "template v6.02")
         doc = doc.replace("(v6.01)", "(v6.02)")
+        doc = doc.replace("current version: v6.02", "current version: v6.03")
+        doc = doc.replace("template v6.02", "template v6.03")
+        doc = doc.replace("(v6.02)", "(v6.03)")
         write_text(agents_path, doc)
 
 

@@ -2,7 +2,7 @@
 
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
-Template อยู่ที่ `_template.html` — **current version: v6.02**
+Template อยู่ที่ `_template.html` — **current version: v6.03**
 
 ---
 
@@ -35,7 +35,7 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 ```
 Bandsheet/
 ├── AGENTS.md
-├── _template.html               ← template v6.02
+├── _template.html               ← template v6.03
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
 │   ├── _template-v2.html
 │   ├── virtual-insanity-v2.html
@@ -63,7 +63,47 @@ Bandsheet/
 
 ---
 
-## HTML Injection — จุดที่ต้องแก้ (v6.02)
+## AI Import Guard — v6.03
+
+ถ้าใช้ ChatGPT / Claude / AI ตัวอื่นเพื่อช่วยนำเข้าข้อมูล:
+- ให้ AI สร้าง **JSON เท่านั้น** อย่าให้แก้ HTML ทั้งไฟล์
+- ใช้ `bandsheet_import.py` เป็นตัว validate + sanitize + inject ลง `_template.html`
+- หน้า template และทุก song sheet มี `AI import prompt` อยู่ท้ายหน้าให้ copy ไปเริ่ม session ใน AI ตัวอื่น
+- ห้ามให้ AI invent chord เอง ใช้ chord chart ที่ user ให้เท่านั้น
+- Note/Lyric HTML จะ sanitize เหลือ tag พื้นฐาน: `p`, `br`, `strong`, `b`, `em`, `i`, `u`
+
+ตัวอย่าง:
+```bash
+python3 bandsheet_import.py song.json --check
+python3 bandsheet_import.py song.json --band parkhaus108
+python3 bandsheet_import.py song.json --output parkhaus108/song-name.html
+```
+
+JSON ที่ AI ควรส่ง:
+```json
+{
+  "title": "Song Title",
+  "artist": "Artist",
+  "key": "F major",
+  "bpm": "96",
+  "time": "4/4",
+  "vocalist": "",
+  "sections": []
+}
+```
+
+ตัว import guard จะเช็ก:
+- marker ใน template ครบ: `END DATA`, `END FOOTER`, `END SETTINGS`
+- metadata fields ครบ: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, `meta-vocalist`
+- `sections` เป็น list และ chord section มี `bars`
+- note block ต้องเป็น `type: "note"` และมี `cols`
+- `rowSizes` ต้องเป็นเลข 1-8
+- rhythm ids ต้องอยู่ใน whitelist
+- metadata จะ escape ก่อนใส่ HTML attribute
+
+---
+
+## HTML Injection — จุดที่ต้องแก้ (v6.03)
 
 Fields: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, **`meta-vocalist`** (ใหม่ใน v2.1)
 

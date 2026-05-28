@@ -369,9 +369,10 @@ document.addEventListener('DOMContentLoaded',function(){
     <button class="tb-btn ghost" onclick="saveJPG()" title="Save continuous sheet view as JPG">save jpg</button>
     <button class="tb-btn ghost" onclick="saveToFile()" title="Save current sheet as HTML">save html</button>
     <button class="tb-btn ghost" onclick="downloadTemplate()" title="Download blank template to share">template</button>
+    <button class="tb-btn ghost" onclick="copyAiPrompt(this)" title="Copy prompt for ChatGPT / Claude">ai prompt</button>
   </div>
   <span class="tb-flex-spacer"></span>
-  <a class="top-brand" href="https://www.instagram.com/ti.muse/" onclick="window.location.href='https://www.instagram.com/ti.muse/';return false;" title="Open @ti.muse on Instagram">bandsheet by ti.muse <span class="brand-version">v6.02</span></a>
+  <a class="top-brand" href="https://www.instagram.com/ti.muse/" onclick="window.location.href='https://www.instagram.com/ti.muse/';return false;" title="Open @ti.muse on Instagram">bandsheet by ti.muse <span class="brand-version">v6.03</span></a>
 </div>
 <div id="metabar">
   <input class="tb-filename" id="tb-filename" value="เคย" oninput="updateTitle()">
@@ -967,6 +968,51 @@ function closeAllRhythmPopups(){
   rhythmActiveBarRef=null;rhythmActiveBeatRef=null;
 }
 
+
+var AI_START_PROMPT = [
+  'You are helping convert a user-provided chord chart into Bandsheet JSON.',
+  '',
+  'Rules:',
+  '- Return JSON only. Do not return Markdown.',
+  '- Do not edit HTML, CSS, or JavaScript.',
+  '- Do not invent chords. Use only the chord chart I paste or upload.',
+  '- You may look up metadata only for key, BPM, time signature, and song structure.',
+  '- Put lyric/note blocks immediately under their related chord section.',
+  '',
+  'Output shape:',
+  '{',
+  '  "title": "Song Title",',
+  '  "artist": "Artist",',
+  '  "key": "F major",',
+  '  "bpm": "96",',
+  '  "time": "4/4",',
+  '  "vocalist": "",',
+  '  "sections": []',
+  '}',
+  '',
+  'Chord section example:',
+  '{"id":"verse1","label":"Verse 1","note":"","noteHidden":true,"lyric":"","color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"bars":[{"c":"Gm","a":"","h":false,"r":[]}],"rowSizes":[4,4]}',
+  '',
+  'Note section example:',
+  '{"id":"lyric-verse1","type":"note","label":"Lyric — Verse 1","cols":["<p>line 1<br>line 2</p>",""],"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"}}',
+  '',
+  'After you return JSON, I will validate it with: python3 bandsheet_import.py song.json --check'
+].join('\n');
+
+function copyAiPrompt(btn){
+  function done(){if(btn){btn.textContent='copied';setTimeout(function(){btn.textContent='ai prompt'},1400)}toast('AI prompt copied ✓')}
+  function fallbackCopy(){
+    var tmp=document.createElement('textarea');
+    tmp.value=AI_START_PROMPT;tmp.setAttribute('readonly','');
+    tmp.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(tmp);tmp.select();document.execCommand('copy');document.body.removeChild(tmp);done();
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(AI_START_PROMPT).then(done).catch(fallbackCopy);
+  }else{
+    fallbackCopy();
+  }
+}
 
 function makeFooterCtrl(arr,idx,renderFn,vertical){
   var wrap=document.createElement('div');wrap.className=vertical?'fn-ctrl':'fl-ctrl';
