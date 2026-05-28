@@ -3,37 +3,11 @@ import html
 import json
 import os
 import re
+import subprocess
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 VERSION = "bandsheet v6.02"
 UPDATED = "2026-05-28"
-
-VERSION_NOTES = [
-    {
-        "date": "2026-05-28",
-        "title": "v6.02 hotfix notes",
-        "items": [
-            "Index Open buttons now always open songs in a new tab or window.",
-            "Bandsheet sections now share one centered content lane; rows inside that lane stay left-aligned.",
-            "Short sections no longer float in the middle after wide lyric blocks.",
-        ],
-    },
-    {
-        "date": "2026-05-28",
-        "title": "v6.02 layout + index refresh",
-        "items": [
-            "Index redesigned to match the light bandsheet v6.02 language.",
-            "Index search now supports song, artist, band, key, BPM, and vocalist.",
-            "Key and vocalist filters are compact text fields; vocalist metadata supports multiple names.",
-            "Band colors updated: PARKHAUS108 and PARKHAUS Studio use #6D132D; THE MÆWJØNS uses #EB3C1F.",
-            "Song metadata fallback added so placeholder titles like Song Title use the filename instead of disappearing from search.",
-            "Bandsheet note blocks hide empty columns in view mode and split evenly when two columns are used.",
-            "Note/lyric blocks use the widest chord section width in the sheet; section labels stay aligned to their own bar groups.",
-            "Save JPG export now includes footer notes and follows the same note width and alignment rules as the page.",
-            "Paste into rich note editors and footer notes now inserts plain text only.",
-        ],
-    },
-]
 
 SKIP_DIRS = {"backup", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
 SKIP_FILES = {
@@ -71,6 +45,18 @@ def write_text(path, content):
 
 def js_json(data):
     return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+def git_value(fmt):
+    try:
+        return subprocess.check_output(
+            ["git", "log", "-1", "--format=" + fmt],
+            cwd=BAND_ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return ""
 
 
 def get_input_value(doc, field_id):
@@ -191,20 +177,10 @@ def collect_songs(bands):
     return songs
 
 
-def render_version_notes():
-    blocks = []
-    for note in VERSION_NOTES:
-        items = "".join(f"<li>{html.escape(item)}</li>" for item in note["items"])
-        blocks.append(
-            '<section class="release-notes">'
-            '<div class="release-head">'
-            f'<div class="release-title">{html.escape(note["title"])}</div>'
-            f'<div class="release-date">{html.escape(note["date"])}</div>'
-            '</div>'
-            f'<ul class="release-list">{items}</ul>'
-            '</section>'
-        )
-    return "".join(blocks)
+def render_commit_note():
+    commit = git_value("%h") or "unknown"
+    stamp = git_value("%ci") or UPDATED
+    return '<div class="commit-note">Commit ล่าสุด: ' + html.escape(commit) + ' · ' + html.escape(stamp) + "</div>"
 
 
 STYLE = """
@@ -230,9 +206,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 .band-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:8px 0 24px}
 .band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:var(--border-strong);background:#fbfdff}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
 .band-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--text)}.band-song-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--text-muted);margin-top:3px}
-.release-notes{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:13px 15px;margin:0 0 24px;position:relative;overflow:hidden}.release-notes:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ui-active)}
-.release-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}.release-title{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.02em}.release-date{font-family:'Inter',sans-serif;font-size:10px;color:var(--text-muted)}
-.release-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px;list-style:none}.release-list li{font-size:11px;line-height:1.45;color:var(--text-muted);padding-left:13px;position:relative}.release-list li:before{content:'';position:absolute;left:0;top:.62em;width:4px;height:4px;border-radius:50%;background:var(--border-strong)}
+.commit-note{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);margin:0 0 18px;letter-spacing:.01em}
 .table-wrap{width:100%;overflow-x:auto}.song-table{width:100%;border-collapse:collapse;min-width:820px;margin-top:8px}.song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ui-muted);text-align:left;padding:11px 10px 9px;border-bottom:1px solid var(--border);white-space:nowrap}.song-table th:first-child{padding-left:0;width:38px}
 .song-row{border-bottom:1px solid var(--ui-line);transition:background .1s}.song-row:hover{background:rgba(255,255,255,.58)}.song-row td{padding:12px 10px;font-size:13px;vertical-align:middle}.song-row td:first-child{padding-left:0}
 .song-num,.song-key,.song-bpm,.song-band,.song-vocalist{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);white-space:nowrap}.song-title{font-weight:600;color:var(--text);overflow-wrap:anywhere}.song-artist,.song-vocalist-sub{font-size:11px;color:var(--text-muted);margin-top:2px;overflow-wrap:anywhere}
@@ -240,7 +214,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 .setlist-input{font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:1px solid transparent;border-radius:4px;color:var(--text-muted);width:42px;text-align:center;padding:2px 4px;outline:none}.setlist-input:hover,.setlist-input:focus{border-color:var(--border-strong);color:var(--text);background:var(--surface)}
 .th-sortable{cursor:pointer;user-select:none}.th-sortable:hover{color:var(--ui-ink)}.sort-ind{font-size:9px;opacity:.45;margin-left:2px;text-transform:lowercase}.sort-ind.on{opacity:1;color:var(--ui-active)}
 .empty{padding:34px 0;color:var(--text-muted);font-size:13px}.hidden{display:none!important}footer{max-width:1160px;margin:0 auto;padding:18px 38px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);font-family:'Inter',sans-serif;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media(max-width:820px){header{padding:24px 18px 16px}.toolbar{padding:10px 18px;align-items:stretch}.search-wrap{max-width:none;flex-basis:100%}.filter-group{width:100%}.filter-field{flex:1 1 132px}.filter-field .filter-input,.filter-field.vocalist .filter-input{width:100%}main{padding:18px 18px 44px}.band-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.release-list{grid-template-columns:1fr}.song-table{min-width:760px}.song-table th,.song-row td{padding-left:8px;padding-right:8px}footer{padding:18px}}
+@media(max-width:820px){header{padding:24px 18px 16px}.toolbar{padding:10px 18px;align-items:stretch}.search-wrap{max-width:none;flex-basis:100%}.filter-group{width:100%}.filter-field{flex:1 1 132px}.filter-field .filter-input,.filter-field.vocalist .filter-input{width:100%}main{padding:18px 18px 44px}.band-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.song-table{min-width:760px}.song-table th,.song-row td{padding-left:8px;padding-right:8px}footer{padding:18px}}
 """
 
 
@@ -348,7 +322,7 @@ def render_index(bands, songs, current_band=None):
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
     home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'
-    version_notes = render_version_notes()
+    commit_note = render_commit_note()
 
     return f"""<!DOCTYPE html>
 <html lang="th">
@@ -385,7 +359,7 @@ def render_index(bands, songs, current_band=None):
 </div>
 <main>
   {band_cards}
-  {version_notes}
+  {commit_note}
   <section>
     <div class="section-label" id="stats"></div>
     <div class="table-wrap">
