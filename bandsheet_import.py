@@ -13,7 +13,7 @@ TEMPLATE_PATH = os.path.join(BAND_ROOT, "_template.html")
 DEFAULT_COLOR = {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"}
 DEFAULT_SETTINGS = {
     "chordSize": 12.5,
-    "chordFont": "Lato",
+    "chordFont": "Roboto Condensed",
     "transpose": 0,
     "noteSize": 13,
 }
