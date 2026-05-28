@@ -4,6 +4,10 @@
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
 Template อยู่ที่ `_template.html` — **current version: v6.03**
 
+UX/UI design language, lesson learned, design tokens, component rules, และ HTML-to-Figma starter snippets อยู่ที่ `DESIGN_LANGUAGE.md`
+- ใช้ไฟล์นี้เป็น source of truth เมื่อออกแบบ UI ใหม่, iterate `_template.html`, หรือเริ่ม project/app ใหม่ด้วยหลักการเดียวกัน
+- ยึด v6.03 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
+
 ---
 
 ## Workflow ทุกครั้งที่รับคำสั่ง
@@ -35,6 +39,7 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 ```
 Bandsheet/
 ├── AGENTS.md
+├── DESIGN_LANGUAGE.md           ← UX/UI source of truth + Figma HTML guide
 ├── _template.html               ← template v6.03
 ├── bandsheet_import.py          ← validate/sanitize/import AI JSON
 ├── update_index.py              ← rebuild root + band indexes
