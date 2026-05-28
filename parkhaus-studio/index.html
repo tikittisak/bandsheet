@@ -10,14 +10,16 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai','Inter',sans-serif;min-height:100vh;padding-bottom:48px}
 a{color:inherit}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:26px 38px 18px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:26px 0 18px}
+.page-shell{max-width:1160px;margin:0 auto;padding:0 38px}
 .breadcrumb{font-family:'Inter',sans-serif;font-size:11px;color:var(--ui-muted);letter-spacing:.012em;margin-bottom:10px}
 .breadcrumb a{color:var(--ui-muted);text-decoration:none}.breadcrumb a:hover{color:var(--ui-ink)}
 .site-label,.section-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ui-muted)}
 h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:600;line-height:1.18;letter-spacing:0;margin-top:6px;color:var(--text)}
 .sub,.stats{font-size:12px;color:var(--text-muted);margin-top:6px}
 .version-pill{display:inline-flex;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ui-ink);border:1px solid var(--border-strong);background:var(--ui-soft);border-radius:4px;padding:4px 9px;margin-top:12px}
-.toolbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--ui-line);padding:10px 38px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--ui-line);padding:10px 0}
+.toolbar-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1 1 260px;max-width:430px}.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ui-muted);font-size:13px;pointer-events:none}
 .search,.filter-input{font-family:'Inter',sans-serif;font-size:12px;font-weight:300;background:var(--ui-soft);border:none;color:var(--ui-ink);border-radius:5px;padding:7px 10px;outline:none;width:100%;transition:background .12s,color .12s,box-shadow .12s}.search{padding-left:30px}.search:focus,.filter-input:focus{background:var(--ui-hover);color:var(--text);box-shadow:inset 0 0 0 1px var(--border-strong)}.search::placeholder,.filter-input::placeholder{color:var(--ui-muted)}
 .filter-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.filter-label{font-family:'Inter',sans-serif;font-size:10px;color:var(--ui-muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
@@ -29,38 +31,42 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 .band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:var(--border-strong);background:#fbfdff}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
 .band-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--text)}.band-song-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--text-muted);margin-top:3px}
 .table-wrap{width:100%;overflow-x:auto}.song-table{width:100%;border-collapse:collapse;min-width:820px;margin-top:8px}.song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ui-muted);text-align:left;padding:11px 10px 9px;border-bottom:1px solid var(--border);white-space:nowrap}.song-table th:first-child{padding-left:0;width:38px}
-.song-row{border-bottom:1px solid var(--ui-line);transition:background .1s}.song-row:hover{background:rgba(255,255,255,.58)}.song-row td{padding:12px 10px;font-size:13px;vertical-align:middle}.song-row td:first-child{padding-left:0}
+.song-row{border-bottom:1px solid var(--ui-line);transition:background .1s;cursor:pointer}.song-row:hover{background:rgba(255,255,255,.72)}.song-row:focus-visible{outline:2px solid var(--border-strong);outline-offset:-2px;background:#fff}.song-row td{padding:12px 10px;font-size:13px;vertical-align:middle}.song-row td:first-child{padding-left:0}
 .song-num,.song-key,.song-bpm,.song-band,.song-vocalist{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);white-space:nowrap}.song-title{font-weight:600;color:var(--text);overflow-wrap:anywhere}.song-artist,.song-vocalist-sub{font-size:11px;color:var(--text-muted);margin-top:2px;overflow-wrap:anywhere}
-.band-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}.open-btn{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--ui-ink);text-decoration:none;padding:5px 10px;border:1px solid var(--border-strong);border-radius:4px;white-space:nowrap;background:var(--surface)}.open-btn:hover{background:var(--ui-hover);border-color:var(--ui-active)}
+.band-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
 .setlist-input{font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:1px solid transparent;border-radius:4px;color:var(--text-muted);width:42px;text-align:center;padding:2px 4px;outline:none}.setlist-input:hover,.setlist-input:focus{border-color:var(--border-strong);color:var(--text);background:var(--surface)}
 .th-sortable{cursor:pointer;user-select:none}.th-sortable:hover{color:var(--ui-ink)}.sort-ind{font-size:9px;opacity:.45;margin-left:2px;text-transform:lowercase}.sort-ind.on{opacity:1;color:var(--ui-active)}
 .empty{padding:34px 0;color:var(--text-muted);font-size:13px}.hidden{display:none!important}footer{max-width:1160px;margin:0 auto;padding:18px 38px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);font-family:'Inter',sans-serif;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media(max-width:820px){header{padding:24px 18px 16px}.toolbar{padding:10px 18px;align-items:stretch}.search-wrap{max-width:none;flex-basis:100%}.filter-group{width:100%}.filter-field{flex:1 1 132px}.filter-field .filter-input,.filter-field.vocalist .filter-input{width:100%}main{padding:18px 18px 44px}.band-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.song-table{min-width:760px}.song-table th,.song-row td{padding-left:8px;padding-right:8px}footer{padding:18px}}
+@media(max-width:820px){header{padding:24px 0 16px}.page-shell{padding:0 18px}.toolbar{padding:10px 0}.toolbar-inner{align-items:stretch}.search-wrap{max-width:none;flex-basis:100%}.filter-group{width:100%}.filter-field{flex:1 1 132px}.filter-field .filter-input,.filter-field.vocalist .filter-input{width:100%}main{padding:18px 18px 44px}.band-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.song-table{min-width:700px}.song-table th,.song-row td{padding-left:8px;padding-right:8px}footer{padding:18px}}
 </style>
 </head>
 <body class="band-index">
 <header>
-  <div class="breadcrumb"><a href="../">Band Sheet</a> / PARKHAUS Studio</div>
-  <div class="site-label">Band index</div>
-  <h1>PARKHAUS Studio</h1>
-  <p class="sub">0 songs · searchable by key, vocalist, and artist</p>
-  <div class="version-pill">bandsheet v6.03 · updated 2026-05-28 · commit 6b1d132 · 2026-05-28 15:34:59 +0700</div>
+  <div class="page-shell">
+    <div class="breadcrumb"><a href="../">Band Sheet</a> / PARKHAUS Studio</div>
+    <div class="site-label">Band index</div>
+    <h1>PARKHAUS Studio</h1>
+    <p class="sub">0 songs · searchable by key, vocalist, and artist</p>
+    <div class="version-pill">bandsheet v6.04 · updated 2026-05-28 · commit e0d8a15 · 2026-05-28 23:49:09 +0700</div>
+  </div>
 </header>
 <div class="toolbar">
-  <div class="search-wrap">
-    <span class="search-icon">⌕</span>
-    <input class="search" id="search" type="text" placeholder="Search songs, artists, vocalist, key, BPM..." oninput="renderSongs()" autocomplete="off">
+  <div class="page-shell toolbar-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search" id="search" type="text" placeholder="Search songs, artists, vocalist, key, BPM..." oninput="renderSongs()" autocomplete="off">
+    </div>
+    
+    <label class="filter-field key" for="key-filter">
+      <span class="filter-label">Key:</span>
+      <input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off">
+    </label>
+    <label class="filter-field vocalist" for="vocalist-filter">
+      <span class="filter-label">Vocal:</span>
+      <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
+    </label>
+    <button class="clear-btn" onclick="clearFilters()">Clear</button>
   </div>
-  
-  <label class="filter-field key" for="key-filter">
-    <span class="filter-label">Key:</span>
-    <input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off">
-  </label>
-  <label class="filter-field vocalist" for="vocalist-filter">
-    <span class="filter-label">Vocal:</span>
-    <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
-  </label>
-  <button class="clear-btn" onclick="clearFilters()">Clear</button>
 </div>
 <main>
   
@@ -68,7 +74,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
     <div class="section-label" id="stats"></div>
     <div class="table-wrap">
       <table class="song-table">
-        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th><th></th></tr></thead>
+        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th></tr></thead>
         <tbody id="song-list"></tbody>
       </table>
     </div>
@@ -187,15 +193,14 @@ function renderSongs(){
   tbody.innerHTML = songs.map(function(s,i){
     var href = IS_ROOT ? s.href : s.file;
     var bandCell = IS_ROOT ? '<td class="song-band"><span class="band-dot" style="background:'+esc(s.bandColor)+'"></span>'+esc(s.bandName)+'</td>' : '';
-    return '<tr class="song-row">' +
+    return '<tr class="song-row" data-href="'+esc(href)+'" tabindex="0" onclick="openSongRow(event,this)" onkeydown="openSongRowKey(event,this)">' +
       '<td class="song-num">'+String(i+1).padStart(2,'0')+'</td>' +
-      '<td><input class="setlist-input" type="text" value="'+esc(s.setlist||'')+'" readonly title="Generated from index source"></td>' +
+      '<td><input class="setlist-input" type="text" value="'+esc(s.setlist||'')+'" readonly title="Generated from index source" onclick="event.stopPropagation()"></td>' +
       '<td><div class="song-title">'+esc(s.title)+'</div><div class="song-artist">'+esc(s.artist || '-')+'</div></td>' +
-      bandCell +
       '<td class="song-key">'+esc(s.key || '-')+'</td>' +
       '<td class="song-bpm">'+esc(s.bpm || '-')+'</td>' +
       '<td class="song-vocalist">'+esc(s.vocalist || '-')+'</td>' +
-      '<td><a class="open-btn" href="'+esc(href)+'" target="_blank" rel="noopener">Open</a></td>' +
+      bandCell +
       '</tr>';
   }).join('');
   empty.classList.toggle('hidden', songs.length !== 0);
@@ -205,6 +210,23 @@ function renderSongs(){
   if(ind){ind.textContent = sortCol === 'setlist' ? (sortDir === 1 ? 'up' : 'down') : 'sort'; ind.className = 'sort-ind' + (sortCol === 'setlist' ? ' on' : '');}
   var vind = document.getElementById('sort-vocalist-ind');
   if(vind){vind.textContent = sortCol === 'vocalist' ? (sortDir === 1 ? 'up' : 'down') : 'sort'; vind.className = 'sort-ind' + (sortCol === 'vocalist' ? ' on' : '');}
+}
+function openSongRow(event,row){
+  if(event.defaultPrevented || event.target.closest('input,button,a,select,textarea')) return;
+  var href = row.getAttribute('data-href');
+  if(href){
+    var win = window.open(href, '_blank');
+    if(win) win.opener = null;
+  }
+}
+function openSongRowKey(event,row){
+  if(event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  var href = row.getAttribute('data-href');
+  if(href){
+    var win = window.open(href, '_blank');
+    if(win) win.opener = null;
+  }
 }
 function setBandFilter(id){activeBand = id; syncFilterState(); renderSongs();}
 function setSortBy(col){if(sortCol === col){sortDir = -sortDir;}else{sortCol = col; sortDir = 1;} renderSongs();}
