@@ -51,6 +51,12 @@ def get_input_value(doc, field_id):
     return html.unescape(m.group(1)).strip() if m else ""
 
 
+def title_from_filename(filepath):
+    name = os.path.splitext(os.path.basename(filepath))[0]
+    name = re.sub(r"^\d+[-_\s]+", "", name)
+    return " ".join(part.capitalize() for part in re.split(r"[-_\s]+", name) if part)
+
+
 def extract_meta(filepath):
     try:
         doc = read_text(filepath)[:80000]
@@ -63,12 +69,16 @@ def extract_meta(filepath):
         if artist.startswith(prefix):
             artist = artist[len(prefix):].strip()
 
-    if not title:
+    if not title or title.lower() in {"song title", "new song"}:
         m = re.search(r"<title>([^<]+?)\s*·", doc)
         if m:
             title = html.unescape(m.group(1)).strip()
+    if not title or title.lower() in {"song title", "new song"}:
+        title = title_from_filename(filepath)
     if not title:
         return None
+    if artist.lower() in {"artist", "song artist"}:
+        artist = ""
 
     return {
         "title": title,
