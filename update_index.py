@@ -177,10 +177,10 @@ def collect_songs(bands):
     return songs
 
 
-def render_commit_note():
+def render_version_badge():
     commit = git_value("%h") or "unknown"
     stamp = git_value("%ci") or UPDATED
-    return '<div class="commit-note">Commit ล่าสุด: ' + html.escape(commit) + ' · ' + html.escape(stamp) + "</div>"
+    return f"{VERSION} · updated {UPDATED} · commit {commit} · {stamp}"
 
 
 STYLE = """
@@ -206,7 +206,6 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 .band-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:8px 0 24px}
 .band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:var(--border-strong);background:#fbfdff}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
 .band-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--text)}.band-song-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--text-muted);margin-top:3px}
-.commit-note{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);margin:0 0 18px;letter-spacing:.01em}
 .table-wrap{width:100%;overflow-x:auto}.song-table{width:100%;border-collapse:collapse;min-width:820px;margin-top:8px}.song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ui-muted);text-align:left;padding:11px 10px 9px;border-bottom:1px solid var(--border);white-space:nowrap}.song-table th:first-child{padding-left:0;width:38px}
 .song-row{border-bottom:1px solid var(--ui-line);transition:background .1s}.song-row:hover{background:rgba(255,255,255,.58)}.song-row td{padding:12px 10px;font-size:13px;vertical-align:middle}.song-row td:first-child{padding-left:0}
 .song-num,.song-key,.song-bpm,.song-band,.song-vocalist{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);white-space:nowrap}.song-title{font-weight:600;color:var(--text);overflow-wrap:anywhere}.song-artist,.song-vocalist-sub{font-size:11px;color:var(--text-muted);margin-top:2px;overflow-wrap:anywhere}
@@ -322,7 +321,7 @@ def render_index(bands, songs, current_band=None):
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
     home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'
-    commit_note = render_commit_note()
+    version_badge = render_version_badge()
 
     return f"""<!DOCTYPE html>
 <html lang="th">
@@ -339,7 +338,7 @@ def render_index(bands, songs, current_band=None):
   <div class="site-label">{html.escape(label)}</div>
   <h1>{html.escape(heading)}</h1>
   <p class="sub">{html.escape(subtitle)}</p>
-  <div class="version-pill">{VERSION} · updated {UPDATED}</div>
+  <div class="version-pill">{html.escape(version_badge)}</div>
 </header>
 <div class="toolbar">
   <div class="search-wrap">
@@ -359,7 +358,6 @@ def render_index(bands, songs, current_band=None):
 </div>
 <main>
   {band_cards}
-  {commit_note}
   <section>
     <div class="section-label" id="stats"></div>
     <div class="table-wrap">
