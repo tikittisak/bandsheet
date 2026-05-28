@@ -56,7 +56,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 #sheet{padding:8px 24px 24px;overflow-x:auto}
 .section{margin-bottom:18px}
 /* Section head */
-.section-head{display:flex;align-items:center;gap:7px;margin-bottom:6px;padding:0 2px;flex-wrap:wrap}
+.section-head{display:flex;align-items:center;gap:7px;width:var(--note-content-w,100%);max-width:100%;margin:0 auto 6px;padding:0 2px;flex-wrap:wrap}
 .section-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;transition:opacity .12s;border:1px solid transparent;white-space:nowrap}
 .section-tag:hover{opacity:.8}
 .section-label-inp{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;background:transparent;color:inherit;border-radius:3px;padding:2px 7px;outline:none;font-family:inherit;min-width:40px;max-width:140px}
@@ -76,14 +76,15 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .sec-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
 /* ── Note section ── */
 .sec-note-wrap{padding:0 2px 10px 2px}
-.sec-note-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sec-note-col{display:flex;flex-direction:column;gap:4px}
+.sec-note-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:var(--note-content-w,100%);max-width:100%;margin:0 auto}
+.sec-note-cols.note-cols-single{grid-template-columns:minmax(0,1fr)}
+.sec-note-col{display:flex;flex-direction:column;gap:4px;min-width:0}
 .rte-toolbar{display:flex;gap:3px;flex-wrap:wrap;padding:2px 0}
 body:not(.edit-mode) .rte-toolbar{display:none!important}
 .rte-btn{font-size:10px;font-family:'Inter',sans-serif;font-weight:600;padding:2px 7px;border:1px solid var(--border-strong);border-radius:3px;background:var(--surface);cursor:pointer;color:var(--text-muted);transition:all .12s;line-height:1.5}
 .rte-btn:hover{background:var(--bg);color:var(--text);border-color:var(--accent)}
 .rte-btn.rte-sep{border:none;color:var(--border-strong);padding:0 2px;cursor:default}
-.rte-editor{min-height:60px;border-left:3px solid transparent;padding:8px 10px;font-family:var(--note-font);font-size:13px;font-weight:400;color:var(--text);background:var(--surface);line-height:1.65;border-radius:0 var(--radius) var(--radius) 0;outline:none;overflow:auto}
+.rte-editor{min-height:60px;border-left:3px solid transparent;padding:8px 10px;font-family:var(--note-font);font-size:13px;font-weight:400;color:var(--text);background:var(--surface);line-height:1.65;border-radius:0 var(--radius) var(--radius) 0;outline:none;overflow:auto;min-width:0;overflow-wrap:anywhere}
 .rte-editor:focus{background:var(--bg)}
 .rte-editor:empty::before{content:attr(data-ph);color:var(--text-faint);font-style:italic;pointer-events:none}
 .rte-editor a{color:#2563eb;text-decoration:underline}
@@ -91,6 +92,7 @@ body:not(.edit-mode) .rte-toolbar{display:none!important}
 @media(max-width:768px){.sec-note-cols{grid-template-columns:1fr}}
 /* ── Bar rows ── */
 .bar-row{display:flex;flex-wrap:nowrap;align-items:flex-end;gap:var(--gap);min-height:calc(var(--cell-h) + 4px);padding:3px 2px;border-radius:4px;transition:background .1s}
+body:not(.edit-mode) .bar-row{justify-content:center}
 .bar-row.drag-over{background:rgba(59,130,246,.07);outline:2px dashed #3b82f6;outline-offset:-2px}
 .row-ctrl{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:28px}
 .row-cols-inp{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;width:26px;text-align:center;border:1px solid var(--border);border-radius:3px;padding:2px 1px;background:transparent;color:var(--text-faint);outline:none;cursor:ns-resize;-moz-appearance:textfield}
@@ -373,7 +375,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <a class="top-brand" href="https://www.instagram.com/ti.muse/" onclick="window.location.href='https://www.instagram.com/ti.muse/';return false;" title="Open @ti.muse on Instagram">bandsheet by ti.muse <span class="brand-version">v6.02</span></a>
 </div>
 <div id="metabar">
-  <input class="tb-filename" id="tb-filename" value="The Man Who Can't Be Moved" oninput="updateTitle()">
+  <input class="tb-filename" id="tb-filename" value="The Man Who Can&#x27;t Be Moved" oninput="updateTitle()">
   <input class="tb-artist" id="tb-artist" value="— The Script" oninput="updateTitle()">
   <span class="meta-sep">·</span>
   <span class="meta-label">key</span>
@@ -449,6 +451,21 @@ function visualColsFor(baseCols){
   var cap=currentVisualCap();
   return Math.max(1,Math.min(baseCols,cap));
 }
+function noteColHasContent(html){
+  var tmp=document.createElement('div');
+  tmp.innerHTML=html||'';
+  if(tmp.querySelector('img,video,audio,iframe,svg,table,hr'))return true;
+  return (tmp.textContent||'').replace(/\u00a0/g,' ').trim().length>0;
+}
+function plainTextPaste(e){
+  var data=(e.clipboardData||window.clipboardData);
+  if(!data)return;
+  var text=data.getData('text/plain');
+  if(!text)return;
+  e.preventDefault();
+  document.execCommand('insertText',false,text);
+  e.target.dispatchEvent(new Event('input',{bubbles:true}));
+}
 
 function baseRowsFor(sec){
   var rows=[],pos=0,ri=0,bars=sec.bars||[];
@@ -493,6 +510,25 @@ function updateCellWidth(){
   var maxW=cols<=2?176:(cols<=4?132:104);
   var w=Math.max(minW,Math.min(maxW,Math.floor(avail/cols)));
   document.documentElement.style.setProperty('--cell-w',w+'px');
+  syncNoteWidths();
+}
+function measureRowContentWidth(row){
+  var left=Infinity,right=-Infinity;
+  Array.prototype.forEach.call(row.children,function(child){
+    var st=getComputedStyle(child);
+    if(st.display==='none'||st.visibility==='hidden')return;
+    var r=child.getBoundingClientRect();
+    if(r.width<=0||r.height<=0)return;
+    left=Math.min(left,r.left);right=Math.max(right,r.right);
+  });
+  return isFinite(left)?Math.ceil(right-left):0;
+}
+function syncNoteWidths(){
+  var sheet=document.getElementById('sheet');if(!sheet)return;
+  var maxW=0;
+  sheet.querySelectorAll('.bar-row').forEach(function(row){maxW=Math.max(maxW,measureRowContentWidth(row))});
+  if(!maxW)maxW=sheet.clientWidth;
+  sheet.style.setProperty('--note-content-w',Math.min(maxW,sheet.clientWidth)+'px');
 }
 var LAST_VISUAL_CAP=currentVisualCap();
 window.addEventListener('resize',function(){
@@ -505,6 +541,10 @@ function render(){
   var sheet=document.getElementById('sheet');sheet.innerHTML='';var n=1;
   SECTIONS.forEach(function(sec,si){
     var col=sec.color||PRESETS[si%PRESETS.length];
+    if(sec.type==='note'&&!EDIT_MODE){
+      if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];
+      if(!sec.cols.some(noteColHasContent))return;
+    }
     var div=document.createElement('div');div.className='section'+(sec.type==='note'?' note-type-sec':'');div.dataset.si=si;
     // Head
     var head=document.createElement('div');head.className='section-head';
@@ -573,7 +613,10 @@ function render(){
       if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];
       var snWrap=document.createElement('div');snWrap.className='sec-note-wrap';
       var colsDiv=document.createElement('div');colsDiv.className='sec-note-cols';
-      sec.cols.forEach(function(colHtml,ci){
+      var visibleCols=sec.cols.map(function(colHtml,ci){return{html:colHtml,idx:ci}}).filter(function(item){return EDIT_MODE||noteColHasContent(item.html)});
+      if(!EDIT_MODE&&visibleCols.length===1)colsDiv.classList.add('note-cols-single');
+      visibleCols.forEach(function(item){
+        var colHtml=item.html,dataCi=item.idx;
         var colWrap=document.createElement('div');colWrap.className='sec-note-col';
         // toolbar
         var tb=document.createElement('div');tb.className='rte-toolbar';
@@ -590,7 +633,8 @@ function render(){
         var ed=document.createElement('div');ed.className='rte-editor';ed.contentEditable='true';
         ed.setAttribute('data-ph','Add note...');ed.innerHTML=colHtml||'';
         ed.style.borderLeftColor=col.bar;
-        ed.oninput=ed.onblur=(function(s,c){return function(){SECTIONS[s].cols[c]=this.innerHTML}})(si,ci);
+        ed.oninput=ed.onblur=(function(s,c){return function(){SECTIONS[s].cols[c]=this.innerHTML}})(si,dataCi);
+        ed.onpaste=plainTextPaste;
         ed.onmousedown=ed.onclick=function(e){e.stopPropagation()};
         colWrap.appendChild(tb);colWrap.appendChild(ed);
         colsDiv.appendChild(colWrap);
@@ -927,6 +971,11 @@ function makeNoteCard(text,ni){
   var card=document.createElement('div');card.className='footer-note-card';
   var ta=document.createElement('textarea');ta.className='footer-note-ta';ta.value=text||'';ta.placeholder='Add note...';
   ta.oninput=(function(i){return function(){FOOTER.notes[i]=this.value}})(ni);
+  ta.onpaste=function(e){
+    var data=(e.clipboardData||window.clipboardData);if(!data)return;
+    var text=data.getData('text/plain');if(!text)return;
+    e.preventDefault();this.setRangeText(text,this.selectionStart,this.selectionEnd,'end');this.dispatchEvent(new Event('input',{bubbles:true}));
+  };
   ta.onmousedown=ta.onclick=function(e){e.stopPropagation()};
   card.appendChild(ta);
   card.appendChild(makeFooterCtrl(FOOTER.notes,ni,renderFooter,true));
@@ -1239,6 +1288,7 @@ function buildExportWrap(meta){
   var wrap=document.createElement('div');
   var exportWidth=1120;
   var contentWidth=1056;
+  var exportCellW=128;
   wrap.style.cssText='position:absolute;left:0;top:0;z-index:2147483647;pointer-events:none;background:#f7f9fc;padding:24px 32px 28px;font-family:Inter,Arial,sans-serif;width:'+exportWidth+'px;max-width:'+exportWidth+'px;overflow:hidden;color:#172033;';
   var hdr=document.createElement('div');
   hdr.style.cssText='width:'+contentWidth+'px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #dfe7f2;';
@@ -1273,6 +1323,25 @@ function buildExportWrap(meta){
   var exportSheet=document.createElement('div');
   exportSheet.style.cssText='width:'+contentWidth+'px;';
   var barNum=1;
+  function exportMaxRowWidth(){
+    var max=0;
+    SECTIONS.forEach(function(sec){
+      if(sec.type==='note'||!sec.bars)return;
+      var pos=0,ri=0;
+      while(pos<sec.bars.length){
+        var rowSize=Math.max(1,Math.min(parseInt((sec.rowSizes&&sec.rowSizes[ri])||COLS,10)||COLS,8));
+        var end=Math.min(pos+rowSize,sec.bars.length);
+        var visibleCount=end-pos;
+        var repeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri];
+        var repeatVal=repeatGroup&&sec.repeatCounts&&sec.repeatCounts[repeatGroup];
+        var nextRepeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri+1];
+        max=Math.max(max,visibleCount*exportCellW+(repeatGroup&&repeatVal&&repeatVal>1&&nextRepeatGroup!==repeatGroup?28:0));
+        pos=end;ri++;
+      }
+    });
+    return Math.min(contentWidth,max||contentWidth);
+  }
+  var exportNoteW=exportMaxRowWidth();
   function makeExportBar(bar,col,displayNum){
     var cell=document.createElement('div');
     cell.style.cssText='position:relative;min-height:44px;border:none;border-radius:1px;background:'+(bar.h?darken(col.bar,0.28):col.bg)+';padding:17px 6px 7px 7px;color:#172033;overflow:hidden;box-shadow:'+(bar.skipCount?'none':'inset 2px 0 0 '+col.bar)+';';
@@ -1315,6 +1384,10 @@ function buildExportWrap(meta){
   SECTIONS.forEach(function(sec){
     var col=sec.color||{bar:'#3b82f6',bg:'#eef4fd',lbl:'#1e40af'};
     if(sec.type==='note'){
+      if(!EDIT_MODE){
+        if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];
+        if(!sec.cols.some(noteColHasContent))return;
+      }
       var noteWrap=document.createElement('div');
       noteWrap.style.cssText='margin:12px 0 14px;';
       var label=document.createElement('div');
@@ -1324,7 +1397,7 @@ function buildExportWrap(meta){
       var cols=(sec.cols&&sec.cols.length)?sec.cols:[sec.text||''];
       var grid=document.createElement('div');
       var realCols=cols.map(htmlToExportText).filter(function(c){return c.length>0;});
-      grid.style.cssText='display:grid;grid-template-columns:repeat('+(realCols.length>1?2:1)+',1fr);gap:8px;width:100%;';
+      grid.style.cssText='display:grid;grid-template-columns:'+(realCols.length>1?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)')+';gap:8px;width:'+exportNoteW+'px;max-width:100%;margin:0 auto;';
       (realCols.length?realCols:cols.map(htmlToExportText)).forEach(function(colText){
         var note=document.createElement('div');
         note.textContent=colText||'';
@@ -1345,8 +1418,9 @@ function buildExportWrap(meta){
     while(sec.bars&&pos<sec.bars.length){
       var rowSize=Math.max(1,Math.min(parseInt((sec.rowSizes&&sec.rowSizes[ri])||COLS,10)||COLS,8));
       var end=Math.min(pos+rowSize,sec.bars.length);
+      var visibleCount=end-pos;
       var row=document.createElement('div');
-      row.style.cssText='display:grid;grid-template-columns:repeat('+rowSize+',1fr);gap:0;width:100%;margin-bottom:4px;align-items:end;';
+      row.style.cssText='display:grid;grid-template-columns:repeat('+visibleCount+','+exportCellW+'px);gap:0;width:100%;margin-bottom:4px;align-items:end;justify-content:center;';
       for(var i=pos;i<end;i++){
         var bar=sec.bars[i]||{c:'—'};
         var displayNum=bar.skipCount?'':barNum;
@@ -1379,6 +1453,22 @@ function buildExportWrap(meta){
     }
     exportSheet.appendChild(sectionWrap);
   });
+  var footerNotes=(FOOTER&&FOOTER.notes?FOOTER.notes:[]).map(cleanTextValue).filter(function(n){return n.length>0});
+  if(footerNotes.length){
+    var footerWrap=document.createElement('div');
+    footerWrap.style.cssText='margin:16px 0 0;padding-top:14px;border-top:1px solid #dfe7f2;';
+    var footerLabel=document.createElement('div');
+    footerLabel.textContent='NOTES';
+    footerLabel.style.cssText='margin:0 auto 8px;width:'+exportNoteW+'px;max-width:100%;font-family:Inter,Arial,sans-serif;font-size:9px;font-weight:700;line-height:1;color:#b7c3d1;letter-spacing:.12em;text-transform:uppercase;';
+    footerWrap.appendChild(footerLabel);
+    footerNotes.forEach(function(noteText){
+      var note=document.createElement('div');
+      note.textContent=noteText;
+      note.style.cssText='width:'+exportNoteW+'px;max-width:100%;margin:0 auto 6px;border:1px solid #dfe7f2;border-radius:5px;background:#fff;padding:9px 11px;font-family:IBM Plex Sans Thai Looped,sans-serif;font-size:13px;font-weight:400;line-height:1.7;color:#172033;letter-spacing:0;word-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;text-rendering:geometricPrecision;';
+      footerWrap.appendChild(note);
+    });
+    exportSheet.appendChild(footerWrap);
+  }
   wrap.appendChild(exportSheet);
   return {wrap:wrap,filename:filenameSlug(fn),width:exportWidth};
 }
