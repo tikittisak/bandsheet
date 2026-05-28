@@ -11,6 +11,15 @@ UPDATED = "2026-05-28"
 VERSION_NOTES = [
     {
         "date": "2026-05-28",
+        "title": "v6.02 hotfix notes",
+        "items": [
+            "Index Open buttons now always open songs in a new tab or window.",
+            "Bandsheet sections now share one centered content lane; rows inside that lane stay left-aligned.",
+            "Short sections no longer float in the middle after wide lyric blocks.",
+        ],
+    },
+    {
+        "date": "2026-05-28",
         "title": "v6.02 layout + index refresh",
         "items": [
             "Index redesigned to match the light bandsheet v6.02 language.",
@@ -306,7 +315,7 @@ function renderSongs(){
       '<td class="song-key">'+esc(s.key || '-')+'</td>' +
       '<td class="song-bpm">'+esc(s.bpm || '-')+'</td>' +
       '<td class="song-vocalist">'+esc(s.vocalist || '-')+'</td>' +
-      '<td><a class="open-btn" href="'+esc(href)+'">Open</a></td>' +
+      '<td><a class="open-btn" href="'+esc(href)+'" target="_blank" rel="noopener">Open</a></td>' +
       '</tr>';
   }).join('');
   empty.classList.toggle('hidden', songs.length !== 0);

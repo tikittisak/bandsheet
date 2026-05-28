@@ -67,7 +67,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 </div>
 <main>
   
-  <section class="release-notes"><div class="release-head"><div class="release-title">v6.02 layout + index refresh</div><div class="release-date">2026-05-28</div></div><ul class="release-list"><li>Index redesigned to match the light bandsheet v6.02 language.</li><li>Index search now supports song, artist, band, key, BPM, and vocalist.</li><li>Key and vocalist filters are compact text fields; vocalist metadata supports multiple names.</li><li>Band colors updated: PARKHAUS108 and PARKHAUS Studio use #6D132D; THE MÆWJØNS uses #EB3C1F.</li><li>Song metadata fallback added so placeholder titles like Song Title use the filename instead of disappearing from search.</li><li>Bandsheet note blocks hide empty columns in view mode and split evenly when two columns are used.</li><li>Note/lyric blocks use the widest chord section width in the sheet; section labels stay aligned to their own bar groups.</li><li>Save JPG export now includes footer notes and follows the same note width and alignment rules as the page.</li><li>Paste into rich note editors and footer notes now inserts plain text only.</li></ul></section>
+  <section class="release-notes"><div class="release-head"><div class="release-title">v6.02 hotfix notes</div><div class="release-date">2026-05-28</div></div><ul class="release-list"><li>Index Open buttons now always open songs in a new tab or window.</li><li>Bandsheet sections now share one centered content lane; rows inside that lane stay left-aligned.</li><li>Short sections no longer float in the middle after wide lyric blocks.</li></ul></section><section class="release-notes"><div class="release-head"><div class="release-title">v6.02 layout + index refresh</div><div class="release-date">2026-05-28</div></div><ul class="release-list"><li>Index redesigned to match the light bandsheet v6.02 language.</li><li>Index search now supports song, artist, band, key, BPM, and vocalist.</li><li>Key and vocalist filters are compact text fields; vocalist metadata supports multiple names.</li><li>Band colors updated: PARKHAUS108 and PARKHAUS Studio use #6D132D; THE MÆWJØNS uses #EB3C1F.</li><li>Song metadata fallback added so placeholder titles like Song Title use the filename instead of disappearing from search.</li><li>Bandsheet note blocks hide empty columns in view mode and split evenly when two columns are used.</li><li>Note/lyric blocks use the widest chord section width in the sheet; section labels stay aligned to their own bar groups.</li><li>Save JPG export now includes footer notes and follows the same note width and alignment rules as the page.</li><li>Paste into rich note editors and footer notes now inserts plain text only.</li></ul></section>
   <section>
     <div class="section-label" id="stats"></div>
     <div class="table-wrap">
@@ -199,7 +199,7 @@ function renderSongs(){
       '<td class="song-key">'+esc(s.key || '-')+'</td>' +
       '<td class="song-bpm">'+esc(s.bpm || '-')+'</td>' +
       '<td class="song-vocalist">'+esc(s.vocalist || '-')+'</td>' +
-      '<td><a class="open-btn" href="'+esc(href)+'">Open</a></td>' +
+      '<td><a class="open-btn" href="'+esc(href)+'" target="_blank" rel="noopener">Open</a></td>' +
       '</tr>';
   }).join('');
   empty.classList.toggle('hidden', songs.length !== 0);

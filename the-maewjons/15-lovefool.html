@@ -54,12 +54,9 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .meta-sep{color:var(--border-strong);font-size:12px;margin:0 4px}
 /* ── Sheet ── */
 #sheet{padding:8px 24px 24px;overflow-x:auto}
-.section{margin-bottom:18px}
-.section:not(.note-type-sec){width:var(--section-content-w,auto);max-width:100%;margin-left:auto;margin-right:auto}
-.note-type-sec{width:var(--note-content-w,auto);max-width:100%;margin-left:auto;margin-right:auto}
+.section{width:var(--note-content-w,auto);max-width:100%;margin:0 auto 18px}
 /* Section head */
-.section-head{display:flex;align-items:center;gap:7px;width:var(--section-content-w,var(--note-content-w,100%));max-width:100%;margin:0 auto 6px;padding:0 2px;flex-wrap:wrap}
-.note-type-sec .section-head{width:var(--note-content-w,100%)}
+.section-head{display:flex;align-items:center;gap:7px;width:100%;max-width:100%;margin:0 0 6px;padding:0 2px;flex-wrap:wrap}
 .section-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;transition:opacity .12s;border:1px solid transparent;white-space:nowrap}
 .section-tag:hover{opacity:.8}
 .section-label-inp{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;background:transparent;color:inherit;border-radius:3px;padding:2px 7px;outline:none;font-family:inherit;min-width:40px;max-width:140px}
@@ -1359,20 +1356,6 @@ function buildExportWrap(meta){
     return Math.min(contentWidth,max||contentWidth);
   }
   var exportNoteW=exportMaxRowWidth();
-  function sectionExportWidth(sec){
-    var max=0,pos=0,ri=0;
-    while(sec&&sec.bars&&pos<sec.bars.length){
-      var rowSize=Math.max(1,Math.min(parseInt((sec.rowSizes&&sec.rowSizes[ri])||COLS,10)||COLS,8));
-      var end=Math.min(pos+rowSize,sec.bars.length);
-      var visibleCount=end-pos;
-      var repeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri];
-      var repeatVal=repeatGroup&&sec.repeatCounts&&sec.repeatCounts[repeatGroup];
-      var nextRepeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri+1];
-      max=Math.max(max,visibleCount*exportCellW+(repeatGroup&&repeatVal&&repeatVal>1&&nextRepeatGroup!==repeatGroup?28:0));
-      pos=end;ri++;
-    }
-    return Math.min(contentWidth,max||exportNoteW);
-  }
   function makeExportBar(bar,col,displayNum){
     var cell=document.createElement('div');
     cell.style.cssText='position:relative;min-height:44px;border:none;border-radius:1px;background:'+(bar.h?darken(col.bar,0.28):col.bg)+';padding:17px 6px 7px 7px;color:#172033;overflow:hidden;box-shadow:'+(bar.skipCount?'none':'inset 2px 0 0 '+col.bar)+';';
@@ -1442,9 +1425,8 @@ function buildExportWrap(meta){
       exportSheet.appendChild(noteWrap);
       return;
     }
-    var sectionW=sectionExportWidth(sec);
     var sectionWrap=document.createElement('div');
-    sectionWrap.style.cssText='width:'+sectionW+'px;max-width:100%;margin:0 auto 14px;';
+    sectionWrap.style.cssText='width:'+exportNoteW+'px;max-width:100%;margin:0 auto 14px;';
     var tag=document.createElement('div');
     tag.textContent=cleanTextValue(sec.label||'section');
     var tagWrap=document.createElement('div');
