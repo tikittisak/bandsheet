@@ -1,86 +1,378 @@
 #!/usr/bin/env python3
-import os, re, json
+import html
+import json
+import os
+import re
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
-SKIP_DIRS = {"backup", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules"}
-SKIP_FILES = {"index.html", "_template.html", "generate_bandsheets.py",
-              "update_index.py", "push.sh", "Online Bandsheet.md", "CLAUDE.md"}
+VERSION = "bandsheet v6.01"
+UPDATED = "2026-05-26"
+
+SKIP_DIRS = {"backup", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
+SKIP_FILES = {
+    "index.html",
+    "_template.html",
+    "generate_bandsheets.py",
+    "update_index.py",
+    "push.sh",
+    "Online Bandsheet.md",
+    "CLAUDE.md",
+    "bandsheet_workflow_summary.html",
+    "_prototype-rhythm-strip.html",
+}
+
+BAND_META = {
+    "ti-muse": {"name": "ti.muse", "color": "#60a5fa"},
+    "the-maewjons": {"name": "THE MÆWJØNS", "color": "#f472b6"},
+    "parkhaus108": {"name": "PARKHAUS108", "color": "#34d399"},
+    "90alter": {"name": "90Alter", "color": "#fbbf24"},
+    "parkhaus-studio": {"name": "PARKHAUS Studio", "color": "#a78bfa"},
+}
+
+BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "90alter", "parkhaus-studio"]
+
+
+def read_text(path):
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def write_text(path, content):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def js_json(data):
+    return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+def get_input_value(doc, field_id):
+    m = re.search(r'id="' + re.escape(field_id) + r'"[^>]*value="([^"]*)"', doc)
+    return html.unescape(m.group(1)).strip() if m else ""
+
 
 def extract_meta(filepath):
     try:
-        with open(filepath, encoding="utf-8") as f:
-            html = f.read()
+        doc = read_text(filepath)[:80000]
     except Exception:
         return None
-    def get_val(fid):
-        m = re.search(r'id="' + re.escape(fid) + r'"[^>]*value="([^"]*)"', html)
-        return m.group(1).strip() if m else ""
-    title = get_val("tb-filename")
-    artist = get_val("tb-artist")
-    for pfx in ["— ", "- "]:
-        if artist.startswith(pfx):
-            artist = artist[len(pfx):]
-    key = get_val("meta-key")
-    bpm = get_val("meta-bpm")
+
+    title = get_input_value(doc, "tb-filename")
+    artist = get_input_value(doc, "tb-artist")
+    for prefix in ("— ", "- "):
+        if artist.startswith(prefix):
+            artist = artist[len(prefix):].strip()
+
     if not title:
-        m = re.search(r"<title>([^<]+?)\s*\xb7", html)
+        m = re.search(r"<title>([^<]+?)\s*·", doc)
         if m:
-            title = m.group(1).strip()
+            title = html.unescape(m.group(1)).strip()
     if not title:
         return None
-    return {"title": title, "artist": artist, "key": key, "bpm": bpm,
-            "bars": "", "file": os.path.basename(filepath)}
+
+    return {
+        "title": title,
+        "artist": artist,
+        "key": get_input_value(doc, "meta-key"),
+        "bpm": get_input_value(doc, "meta-bpm"),
+        "bars": "",
+        "file": os.path.basename(filepath),
+    }
+
 
 def read_existing_setlists(index_path):
-    """Read existing SONGS array and return {filename: setlist_value} mapping."""
     try:
-        with open(index_path, encoding="utf-8") as f:
-            content = f.read()
-        m = re.search(r'var SONGS\s*=\s*(\[.*?\]);\s*//[^\n]*END SONGS', content, re.DOTALL)
-        if m:
-            existing = json.loads(m.group(1))
-            return {s["file"]: s.get("setlist", "") for s in existing if "file" in s}
+        doc = read_text(index_path)
+        m = re.search(r"var SONGS\s*=\s*(\[.*?\]);", doc, re.DOTALL)
+        if not m:
+            m = re.search(r"var ALL_SONGS\s*=\s*(\[.*?\]);\s*//[^\n]*END ALL SONGS", doc, re.DOTALL)
+        if not m:
+            return {}
+        existing = json.loads(m.group(1))
+        out = {}
+        for song in existing:
+            file_name = song.get("file")
+            band_id = song.get("bandId", "")
+            value = song.get("setlist", "")
+            if file_name:
+                out[(band_id, file_name)] = value
+                out[("", file_name)] = value
+        return out
     except Exception:
-        pass
-    return {}
+        return {}
 
-def update_band_index(band_dir):
-    index_path = os.path.join(band_dir, "index.html")
-    if not os.path.exists(index_path):
-        print(f"  skip {os.path.basename(band_dir)} - no index.html")
-        return 0
-    existing_setlists = read_existing_setlists(index_path)
-    html_files = sorted([f for f in os.listdir(band_dir)
-                         if f.endswith(".html") and f not in SKIP_FILES])
-    songs = [m for f in html_files
-             for m in [extract_meta(os.path.join(band_dir, f))] if m]
-    # Preserve setlist values from existing index
-    for s in songs:
-        s["setlist"] = existing_setlists.get(s["file"], "")
-    with open(index_path, encoding="utf-8") as f:
-        idx = f.read()
-    songs_json = json.dumps(songs, ensure_ascii=False, indent=2)
-    repl = "var SONGS = " + songs_json + "; // -- END SONGS --"
-    pat = r"var SONGS\s*=\s*\[.*?\];\s*//[^\n]*END SONGS[^\n]*"
-    # Use search first to confirm marker exists, then sub
-    if not re.search(pat, idx, flags=re.DOTALL):
-        print(f"  WARNING: marker not found in {os.path.basename(band_dir)}/index.html")
-        return 0
-    new_idx = re.sub(pat, repl, idx, flags=re.DOTALL)
-    with open(index_path, "w", encoding="utf-8") as f:
-        f.write(new_idx)
-    print(f"  OK {os.path.basename(band_dir)}/index.html - {len(songs)} songs")
-    return len(songs)
+
+def discover_bands():
+    found = []
+    for name in sorted(os.listdir(BAND_ROOT)):
+        path = os.path.join(BAND_ROOT, name)
+        if not os.path.isdir(path) or name in SKIP_DIRS or name.startswith("."):
+            continue
+        if not os.path.exists(os.path.join(path, "index.html")):
+            continue
+        meta = BAND_META.get(name, {"name": name, "color": "#888888"})
+        found.append({
+            "id": name,
+            "name": meta["name"],
+            "color": meta["color"],
+            "path": name + "/",
+            "indexHref": name + "/index.html",
+        })
+    found.sort(key=lambda b: BAND_ORDER.index(b["id"]) if b["id"] in BAND_ORDER else 999)
+    return found
+
+
+def collect_songs(bands):
+    setlists = {}
+    for band in bands:
+        setlists.update(read_existing_setlists(os.path.join(BAND_ROOT, band["id"], "index.html")))
+
+    songs = []
+    for band in bands:
+        band_dir = os.path.join(BAND_ROOT, band["id"])
+        html_files = sorted(
+            f for f in os.listdir(band_dir)
+            if f.endswith(".html") and f not in SKIP_FILES
+        )
+        for file_name in html_files:
+            song = extract_meta(os.path.join(band_dir, file_name))
+            if not song:
+                continue
+            song["bandId"] = band["id"]
+            song["bandName"] = band["name"]
+            song["bandColor"] = band["color"]
+            song["href"] = band["path"] + file_name
+            song["setlist"] = setlists.get((band["id"], file_name), setlists.get(("", file_name), ""))
+            songs.append(song)
+
+    counts = {band["id"]: 0 for band in bands}
+    for song in songs:
+        counts[song["bandId"]] += 1
+    for band in bands:
+        band["songCount"] = counts[band["id"]]
+    return songs
+
+
+STYLE = """
+:root{--bg:#0e0e0e;--surface:#181818;--surface-2:#111;--border:#2a2a2a;--border-strong:#3a3a3a;--text:#f0ede8;--muted:#777;--faint:#444;--accent:#34d399;--accent-rgb:52,211,153}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai','Inter',sans-serif;min-height:100vh}
+a{color:inherit}
+header{padding:34px 40px 22px;border-bottom:1px solid var(--border)}
+.breadcrumb{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:14px}
+.breadcrumb a{color:var(--muted);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
+.site-label,.section-label{font-family:'IBM Plex Mono','Inter',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;letter-spacing:0;line-height:1.1;margin-top:8px;text-transform:none}
+.sub,.stats{font-size:12px;color:var(--muted);margin-top:7px}
+.version-pill{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(var(--accent-rgb),.35);background:rgba(var(--accent-rgb),.1);border-radius:4px;padding:4px 9px;margin-top:12px}
+.toolbar{padding:14px 40px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2)}
+.search-wrap{position:relative;flex:1 1 260px;max-width:420px}.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+.search{font-family:'Inter',sans-serif;font-size:12px;background:#202020;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 12px 8px 32px;outline:none;width:100%;transition:border-color .12s}.search:focus{border-color:#555}.search::placeholder{color:var(--muted)}
+.filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.filter-label{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.filter-pill{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;padding:5px 10px;border:1px solid var(--border);border-radius:20px;background:none;color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap}.filter-pill:hover{border-color:#555;color:var(--text)}.filter-pill.active{background:rgba(var(--accent-rgb),.15);border-color:rgba(var(--accent-rgb),.45);color:var(--accent)}
+.clear-btn{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);cursor:pointer;padding:5px 9px;border-radius:5px}.clear-btn:hover{color:var(--text);border-color:#555}
+main{padding:22px 40px 60px;max-width:1120px}.band-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:22px}
+.band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:#444;background:#1f1f1f}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
+.band-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:700}.band-song-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);margin-top:3px}
+.table-wrap{width:100%;overflow-x:auto}.song-table{width:100%;border-collapse:collapse;min-width:680px;margin-top:10px}.song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 12px 10px;border-bottom:1px solid var(--border);white-space:nowrap}.song-table th:first-child{padding-left:0;width:40px}
+.song-row{border-bottom:1px solid #242424;transition:background .1s}.song-row:hover{background:#141414}.song-row td{padding:13px 12px;font-size:13px;vertical-align:middle}.song-row td:first-child{padding-left:0}
+.song-num,.song-key,.song-bpm,.song-band{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);white-space:nowrap}.song-title{font-weight:600;color:var(--text);overflow-wrap:anywhere}.song-artist{font-size:11px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.band-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}.open-btn{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-decoration:none;padding:5px 10px;border:1px solid rgba(var(--accent-rgb),.35);border-radius:4px;white-space:nowrap}.open-btn:hover{background:rgba(var(--accent-rgb),.12);border-color:var(--accent)}
+.setlist-input{font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:1px solid transparent;border-radius:4px;color:var(--muted);width:44px;text-align:center;padding:2px 4px;outline:none}.setlist-input:hover,.setlist-input:focus{border-color:#444;color:var(--text);background:#1a1a1a}
+.th-sortable{cursor:pointer;user-select:none}.th-sortable:hover{color:var(--text)}.sort-ind{font-size:9px;opacity:.45;margin-left:2px}.sort-ind.on{opacity:1;color:var(--accent)}
+.empty{padding:34px 0;color:var(--muted);font-size:13px}.hidden{display:none!important}footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:'Inter',sans-serif;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:720px){header{padding:26px 18px 18px}.toolbar{padding:12px 18px;align-items:stretch}.search-wrap{max-width:none;flex-basis:100%}.filter-group{width:100%}main{padding:18px 18px 48px}.band-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.song-table{min-width:560px}.song-table th,.song-row td{padding-left:8px;padding-right:8px}footer{padding:18px}}
+"""
+
+
+SCRIPT = """
+var activeBand = CURRENT_BAND || 'all';
+var activeKey = 'all';
+var sortCol = 'default';
+var sortDir = 1;
+
+function esc(s){return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getVisibleSongs(){
+  var q = document.getElementById('search').value.toLowerCase().trim();
+  return ALL_SONGS.filter(function(s){
+    var search = [s.title,s.artist,s.key,s.bpm,s.bandName].join(' ').toLowerCase();
+    return (!q || search.indexOf(q) !== -1) &&
+      (activeBand === 'all' || s.bandId === activeBand) &&
+      (activeKey === 'all' || String(s.key || '').toLowerCase() === activeKey);
+  }).sort(function(a,b){
+    if(sortCol === 'setlist'){
+      var sa = parseInt(a.setlist)||0, sb = parseInt(b.setlist)||0;
+      if(!sa && !sb) return (a.title||'').localeCompare(b.title||'');
+      if(!sa) return 1;
+      if(!sb) return -1;
+      return (sa - sb) * sortDir;
+    }
+    if(sortCol === 'title') return (a.title||'').localeCompare(b.title||'') * sortDir;
+    return 0;
+  });
+}
+function buildBandCards(){
+  var grid = document.getElementById('band-grid');
+  if(!grid) return;
+  grid.innerHTML = ALL_BANDS.map(function(b){
+    return '<a class="band-card" href="'+esc(b.indexHref || b.path)+'" style="--band-color:'+esc(b.color)+'">' +
+      '<div class="band-name">'+esc(b.name)+'</div>' +
+      '<div class="band-song-count">'+b.songCount+' songs</div></a>';
+  }).join('');
+}
+function buildFilters(){
+  var bf = document.getElementById('band-filters');
+  if(bf){
+    bf.innerHTML = '<span class="filter-label">Band:</span>' +
+      '<button class="filter-pill" data-band="all" onclick="setBandFilter(\\'all\\')">All</button>' +
+      ALL_BANDS.map(function(b){return '<button class="filter-pill" data-band="'+esc(b.id)+'" onclick="setBandFilter(\\''+esc(b.id)+'\\')">'+esc(b.name)+'</button>';}).join('');
+  }
+  var keyMap = {};
+  ALL_SONGS.filter(function(s){return activeBand === 'all' || s.bandId === activeBand;}).forEach(function(s){if(s.key) keyMap[String(s.key).toLowerCase()] = s.key;});
+  var keys = Object.keys(keyMap).sort();
+  var kf = document.getElementById('key-filters');
+  kf.innerHTML = '<span class="filter-label">Key:</span><button class="filter-pill" data-key="all" onclick="setKeyFilter(\\'all\\')">All</button>' +
+    keys.map(function(k){return '<button class="filter-pill" data-key="'+esc(k)+'" onclick="setKeyFilter(\\''+esc(k)+'\\')">'+esc(keyMap[k])+'</button>';}).join('');
+  syncFilterState();
+}
+function syncFilterState(){
+  document.querySelectorAll('[data-band]').forEach(function(el){el.classList.toggle('active', el.dataset.band === activeBand);});
+  document.querySelectorAll('[data-key]').forEach(function(el){el.classList.toggle('active', el.dataset.key === activeKey);});
+}
+function renderSongs(){
+  var songs = getVisibleSongs();
+  var tbody = document.getElementById('song-list');
+  var empty = document.getElementById('empty-state');
+  tbody.innerHTML = songs.map(function(s,i){
+    var href = IS_ROOT ? s.href : s.file;
+    var bandCell = IS_ROOT ? '<td class="song-band"><span class="band-dot" style="background:'+esc(s.bandColor)+'"></span>'+esc(s.bandName)+'</td>' : '';
+    return '<tr class="song-row">' +
+      '<td class="song-num">'+String(i+1).padStart(2,'0')+'</td>' +
+      '<td><input class="setlist-input" type="text" value="'+esc(s.setlist||'')+'" readonly title="Generated from index source"></td>' +
+      '<td><div class="song-title">'+esc(s.title)+'</div><div class="song-artist">'+esc(s.artist || '-')+'</div></td>' +
+      bandCell +
+      '<td class="song-key">'+esc(s.key || '-')+'</td>' +
+      '<td class="song-bpm">'+esc(s.bpm || '-')+'</td>' +
+      '<td><a class="open-btn" href="'+esc(href)+'">Open</a></td>' +
+      '</tr>';
+  }).join('');
+  empty.classList.toggle('hidden', songs.length !== 0);
+  var label = activeBand === 'all' ? 'all bands' : (ALL_BANDS.find(function(b){return b.id===activeBand;})||{}).name;
+  document.getElementById('stats').textContent = songs.length + ' songs · ' + label;
+  var ind = document.getElementById('sort-set-ind');
+  if(ind){ind.textContent = sortCol === 'setlist' ? (sortDir === 1 ? 'up' : 'down') : 'sort'; ind.className = 'sort-ind' + (sortCol === 'setlist' ? ' on' : '');}
+}
+function setBandFilter(id){activeBand = id; activeKey = 'all'; buildFilters(); renderSongs();}
+function setKeyFilter(key){activeKey = key; syncFilterState(); renderSongs();}
+function setSortBy(col){if(sortCol === col){sortDir = -sortDir;}else{sortCol = col; sortDir = 1;} renderSongs();}
+function clearFilters(){document.getElementById('search').value=''; activeBand = CURRENT_BAND || 'all'; activeKey = 'all'; sortCol = 'default'; sortDir = 1; buildFilters(); renderSongs();}
+function init(){buildBandCards(); buildFilters(); renderSongs();}
+init();
+"""
+
+
+def render_index(bands, songs, current_band=None):
+    is_root = current_band is None
+    band = next((b for b in bands if b["id"] == current_band), None)
+    title = "Band Sheet - ti.guitar" if is_root else f"{band['name']} - Band Sheet"
+    heading = "bandsheet by ti.muse" if is_root else "Song List"
+    label = "ti.muse - Band Sheet Archive" if is_root else band["name"]
+    subtitle = "Search all songs across all bands" if is_root else f"{band['songCount']} songs in {band['name']}"
+    breadcrumb = "" if is_root else '<div class="breadcrumb"><a href="../">Band Sheet</a> / ' + html.escape(band["name"]) + "</div>"
+    band_cards = '<section><div class="section-label">Bands</div><div class="band-grid" id="band-grid"></div></section>' if is_root else ""
+    band_filter = '<div class="filter-group" id="band-filters"></div>' if is_root else ""
+    band_header = "<th>Band</th>" if is_root else ""
+    current = "null" if is_root else json.dumps(current_band)
+    body_class = "root-index" if is_root else "band-index"
+    home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'
+
+    return f"""<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{html.escape(title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>{STYLE}</style>
+</head>
+<body class="{body_class}">
+<header>
+  {breadcrumb}
+  <div class="site-label">{html.escape(label)}</div>
+  <h1>{html.escape(heading)}</h1>
+  <p class="sub">{html.escape(subtitle)}</p>
+  <div class="version-pill">{VERSION} · updated {UPDATED}</div>
+</header>
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search" id="search" type="text" placeholder="Search songs, artists, key, BPM..." oninput="renderSongs()" autocomplete="off">
+  </div>
+  {band_filter}
+  <div class="filter-group" id="key-filters"></div>
+  <button class="clear-btn" onclick="clearFilters()">Clear</button>
+</div>
+<main>
+  {band_cards}
+  <section>
+    <div class="section-label" id="stats"></div>
+    <div class="table-wrap">
+      <table class="song-table">
+        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th>Song / Artist</th>{band_header}<th>Key</th><th>BPM</th><th></th></tr></thead>
+        <tbody id="song-list"></tbody>
+      </table>
+    </div>
+    <div class="empty hidden" id="empty-state">No songs found. Try clearing search or filters.</div>
+  </section>
+</main>
+<footer><span>vault.ti.muse / bandsheet</span>{home_link}</footer>
+<script>
+var BANDS = {js_json(bands)};
+var SONGS = {js_json(songs)};
+var ALL_BANDS = BANDS;
+var ALL_SONGS = SONGS;
+var CURRENT_BAND = {current};
+var IS_ROOT = {str(is_root).lower()};
+{SCRIPT}
+</script>
+</body>
+</html>
+"""
+
+
+def update_version_files():
+    template_path = os.path.join(BAND_ROOT, "_template.html")
+    if os.path.exists(template_path):
+        doc = read_text(template_path).replace("bandsheet v6.0 prototype", VERSION)
+        write_text(template_path, doc)
+
+    agents_path = os.path.join(BAND_ROOT, "AGENTS.md")
+    if os.path.exists(agents_path):
+        doc = read_text(agents_path)
+        doc = doc.replace("current version: v6.0 prototype", "current version: v6.01")
+        doc = doc.replace("template v6.0 prototype", "template v6.01")
+        doc = doc.replace("(v6.0 prototype)", "(v6.01)")
+        write_text(agents_path, doc)
+
 
 def main():
     print("Bandsheet Index Updater")
     print("-" * 40)
-    dirs = [os.path.join(BAND_ROOT, n) for n in sorted(os.listdir(BAND_ROOT))
-            if os.path.isdir(os.path.join(BAND_ROOT, n))
-            and n not in SKIP_DIRS and not n.startswith(".")]
-    total = sum(update_band_index(d) for d in dirs)
+    bands = discover_bands()
+    songs = collect_songs(bands)
+
+    write_text(os.path.join(BAND_ROOT, "index.html"), render_index(bands, songs))
+    print(f"  OK index.html - {len(songs)} songs across {len(bands)} bands")
+
+    for band in bands:
+        band_songs = [song for song in songs if song["bandId"] == band["id"]]
+        write_text(os.path.join(BAND_ROOT, band["id"], "index.html"), render_index(bands, band_songs, band["id"]))
+        print(f"  OK {band['id']}/index.html - {len(band_songs)} songs")
+
+    update_version_files()
     print("-" * 40)
-    print(f"Done - {total} songs across {len(dirs)} bands")
+    print(f"Done - {len(songs)} songs across {len(bands)} bands")
+
 
 if __name__ == "__main__":
     main()

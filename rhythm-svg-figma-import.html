@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhythm SVG Figma Import Sheet</title>
+<style>
+  :root{
+    --ink:#111827;
+    --muted:#64748b;
+    --line:#cbd5e1;
+    --guide:#fecaca;
+    --paper:#f8fafc;
+    --card:#fff;
+    --accent:#2563eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,Arial,sans-serif}
+  .page{width:1240px;margin:0 auto;padding:36px}
+  h1{margin:0 0 6px;font-size:28px;letter-spacing:0}
+  .sub{margin:0 0 24px;color:var(--muted);font-size:14px;line-height:1.45;max-width:920px}
+  .section-title{margin:30px 0 8px;font-size:18px;font-weight:900;color:#334155}
+  .rule{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.45;max-width:920px}
+  .grid{display:grid;grid-template-columns:repeat(6,176px);gap:18px}
+  .asset{width:176px;height:178px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+  .stage{
+    width:64px;height:80px;margin:0 auto 10px;border:1px dashed var(--line);
+    background:
+      linear-gradient(to right, transparent 7px, var(--guide) 7px, var(--guide) 8px, transparent 8px),
+      linear-gradient(to right, transparent 15px, var(--guide) 15px, var(--guide) 16px, transparent 16px),
+      linear-gradient(to right, transparent 23px, var(--guide) 23px, var(--guide) 24px, transparent 24px),
+      linear-gradient(to right, transparent 31px, var(--guide) 31px, var(--guide) 32px, transparent 32px),
+      linear-gradient(to right, transparent 39px, var(--guide) 39px, var(--guide) 40px, transparent 40px),
+      linear-gradient(to right, transparent 47px, var(--guide) 47px, var(--guide) 48px, transparent 48px),
+      linear-gradient(to right, transparent 55px, var(--guide) 55px, var(--guide) 56px, transparent 56px),
+      linear-gradient(to bottom, transparent 15px, var(--guide) 15px, var(--guide) 16px, transparent 16px),
+      linear-gradient(to bottom, transparent 31px, var(--guide) 31px, var(--guide) 32px, transparent 32px),
+      linear-gradient(to bottom, transparent 47px, var(--guide) 47px, var(--guide) 48px, transparent 48px),
+      linear-gradient(to bottom, transparent 63px, var(--guide) 63px, var(--guide) 64px, transparent 64px);
+  }
+  svg{width:64px;height:80px;display:block}
+  .name{font-size:12px;font-weight:900;color:var(--accent);line-height:1.12}
+  .file{margin-top:4px;font-size:10px;color:var(--ink);line-height:1.2;word-break:break-word}
+  .meta{margin-top:4px;font-size:10px;color:var(--muted);line-height:1.2}
+  .token-text{fill:var(--ink);font-weight:900;font-size:7px;font-family:Inter,Arial,sans-serif;text-anchor:middle}
+  .small-text{fill:var(--muted);font-weight:800;font-size:4.5px;font-family:Inter,Arial,sans-serif;text-anchor:middle}
+  .head{fill:var(--ink)}
+  .open-head{fill:#fff;stroke:var(--ink);stroke-width:1.3}
+  .stem,.beam,.rest-line,.bracket{stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round;fill:none}
+  .stem{stroke-width:1.15}
+  .beam{stroke-width:2.2}
+  .rest-line{stroke-width:1.35}
+  .bracket{stroke-width:.9}
+  .dot{fill:var(--ink)}
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>Rhythm SVG Figma Import Sheet</h1>
+  <p class="sub">Export target is 32 x 40. Names below intentionally omit the file extension so they are easy to copy into Figma frame names. The library is grouped by duration; pattern tokens use the duration prefix, such as <strong>1q-de-s</strong> or <strong>2q-de-de-e</strong>.</p>
+
+  <h2 class="section-title">4q</h2>
+  <p class="rule">Whole-note length primitives.</p>
+  <section class="grid">
+    <div class="asset" data-token="w" data-file="note-whole"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="open-head" cx="16" cy="25" rx="7" ry="3.8" transform="rotate(-12 16 25)"/><ellipse class="head" cx="16" cy="25" rx="2.3" ry="1.25" transform="rotate(-12 16 25)"/></svg></div><div class="name">w</div><div class="file">note-whole</div><div class="meta">whole note / 4q</div></div>
+    <div class="asset" data-token="rw" data-file="rest-whole"><div class="stage"><svg viewBox="0 0 32 40"><path class="rest-line" d="M9 18H23"/><rect class="head" x="12" y="18" width="8" height="4" rx=".5"/></svg></div><div class="name">rw</div><div class="file">rest-whole</div><div class="meta">whole rest / 4q</div></div>
+  </section>
+
+  <h2 class="section-title">3q</h2>
+  <section class="grid">
+    <div class="asset" data-token="dh" data-file="note-half-dot"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="open-head" cx="11.5" cy="27" rx="4.9" ry="3.2" transform="rotate(-22 11.5 27)"/><path class="stem" d="M15.9 26.2V9.2"/><circle class="dot" cx="22.5" cy="25.5" r="1.25"/></svg></div><div class="name">dh</div><div class="file">note-half-dot</div><div class="meta">dotted half / 3q</div></div>
+  </section>
+
+  <h2 class="section-title">2q</h2>
+  <p class="rule">Half-note primitives and longer motif patterns.</p>
+  <section class="grid">
+    <div class="asset" data-token="h" data-file="note-half"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="open-head" cx="12.5" cy="27" rx="4.9" ry="3.2" transform="rotate(-22 12.5 27)"/><path class="stem" d="M16.9 26.2V9.2"/></svg></div><div class="name">h</div><div class="file">note-half</div><div class="meta">half note / 2q</div></div>
+    <div class="asset" data-token="rh" data-file="rest-half"><div class="stage"><svg viewBox="0 0 32 40"><path class="rest-line" d="M9 22H23"/><rect class="head" x="12" y="18" width="8" height="4" rx=".5"/></svg></div><div class="name">rh</div><div class="file">rest-half</div><div class="meta">half rest / 2q</div></div>
+    <div class="asset" data-token="2q-de-de-e" data-file="pattern-2q-dotted-eighth-2-eighth"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">de-de-e</text><text class="small-text" x="16" y="29">2q pattern</text></svg></div><div class="name">2q-de-de-e</div><div class="file">pattern-2q-dotted-eighth-2-eighth</div><div class="meta">de + de + e = 2q</div></div>
+  </section>
+
+  <h2 class="section-title">1.5q</h2>
+  <section class="grid">
+    <div class="asset" data-token="dq" data-file="note-quarter-dot"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="head" cx="11.5" cy="27" rx="4.7" ry="3.1" transform="rotate(-22 11.5 27)"/><path class="stem" d="M15.8 26.3V9.2"/><circle class="dot" cx="22.5" cy="25.5" r="1.25"/></svg></div><div class="name">dq</div><div class="file">note-quarter-dot</div><div class="meta">dotted quarter / 1.5q</div></div>
+  </section>
+
+  <h2 class="section-title">1q</h2>
+  <p class="rule">Primary rhythm reminder cell. A bar can contain any number of these cells; do not validate against the song-level time signature.</p>
+  <section class="grid">
+    <div class="asset" data-token="q" data-file="note-quarter"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="head" cx="12.5" cy="27" rx="4.7" ry="3.1" transform="rotate(-22 12.5 27)"/><path class="stem" d="M16.8 26.3V9.2"/></svg></div><div class="name">q</div><div class="file">note-quarter</div><div class="meta">quarter note / 1q</div></div>
+    <div class="asset" data-token="rq" data-file="rest-quarter"><div class="stage"><svg viewBox="0 0 32 40"><path class="rest-line" d="M18 9c-4 4-1 6 2 8-5 1-7 5-2 9-4-1-6 1-5 5"/></svg></div><div class="name">rq</div><div class="file">rest-quarter</div><div class="meta">quarter rest / 1q</div></div>
+    <div class="asset" data-token="ee" data-file="group-eighth-2"><div class="stage"><svg viewBox="0 0 32 40"><path class="beam" d="M10 10H23"/><ellipse class="head" cx="7.5" cy="27" rx="3.7" ry="2.5" transform="rotate(-22 7.5 27)"/><ellipse class="head" cx="20.5" cy="27" rx="3.7" ry="2.5" transform="rotate(-22 20.5 27)"/><path class="stem" d="M10.9 26.3V10"/><path class="stem" d="M23.9 26.3V10"/></svg></div><div class="name">ee</div><div class="file">group-eighth-2</div><div class="meta">e + e = 1q</div></div>
+    <div class="asset" data-token="ssss" data-file="group-sixteenth-4"><div class="stage"><svg viewBox="0 0 32 40"><path class="beam" d="M7 10H27"/><path class="beam" d="M7 14H27"/><ellipse class="head" cx="5.5" cy="27" rx="2.8" ry="2" transform="rotate(-22 5.5 27)"/><ellipse class="head" cx="12.5" cy="27" rx="2.8" ry="2" transform="rotate(-22 12.5 27)"/><ellipse class="head" cx="19.5" cy="27" rx="2.8" ry="2" transform="rotate(-22 19.5 27)"/><ellipse class="head" cx="26.5" cy="27" rx="2.8" ry="2" transform="rotate(-22 26.5 27)"/><path class="stem" d="M7.8 26.3V10"/><path class="stem" d="M14.8 26.3V10"/><path class="stem" d="M21.8 26.3V10"/><path class="stem" d="M28.8 26.3V10"/></svg></div><div class="name">ssss</div><div class="file">group-sixteenth-4</div><div class="meta">s + s + s + s = 1q</div></div>
+    <div class="asset" data-token="te" data-file="group-triplet-eighth-3"><div class="stage"><svg viewBox="0 0 32 40"><path class="bracket" d="M6 8v2.5h7.5M26 8v2.5h-7.5"/><text class="small-text" x="16" y="11">3</text><path class="beam" d="M8 15H25"/><text class="token-text" x="16" y="29">te</text></svg></div><div class="name">te</div><div class="file">group-triplet-eighth-3</div><div class="meta">triplet eighths / 1q</div></div>
+    <div class="asset" data-token="1q-de-s" data-file="pattern-1q-dotted-eighth-sixteenth"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">de-s</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-de-s</div><div class="file">pattern-1q-dotted-eighth-sixteenth</div><div class="meta">de + s = 1q</div></div>
+    <div class="asset" data-token="1q-s-de" data-file="pattern-1q-sixteenth-dotted-eighth"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">s-de</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-s-de</div><div class="file">pattern-1q-sixteenth-dotted-eighth</div><div class="meta">s + de = 1q</div></div>
+    <div class="asset" data-token="1q-e-s-s" data-file="pattern-1q-eighth-sixteenth-2"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">e-s-s</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-e-s-s</div><div class="file">pattern-1q-eighth-sixteenth-2</div><div class="meta">e + s + s = 1q</div></div>
+    <div class="asset" data-token="1q-s-s-e" data-file="pattern-1q-sixteenth-2-eighth"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">s-s-e</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-s-s-e</div><div class="file">pattern-1q-sixteenth-2-eighth</div><div class="meta">s + s + e = 1q</div></div>
+    <div class="asset" data-token="1q-s-e-s" data-file="pattern-1q-sixteenth-eighth-sixteenth"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">s-e-s</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-s-e-s</div><div class="file">pattern-1q-sixteenth-eighth-sixteenth</div><div class="meta">s + e + s = 1q</div></div>
+    <div class="asset" data-token="1q-e-re" data-file="pattern-1q-eighth-rest"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">e-re</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-e-re</div><div class="file">pattern-1q-eighth-rest</div><div class="meta">e + re = 1q</div></div>
+    <div class="asset" data-token="1q-re-e" data-file="pattern-1q-rest-eighth"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="21">re-e</text><text class="small-text" x="16" y="29">1q pattern</text></svg></div><div class="name">1q-re-e</div><div class="file">pattern-1q-rest-eighth</div><div class="meta">re + e = 1q</div></div>
+  </section>
+
+  <h2 class="section-title">1q Grid16 Hit/Rest</h2>
+  <p class="rule">Complete sixteenth-slot hit/rest combinations. Token uses x = played sixteenth and r = sixteenth rest.</p>
+  <section class="grid">
+    <div class="asset" data-token="1q-xxxx" data-file="pattern-1q-grid16-xxxx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xxxx</text></svg></div><div class="name">1q-xxxx</div><div class="file">pattern-1q-grid16-xxxx</div><div class="meta">s s s s</div></div>
+    <div class="asset" data-token="1q-xxxr" data-file="pattern-1q-grid16-xxxr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xxxr</text></svg></div><div class="name">1q-xxxr</div><div class="file">pattern-1q-grid16-xxxr</div><div class="meta">s s s rs</div></div>
+    <div class="asset" data-token="1q-xxrx" data-file="pattern-1q-grid16-xxrx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xxrx</text></svg></div><div class="name">1q-xxrx</div><div class="file">pattern-1q-grid16-xxrx</div><div class="meta">s s rs s</div></div>
+    <div class="asset" data-token="1q-xrxx" data-file="pattern-1q-grid16-xrxx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xrxx</text></svg></div><div class="name">1q-xrxx</div><div class="file">pattern-1q-grid16-xrxx</div><div class="meta">s rs s s</div></div>
+    <div class="asset" data-token="1q-rxxx" data-file="pattern-1q-grid16-rxxx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rxxx</text></svg></div><div class="name">1q-rxxx</div><div class="file">pattern-1q-grid16-rxxx</div><div class="meta">rs s s s</div></div>
+    <div class="asset" data-token="1q-xxrr" data-file="pattern-1q-grid16-xxrr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xxrr</text></svg></div><div class="name">1q-xxrr</div><div class="file">pattern-1q-grid16-xxrr</div><div class="meta">s s rs rs</div></div>
+    <div class="asset" data-token="1q-xrxr" data-file="pattern-1q-grid16-xrxr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xrxr</text></svg></div><div class="name">1q-xrxr</div><div class="file">pattern-1q-grid16-xrxr</div><div class="meta">s rs s rs</div></div>
+    <div class="asset" data-token="1q-xrrx" data-file="pattern-1q-grid16-xrrx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xrrx</text></svg></div><div class="name">1q-xrrx</div><div class="file">pattern-1q-grid16-xrrx</div><div class="meta">s rs rs s</div></div>
+    <div class="asset" data-token="1q-rxxr" data-file="pattern-1q-grid16-rxxr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rxxr</text></svg></div><div class="name">1q-rxxr</div><div class="file">pattern-1q-grid16-rxxr</div><div class="meta">rs s s rs</div></div>
+    <div class="asset" data-token="1q-rxrx" data-file="pattern-1q-grid16-rxrx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rxrx</text></svg></div><div class="name">1q-rxrx</div><div class="file">pattern-1q-grid16-rxrx</div><div class="meta">rs s rs s</div></div>
+    <div class="asset" data-token="1q-rrxx" data-file="pattern-1q-grid16-rrxx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rrxx</text></svg></div><div class="name">1q-rrxx</div><div class="file">pattern-1q-grid16-rrxx</div><div class="meta">rs rs s s</div></div>
+    <div class="asset" data-token="1q-xrrr" data-file="pattern-1q-grid16-xrrr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">xrrr</text></svg></div><div class="name">1q-xrrr</div><div class="file">pattern-1q-grid16-xrrr</div><div class="meta">s rs rs rs</div></div>
+    <div class="asset" data-token="1q-rxrr" data-file="pattern-1q-grid16-rxrr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rxrr</text></svg></div><div class="name">1q-rxrr</div><div class="file">pattern-1q-grid16-rxrr</div><div class="meta">rs s rs rs</div></div>
+    <div class="asset" data-token="1q-rrxr" data-file="pattern-1q-grid16-rrxr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rrxr</text></svg></div><div class="name">1q-rrxr</div><div class="file">pattern-1q-grid16-rrxr</div><div class="meta">rs rs s rs</div></div>
+    <div class="asset" data-token="1q-rrrx" data-file="pattern-1q-grid16-rrrx"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rrrx</text></svg></div><div class="name">1q-rrrx</div><div class="file">pattern-1q-grid16-rrrx</div><div class="meta">rs rs rs s</div></div>
+    <div class="asset" data-token="1q-rrrr" data-file="pattern-1q-grid16-rrrr"><div class="stage"><svg viewBox="0 0 32 40"><text class="token-text" x="16" y="23">rrrr</text></svg></div><div class="name">1q-rrrr</div><div class="file">pattern-1q-grid16-rrrr</div><div class="meta">rs rs rs rs</div></div>
+  </section>
+
+  <h2 class="section-title">0.75q</h2>
+  <section class="grid">
+    <div class="asset" data-token="de" data-file="note-eighth-dot"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="head" cx="11.5" cy="27" rx="4.7" ry="3.1" transform="rotate(-22 11.5 27)"/><path class="stem" d="M15.8 26.3V9.2"/><path class="rest-line" d="M15.8 9.2c4.2 2 5.8 5.2 3.1 8.1"/><circle class="dot" cx="22.5" cy="25.5" r="1.25"/></svg></div><div class="name">de</div><div class="file">note-eighth-dot</div><div class="meta">dotted eighth / 0.75q</div></div>
+  </section>
+
+  <h2 class="section-title">0.5q</h2>
+  <section class="grid">
+    <div class="asset" data-token="e" data-file="note-eighth"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="head" cx="12.5" cy="27" rx="4.7" ry="3.1" transform="rotate(-22 12.5 27)"/><path class="stem" d="M16.8 26.3V9.2"/><path class="rest-line" d="M16.8 9.2c4.2 2 5.8 5.2 3.1 8.1"/></svg></div><div class="name">e</div><div class="file">note-eighth</div><div class="meta">eighth note / 0.5q</div></div>
+    <div class="asset" data-token="re" data-file="rest-eighth"><div class="stage"><svg viewBox="0 0 32 40"><circle class="head" cx="13" cy="15" r="2"/><path class="rest-line" d="M15 15h6l-6 16"/></svg></div><div class="name">re</div><div class="file">rest-eighth</div><div class="meta">eighth rest / 0.5q</div></div>
+    <div class="asset" data-token="ss" data-file="group-sixteenth-2"><div class="stage"><svg viewBox="0 0 32 40"><path class="beam" d="M10 10H23"/><path class="beam" d="M10 14H23"/><ellipse class="head" cx="7.5" cy="27" rx="3.7" ry="2.5" transform="rotate(-22 7.5 27)"/><ellipse class="head" cx="20.5" cy="27" rx="3.7" ry="2.5" transform="rotate(-22 20.5 27)"/><path class="stem" d="M10.9 26.3V10"/><path class="stem" d="M23.9 26.3V10"/></svg></div><div class="name">ss</div><div class="file">group-sixteenth-2</div><div class="meta">s + s = 0.5q</div></div>
+  </section>
+
+  <h2 class="section-title">0.375q</h2>
+  <section class="grid">
+    <div class="asset" data-token="ds" data-file="note-sixteenth-dot"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="head" cx="11.5" cy="27" rx="4.7" ry="3.1" transform="rotate(-22 11.5 27)"/><path class="stem" d="M15.8 26.3V9.2"/><path class="rest-line" d="M15.8 9.2c4.2 2 5.8 5.2 3.1 8.1"/><path class="rest-line" d="M15.8 13.4c3.4 1.7 4.6 4.2 2.5 6.7"/><circle class="dot" cx="22.5" cy="25.5" r="1.25"/></svg></div><div class="name">ds</div><div class="file">note-sixteenth-dot</div><div class="meta">dotted sixteenth / 0.375q</div></div>
+  </section>
+
+  <h2 class="section-title">0.25q</h2>
+  <section class="grid">
+    <div class="asset" data-token="s" data-file="note-sixteenth"><div class="stage"><svg viewBox="0 0 32 40"><ellipse class="head" cx="12.5" cy="27" rx="4.7" ry="3.1" transform="rotate(-22 12.5 27)"/><path class="stem" d="M16.8 26.3V9.2"/><path class="rest-line" d="M16.8 9.2c4.2 2 5.8 5.2 3.1 8.1"/><path class="rest-line" d="M16.8 13.4c3.4 1.7 4.6 4.2 2.5 6.7"/></svg></div><div class="name">s</div><div class="file">note-sixteenth</div><div class="meta">sixteenth note / 0.25q</div></div>
+    <div class="asset" data-token="rs" data-file="rest-sixteenth"><div class="stage"><svg viewBox="0 0 32 40"><circle class="head" cx="12.5" cy="14" r="1.9"/><circle class="head" cx="15" cy="20" r="1.9"/><path class="rest-line" d="M15 14h6l-7 18"/></svg></div><div class="name">rs</div><div class="file">rest-sixteenth</div><div class="meta">sixteenth rest / 0.25q</div></div>
+  </section>
+</main>
+</body>
+</html>

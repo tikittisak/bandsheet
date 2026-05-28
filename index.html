@@ -3,373 +3,840 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Band Sheet — ti.guitar</title>
+<title>Band Sheet - ti.guitar</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0e0e0e;
-  --surface: #181818;
-  --border: #2a2a2a;
-  --text: #f0ede8;
-  --muted: #666;
-  --faint: #333;
-  --accent: #f0ede8;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'IBM Plex Sans Thai', sans-serif;
-  min-height: 100vh;
-}
-header {
-  padding: 48px 40px 32px;
-  border-bottom: 1px solid var(--border);
-}
-.site-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-h1 {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-  line-height: 1;
-}
-h1 span { color: var(--muted); font-weight: 400; }
-.sub {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 8px;
-}
-.version-pill {
-  display: inline-block;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #34d399;
-  border: 1px solid rgba(52,211,153,.35);
-  background: rgba(52,211,153,.1);
-  border-radius: 4px;
-  padding: 4px 9px;
-  margin-top: 14px;
-}
-
-/* ── GLOBAL SEARCH ── */
-.global-search-bar {
-  padding: 20px 40px;
-  border-bottom: 1px solid var(--border);
-  background: #111;
-}
-.global-search-inner {
-  max-width: 600px;
-  position: relative;
-}
-.global-search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-size: 14px;
-  pointer-events: none;
-}
-.global-search-input {
-  width: 100%;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: var(--text);
-  border-radius: 8px;
-  padding: 10px 16px 10px 40px;
-  outline: none;
-  transition: border-color .15s;
-}
-.global-search-input::placeholder { color: var(--muted); }
-.global-search-input:focus { border-color: #555; }
-
-/* ── SEARCH RESULTS ── */
-#search-results {
-  padding: 20px 40px 40px;
-  max-width: 900px;
-}
-.results-label {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-.result-table { width: 100%; border-collapse: collapse; }
-.result-table th {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-align: left;
-  padding: 10px 12px 8px;
-  border-bottom: 1px solid var(--border);
-}
-.result-table th:first-child { padding-left: 0; }
-.result-row { border-bottom: 1px solid #222; transition: background .1s; }
-.result-row:hover { background: #141414; }
-.result-row td { padding: 12px 12px; font-size: 13px; vertical-align: middle; }
-.result-row td:first-child { padding-left: 0; }
-.result-title { font-weight: 500; color: var(--text); }
-.result-artist { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.result-band-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
-.result-band-name { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); vertical-align: middle; }
-.result-meta { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); }
-.result-open { display: inline-block; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: .06em; color: #888; text-decoration: none; padding: 3px 9px; border: 1px solid #333; border-radius: 4px; transition: all .12s; white-space: nowrap; }
-.result-open:hover { color: var(--text); border-color: #555; }
-.no-search-results { padding: 24px 0; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 13px; }
-.search-hint { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); margin-top: 8px; }
-
-/* ── BANDS SECTION ── */
-main {
-  padding: 40px;
-  max-width: 900px;
-}
-.section-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-.band-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-  margin-bottom: 48px;
-}
-.band-card {
-  display: block;
-  text-decoration: none;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px 22px;
-  transition: border-color .15s, background .15s;
-  position: relative;
-  overflow: hidden;
-}
-.band-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--band-color, #444);
-  border-radius: 8px 0 0 8px;
-}
-.band-card:hover {
-  border-color: #444;
-  background: #1e1e1e;
-}
-.band-name {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-  letter-spacing: -.01em;
-}
-.band-meta {
-  font-size: 11px;
-  color: var(--muted);
-}
-.band-song-count {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-.band-arrow {
-  position: absolute;
-  right: 18px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--faint);
-  font-size: 16px;
-  transition: color .15s, transform .15s;
-}
-.band-card:hover .band-arrow {
-  color: var(--muted);
-  transform: translateY(-50%) translateX(2px);
-}
-footer {
-  padding: 24px 40px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--muted);
-  font-family: 'IBM Plex Mono', monospace;
-}
+:root{--bg:#0e0e0e;--surface:#181818;--surface-2:#111;--border:#2a2a2a;--border-strong:#3a3a3a;--text:#f0ede8;--muted:#777;--faint:#444;--accent:#34d399;--accent-rgb:52,211,153}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai','Inter',sans-serif;min-height:100vh}
+a{color:inherit}
+header{padding:34px 40px 22px;border-bottom:1px solid var(--border)}
+.breadcrumb{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:14px}
+.breadcrumb a{color:var(--muted);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
+.site-label,.section-label{font-family:'IBM Plex Mono','Inter',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;letter-spacing:0;line-height:1.1;margin-top:8px;text-transform:none}
+.sub,.stats{font-size:12px;color:var(--muted);margin-top:7px}
+.version-pill{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(var(--accent-rgb),.35);background:rgba(var(--accent-rgb),.1);border-radius:4px;padding:4px 9px;margin-top:12px}
+.toolbar{padding:14px 40px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2)}
+.search-wrap{position:relative;flex:1 1 260px;max-width:420px}.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+.search{font-family:'Inter',sans-serif;font-size:12px;background:#202020;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 12px 8px 32px;outline:none;width:100%;transition:border-color .12s}.search:focus{border-color:#555}.search::placeholder{color:var(--muted)}
+.filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.filter-label{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.filter-pill{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;padding:5px 10px;border:1px solid var(--border);border-radius:20px;background:none;color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap}.filter-pill:hover{border-color:#555;color:var(--text)}.filter-pill.active{background:rgba(var(--accent-rgb),.15);border-color:rgba(var(--accent-rgb),.45);color:var(--accent)}
+.clear-btn{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);cursor:pointer;padding:5px 9px;border-radius:5px}.clear-btn:hover{color:var(--text);border-color:#555}
+main{padding:22px 40px 60px;max-width:1120px}.band-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:22px}
+.band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:#444;background:#1f1f1f}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
+.band-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:700}.band-song-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);margin-top:3px}
+.table-wrap{width:100%;overflow-x:auto}.song-table{width:100%;border-collapse:collapse;min-width:680px;margin-top:10px}.song-table th{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 12px 10px;border-bottom:1px solid var(--border);white-space:nowrap}.song-table th:first-child{padding-left:0;width:40px}
+.song-row{border-bottom:1px solid #242424;transition:background .1s}.song-row:hover{background:#141414}.song-row td{padding:13px 12px;font-size:13px;vertical-align:middle}.song-row td:first-child{padding-left:0}
+.song-num,.song-key,.song-bpm,.song-band{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);white-space:nowrap}.song-title{font-weight:600;color:var(--text);overflow-wrap:anywhere}.song-artist{font-size:11px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.band-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}.open-btn{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-decoration:none;padding:5px 10px;border:1px solid rgba(var(--accent-rgb),.35);border-radius:4px;white-space:nowrap}.open-btn:hover{background:rgba(var(--accent-rgb),.12);border-color:var(--accent)}
+.setlist-input{font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:1px solid transparent;border-radius:4px;color:var(--muted);width:44px;text-align:center;padding:2px 4px;outline:none}.setlist-input:hover,.setlist-input:focus{border-color:#444;color:var(--text);background:#1a1a1a}
+.th-sortable{cursor:pointer;user-select:none}.th-sortable:hover{color:var(--text)}.sort-ind{font-size:9px;opacity:.45;margin-left:2px}.sort-ind.on{opacity:1;color:var(--accent)}
+.empty{padding:34px 0;color:var(--muted);font-size:13px}.hidden{display:none!important}footer{padding:20px 40px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:'Inter',sans-serif;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:720px){header{padding:26px 18px 18px}.toolbar{padding:12px 18px;align-items:stretch}.search-wrap{max-width:none;flex-basis:100%}.filter-group{width:100%}main{padding:18px 18px 48px}.band-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.song-table{min-width:560px}.song-table th,.song-row td{padding-left:8px;padding-right:8px}footer{padding:18px}}
 </style>
 </head>
-<body>
+<body class="root-index">
 <header>
-  <div class="site-label">ti.muse · Band Sheet Archive</div>
-  <h1>Band <span>/</span> Sheet</h1>
-  <p class="sub">เลือกวงเพื่อดู song list และ band sheet</p>
-  <div class="version-pill">bandsheet v6.0 prototype · updated 2026-05-26</div>
+  
+  <div class="site-label">ti.muse - Band Sheet Archive</div>
+  <h1>bandsheet by ti.muse</h1>
+  <p class="sub">Search all songs across all bands</p>
+  <div class="version-pill">bandsheet v6.01 · updated 2026-05-26</div>
 </header>
-
-<!-- GLOBAL SEARCH -->
-<div class="global-search-bar">
-  <div class="global-search-inner">
-    <span class="global-search-icon">🔍</span>
-    <input class="global-search-input" id="global-search" type="text"
-      placeholder="Search all songs across all bands..."
-      oninput="globalSearch()" autocomplete="off">
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search" id="search" type="text" placeholder="Search songs, artists, key, BPM..." oninput="renderSongs()" autocomplete="off">
   </div>
+  <div class="filter-group" id="band-filters"></div>
+  <div class="filter-group" id="key-filters"></div>
+  <button class="clear-btn" onclick="clearFilters()">Clear</button>
 </div>
-
-<!-- SEARCH RESULTS (hidden by default) -->
-<div id="search-results" style="display:none"></div>
-
-<!-- BANDS -->
-<main id="bands-section">
-  <div class="section-label" id="bands-label">5 วงดนตรี</div>
-  <div class="band-grid" id="band-grid">
-    <a class="band-card" href="ti-muse/" style="--band-color:#60a5fa" id="card-ti-muse">
-      <div class="band-name">ti.muse</div>
-      <div class="band-meta">Band Sheet Collection</div>
-      <div class="band-song-count" id="count-ti-muse"></div>
-      <span class="band-arrow">→</span>
-    </a>
-    <a class="band-card" href="the-maewjons/" style="--band-color:#f472b6" id="card-the-maewjons">
-      <div class="band-name">THE MÆWJØNS</div>
-      <div class="band-meta">Band Sheet Collection</div>
-      <div class="band-song-count" id="count-the-maewjons"></div>
-      <span class="band-arrow">→</span>
-    </a>
-    <a class="band-card" href="parkhaus108/" style="--band-color:#34d399" id="card-parkhaus108">
-      <div class="band-name">PARKHAUS108</div>
-      <div class="band-meta">Band Sheet Collection</div>
-      <div class="band-song-count" id="count-parkhaus108"></div>
-      <span class="band-arrow">→</span>
-    </a>
-    <a class="band-card" href="90alter/" style="--band-color:#fbbf24" id="card-90alter">
-      <div class="band-name">90Alter</div>
-      <div class="band-meta">Band Sheet Collection</div>
-      <div class="band-song-count" id="count-90alter"></div>
-      <span class="band-arrow">→</span>
-    </a>
-    <a class="band-card" href="parkhaus-studio/" style="--band-color:#a78bfa" id="card-parkhaus-studio">
-      <div class="band-name">PARKHAUS Studio</div>
-      <div class="band-meta">Band Sheet Collection</div>
-      <div class="band-song-count" id="count-parkhaus-studio"></div>
-      <span class="band-arrow">→</span>
-    </a>
-  </div>
+<main>
+  <section><div class="section-label">Bands</div><div class="band-grid" id="band-grid"></div></section>
+  <section>
+    <div class="section-label" id="stats"></div>
+    <div class="table-wrap">
+      <table class="song-table">
+        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th>Song / Artist</th><th>Band</th><th>Key</th><th>BPM</th><th></th></tr></thead>
+        <tbody id="song-list"></tbody>
+      </table>
+    </div>
+    <div class="empty hidden" id="empty-state">No songs found. Try clearing search or filters.</div>
+  </section>
 </main>
-
-<footer>vault.ti.muse / bandsheet · Band Sheet Archive</footer>
-
+<footer><span>vault.ti.muse / bandsheet</span></footer>
 <script>
-var BAND_COLORS = {
-  'ti-muse':          '#60a5fa',
-  'the-maewjons':     '#f472b6',
-  'parkhaus108':      '#34d399',
-  '90alter':          '#fbbf24',
-  'parkhaus-studio':  '#a78bfa'
-};
+var BANDS = [
+  {
+    "id": "ti-muse",
+    "name": "ti.muse",
+    "color": "#60a5fa",
+    "path": "ti-muse/",
+    "indexHref": "ti-muse/index.html",
+    "songCount": 3
+  },
+  {
+    "id": "the-maewjons",
+    "name": "THE MÆWJØNS",
+    "color": "#f472b6",
+    "path": "the-maewjons/",
+    "indexHref": "the-maewjons/index.html",
+    "songCount": 25
+  },
+  {
+    "id": "parkhaus108",
+    "name": "PARKHAUS108",
+    "color": "#34d399",
+    "path": "parkhaus108/",
+    "indexHref": "parkhaus108/index.html",
+    "songCount": 21
+  },
+  {
+    "id": "90alter",
+    "name": "90Alter",
+    "color": "#fbbf24",
+    "path": "90alter/",
+    "indexHref": "90alter/index.html",
+    "songCount": 0
+  },
+  {
+    "id": "parkhaus-studio",
+    "name": "PARKHAUS Studio",
+    "color": "#a78bfa",
+    "path": "parkhaus-studio/",
+    "indexHref": "parkhaus-studio/index.html",
+    "songCount": 0
+  }
+];
+var SONGS = [
+  {
+    "title": "Jesus of Suburbia",
+    "artist": "Green Day",
+    "key": "Ab",
+    "bpm": "~174 BPM",
+    "bars": "",
+    "file": "jesus-of-suburbia.html",
+    "bandId": "ti-muse",
+    "bandName": "ti.muse",
+    "bandColor": "#60a5fa",
+    "href": "ti-muse/jesus-of-suburbia.html",
+    "setlist": ""
+  },
+  {
+    "title": "Sleepwalk",
+    "artist": "Larry Carlton",
+    "key": "C / Eb",
+    "bpm": "~133 BPM",
+    "bars": "",
+    "file": "sleepwalk.html",
+    "bandId": "ti-muse",
+    "bandName": "ti.muse",
+    "bandColor": "#60a5fa",
+    "href": "ti-muse/sleepwalk.html",
+    "setlist": ""
+  },
+  {
+    "title": "The Game of Love",
+    "artist": "Santana",
+    "key": "Em",
+    "bpm": "~120 BPM",
+    "bars": "",
+    "file": "the-game-of-love.html",
+    "bandId": "ti-muse",
+    "bandName": "ti.muse",
+    "bandColor": "#60a5fa",
+    "href": "ti-muse/the-game-of-love.html",
+    "setlist": ""
+  },
+  {
+    "title": "Black Hole Sun",
+    "artist": "Soundgarden",
+    "key": "G",
+    "bpm": "105",
+    "bars": "",
+    "file": "01-black-hole-sun.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/01-black-hole-sun.html",
+    "setlist": ""
+  },
+  {
+    "title": "Starlight",
+    "artist": "Muse",
+    "key": "E",
+    "bpm": "122",
+    "bars": "",
+    "file": "02-starlight.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/02-starlight.html",
+    "setlist": ""
+  },
+  {
+    "title": "Somebody Told Me",
+    "artist": "The Killers",
+    "key": "Bbm",
+    "bpm": "138",
+    "bars": "",
+    "file": "03-somebody-told-me.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/03-somebody-told-me.html",
+    "setlist": ""
+  },
+  {
+    "title": "I Put A Spell On You",
+    "artist": "Annie Lennox",
+    "key": "E",
+    "bpm": "58",
+    "bars": "",
+    "file": "04-i-put-a-spell-on-you.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/04-i-put-a-spell-on-you.html",
+    "setlist": ""
+  },
+  {
+    "title": "The Man Who Can't Be Moved",
+    "artist": "The Script",
+    "key": "Bb",
+    "bpm": "100",
+    "bars": "",
+    "file": "05-the-man-who-cant-be-moved.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/05-the-man-who-cant-be-moved.html",
+    "setlist": ""
+  },
+  {
+    "title": "Supersonic",
+    "artist": "Oasis",
+    "key": "A",
+    "bpm": "104",
+    "bars": "",
+    "file": "06-supersonic.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/06-supersonic.html",
+    "setlist": ""
+  },
+  {
+    "title": "Live Forever",
+    "artist": "Oasis",
+    "key": "Am",
+    "bpm": "91",
+    "bars": "",
+    "file": "07-live-forever.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/07-live-forever.html",
+    "setlist": ""
+  },
+  {
+    "title": "Sweet Disposition",
+    "artist": "The Temper Trap",
+    "key": "G",
+    "bpm": "129",
+    "bars": "",
+    "file": "08-sweet-disposition.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/08-sweet-disposition.html",
+    "setlist": ""
+  },
+  {
+    "title": "Crazy",
+    "artist": "Gnarls Barkley",
+    "key": "Dm",
+    "bpm": "112",
+    "bars": "",
+    "file": "09-crazy.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/09-crazy.html",
+    "setlist": ""
+  },
+  {
+    "title": "Vampire",
+    "artist": "Olivia Rodrigo",
+    "key": "F",
+    "bpm": "138",
+    "bars": "",
+    "file": "10-vampire.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/10-vampire.html",
+    "setlist": ""
+  },
+  {
+    "title": "Yellow",
+    "artist": "Coldplay",
+    "key": "B",
+    "bpm": "87",
+    "bars": "",
+    "file": "11-yellow.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/11-yellow.html",
+    "setlist": ""
+  },
+  {
+    "title": "Use Somebody",
+    "artist": "Kings Of Leon",
+    "key": "C",
+    "bpm": "137",
+    "bars": "",
+    "file": "12-use-somebody.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/12-use-somebody.html",
+    "setlist": ""
+  },
+  {
+    "title": "Beautiful Ones",
+    "artist": "Suede",
+    "key": "C",
+    "bpm": "99",
+    "bars": "",
+    "file": "13-beautiful-ones.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/13-beautiful-ones.html",
+    "setlist": ""
+  },
+  {
+    "title": "Forever Young",
+    "artist": "Youth Group",
+    "key": "B",
+    "bpm": "113",
+    "bars": "",
+    "file": "14-forever-young.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/14-forever-young.html",
+    "setlist": ""
+  },
+  {
+    "title": "Lovefool",
+    "artist": "The Cardigans",
+    "key": "Am",
+    "bpm": "112",
+    "bars": "",
+    "file": "15-lovefool.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/15-lovefool.html",
+    "setlist": ""
+  },
+  {
+    "title": "Toxic",
+    "artist": "Britney Spears",
+    "key": "Cm",
+    "bpm": "143",
+    "bars": "",
+    "file": "16-toxic.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/16-toxic.html",
+    "setlist": ""
+  },
+  {
+    "title": "Bad Guy",
+    "artist": "Billie Eilish",
+    "key": "Gm",
+    "bpm": "135",
+    "bars": "",
+    "file": "17-bad-guy.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/17-bad-guy.html",
+    "setlist": ""
+  },
+  {
+    "title": "When You Were Young",
+    "artist": "The Killers",
+    "key": "B",
+    "bpm": "130",
+    "bars": "",
+    "file": "18-when-you-were-young.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/18-when-you-were-young.html",
+    "setlist": ""
+  },
+  {
+    "title": "Beggin'",
+    "artist": "Måneskin",
+    "key": "Bm",
+    "bpm": "134",
+    "bars": "",
+    "file": "19-beggin.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/19-beggin.html",
+    "setlist": ""
+  },
+  {
+    "title": "Bring Me To Life",
+    "artist": "Evanescence",
+    "key": "Em",
+    "bpm": "95",
+    "bars": "",
+    "file": "20-bring-me-to-life.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/20-bring-me-to-life.html",
+    "setlist": ""
+  },
+  {
+    "title": "Hysteria",
+    "artist": "Muse",
+    "key": "Am",
+    "bpm": "186",
+    "bars": "",
+    "file": "21-hysteria.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/21-hysteria.html",
+    "setlist": ""
+  },
+  {
+    "title": "Be With You",
+    "artist": "Muse",
+    "key": "Ab",
+    "bpm": "70",
+    "bars": "",
+    "file": "be-with-you.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/be-with-you.html",
+    "setlist": ""
+  },
+  {
+    "title": "Heathens",
+    "artist": "Twenty One Pilots",
+    "key": "Em",
+    "bpm": "90",
+    "bars": "",
+    "file": "heathens.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/heathens.html",
+    "setlist": ""
+  },
+  {
+    "title": "Song Title",
+    "artist": "Artist",
+    "key": "",
+    "bpm": "",
+    "bars": "",
+    "file": "too-sweet.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/too-sweet.html",
+    "setlist": ""
+  },
+  {
+    "title": "Song Title",
+    "artist": "Artist",
+    "key": "",
+    "bpm": "",
+    "bars": "",
+    "file": "virtual-insanity.html",
+    "bandId": "the-maewjons",
+    "bandName": "THE MÆWJØNS",
+    "bandColor": "#f472b6",
+    "href": "the-maewjons/virtual-insanity.html",
+    "setlist": ""
+  },
+  {
+    "title": "ดีเกินไป",
+    "artist": "Smile Buffalo",
+    "key": "D",
+    "bpm": "90",
+    "bars": "",
+    "file": "01-dee-gern-pai.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/01-dee-gern-pai.html",
+    "setlist": ""
+  },
+  {
+    "title": "ลมหายใจ",
+    "artist": "ป๊อด โมเดิร์นด็อก",
+    "key": "G",
+    "bpm": "120",
+    "bars": "",
+    "file": "02-lom-hai-jai.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/02-lom-hai-jai.html",
+    "setlist": ""
+  },
+  {
+    "title": "ไม่บอกเธอ",
+    "artist": "Bedroom studio",
+    "key": "D",
+    "bpm": "110",
+    "bars": "",
+    "file": "03-mai-bok-thoe.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/03-mai-bok-thoe.html",
+    "setlist": ""
+  },
+  {
+    "title": "It's My Life",
+    "artist": "Bon Jovi",
+    "key": "Bbm",
+    "bpm": "120",
+    "bars": "",
+    "file": "04-its-my-life.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/04-its-my-life.html",
+    "setlist": ""
+  },
+  {
+    "title": "เกือบ",
+    "artist": "Groove riders",
+    "key": "E",
+    "bpm": "85",
+    "bars": "",
+    "file": "05-keuab.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/05-keuab.html",
+    "setlist": ""
+  },
+  {
+    "title": "Birds Of A Feather",
+    "artist": "Billie Eilish",
+    "key": "D",
+    "bpm": "105",
+    "bars": "",
+    "file": "06-birds-of-a-feather.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/06-birds-of-a-feather.html",
+    "setlist": ""
+  },
+  {
+    "title": "She Will Be Loved",
+    "artist": "Maroon 5",
+    "key": "Cm",
+    "bpm": "105",
+    "bars": "",
+    "file": "07-she-will-be-loved.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/07-she-will-be-loved.html",
+    "setlist": ""
+  },
+  {
+    "title": "Shallow",
+    "artist": "Lady Gaga, Bradley Cooper",
+    "key": "Em",
+    "bpm": "96",
+    "bars": "",
+    "file": "08-shallow.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/08-shallow.html",
+    "setlist": ""
+  },
+  {
+    "title": "Ride",
+    "artist": "HYBS",
+    "key": "Eb",
+    "bpm": "78",
+    "bars": "",
+    "file": "09-ride.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/09-ride.html",
+    "setlist": ""
+  },
+  {
+    "title": "If I Ain't Got You",
+    "artist": "Alicia Keys",
+    "key": "G",
+    "bpm": "118",
+    "bars": "",
+    "file": "10-if-i-aint-got-you.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/10-if-i-aint-got-you.html",
+    "setlist": ""
+  },
+  {
+    "title": "Saving All My Love For You",
+    "artist": "Whitney Houston",
+    "key": "A",
+    "bpm": "99",
+    "bars": "",
+    "file": "11-saving-all-my-love.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/11-saving-all-my-love.html",
+    "setlist": ""
+  },
+  {
+    "title": "Versace On The Floor",
+    "artist": "Bruno Mars",
+    "key": "D",
+    "bpm": "87",
+    "bars": "",
+    "file": "12-versace-on-the-floor.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/12-versace-on-the-floor.html",
+    "setlist": ""
+  },
+  {
+    "title": "Get Lucky",
+    "artist": "Daft Punk",
+    "key": "Am",
+    "bpm": "116",
+    "bars": "",
+    "file": "13-get-lucky.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/13-get-lucky.html",
+    "setlist": ""
+  },
+  {
+    "title": "Love Story",
+    "artist": "Taylor Swift",
+    "key": "D",
+    "bpm": "119",
+    "bars": "",
+    "file": "14-love-story.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/14-love-story.html",
+    "setlist": ""
+  },
+  {
+    "title": "Just The Two Of Us",
+    "artist": "Grover Washington Jr. feat. Bill Withers",
+    "key": "E",
+    "bpm": "87",
+    "bars": "",
+    "file": "15-just-the-two-of-us.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/15-just-the-two-of-us.html",
+    "setlist": ""
+  },
+  {
+    "title": "ลุ่มหลง",
+    "artist": "PARKHAUS108",
+    "key": "C",
+    "bpm": "90",
+    "bars": "",
+    "file": "17-lum-long.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/17-lum-long.html",
+    "setlist": ""
+  },
+  {
+    "title": "เคย",
+    "artist": "ออดี้",
+    "key": "C",
+    "bpm": "90",
+    "bars": "",
+    "file": "18-koey.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/18-koey.html",
+    "setlist": ""
+  },
+  {
+    "title": "โกหก",
+    "artist": "Tatoo Color",
+    "key": "A",
+    "bpm": "120",
+    "bars": "",
+    "file": "19-gohok.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/19-gohok.html",
+    "setlist": ""
+  },
+  {
+    "title": "สบายดี",
+    "artist": "ป้าง",
+    "key": "A",
+    "bpm": "122",
+    "bars": "",
+    "file": "20-sabai-dee.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/20-sabai-dee.html",
+    "setlist": ""
+  },
+  {
+    "title": "บุษบา",
+    "artist": "โมเดิร์นด็อก",
+    "key": "Bm",
+    "bpm": "116",
+    "bars": "",
+    "file": "21-busbaa.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/21-busbaa.html",
+    "setlist": ""
+  },
+  {
+    "title": "Stay With Me",
+    "artist": "Miki Matsubara",
+    "key": "E",
+    "bpm": "107",
+    "bars": "",
+    "file": "stay-with-me.html",
+    "bandId": "parkhaus108",
+    "bandName": "PARKHAUS108",
+    "bandColor": "#34d399",
+    "href": "parkhaus108/stay-with-me.html",
+    "setlist": ""
+  }
+];
+var ALL_BANDS = BANDS;
+var ALL_SONGS = SONGS;
+var CURRENT_BAND = null;
+var IS_ROOT = true;
 
-/* ── LOAD REGISTRY ── */
-function getRegistry() {
-  try { return JSON.parse(localStorage.getItem('bandsheet_registry') || '{}'); } catch(e) { return {}; }
-}
+var activeBand = CURRENT_BAND || 'all';
+var activeKey = 'all';
+var sortCol = 'default';
+var sortDir = 1;
 
-function updateSongCounts() {
-  var reg = getRegistry();
-  Object.keys(BAND_COLORS).forEach(function(bid) {
-    var el = document.getElementById('count-' + bid);
-    if (!el) return;
-    var entry = reg[bid];
-    var count = entry && entry.songs ? entry.songs.length : null;
-    el.textContent = count !== null ? count + ' เพลง' : '';
+function esc(s){return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getVisibleSongs(){
+  var q = document.getElementById('search').value.toLowerCase().trim();
+  return ALL_SONGS.filter(function(s){
+    var search = [s.title,s.artist,s.key,s.bpm,s.bandName].join(' ').toLowerCase();
+    return (!q || search.indexOf(q) !== -1) &&
+      (activeBand === 'all' || s.bandId === activeBand) &&
+      (activeKey === 'all' || String(s.key || '').toLowerCase() === activeKey);
+  }).sort(function(a,b){
+    if(sortCol === 'setlist'){
+      var sa = parseInt(a.setlist)||0, sb = parseInt(b.setlist)||0;
+      if(!sa && !sb) return (a.title||'').localeCompare(b.title||'');
+      if(!sa) return 1;
+      if(!sb) return -1;
+      return (sa - sb) * sortDir;
+    }
+    if(sortCol === 'title') return (a.title||'').localeCompare(b.title||'') * sortDir;
+    return 0;
   });
 }
-
-/* ── GLOBAL SEARCH ── */
-function globalSearch() {
-  var q = document.getElementById('global-search').value.toLowerCase().trim();
-  var resultsDiv = document.getElementById('search-results');
-  var bandsSection = document.getElementById('bands-section');
-
-  if (!q) {
-    resultsDiv.style.display = 'none';
-    bandsSection.style.display = '';
-    return;
+function buildBandCards(){
+  var grid = document.getElementById('band-grid');
+  if(!grid) return;
+  grid.innerHTML = ALL_BANDS.map(function(b){
+    return '<a class="band-card" href="'+esc(b.indexHref || b.path)+'" style="--band-color:'+esc(b.color)+'">' +
+      '<div class="band-name">'+esc(b.name)+'</div>' +
+      '<div class="band-song-count">'+b.songCount+' songs</div></a>';
+  }).join('');
+}
+function buildFilters(){
+  var bf = document.getElementById('band-filters');
+  if(bf){
+    bf.innerHTML = '<span class="filter-label">Band:</span>' +
+      '<button class="filter-pill" data-band="all" onclick="setBandFilter(\'all\')">All</button>' +
+      ALL_BANDS.map(function(b){return '<button class="filter-pill" data-band="'+esc(b.id)+'" onclick="setBandFilter(\''+esc(b.id)+'\')">'+esc(b.name)+'</button>';}).join('');
   }
-
-  bandsSection.style.display = 'none';
-  resultsDiv.style.display = 'block';
-
-  var reg = getRegistry();
-  var matches = [];
-
-  Object.keys(BAND_COLORS).forEach(function(bid) {
-    var entry = reg[bid];
-    if (!entry || !entry.songs) return;
-    entry.songs.forEach(function(s) {
-      var search = [(s.title||''),(s.artist||''),(s.key||'')].join(' ').toLowerCase();
-      if (search.includes(q)) {
-        matches.push({ s: s, band: bid, bandName: entry.name });
-      }
-    });
-  });
-
-  if (matches.length === 0) {
-    resultsDiv.innerHTML =
-      '<div class="results-label">Search results</div>' +
-      '<div class="no-search-results">ไม่พบเพลงที่ค้นหา "<strong>' + esc(q) + '</strong>"</div>' +
-      '<div class="search-hint">Note: visit each band page first so songs register for search.</div>';
-    return;
-  }
-
-  var html = '<div class="results-label">' + matches.length + ' result' + (matches.length !== 1 ? 's' : '') + ' for "' + esc(q) + '"</div>' +
-    '<table class="result-table">' +
-    '<thead><tr><th>ชื่อเพลง / ศิลปิน</th><th>Band</th><th>Key</th><th>BPM</th><th>Bars</th><th></th></tr></thead>' +
-    '<tbody>';
-
-  matches.forEach(function(m) {
-    var s = m.s;
-    var href = s.file ? (m.band + '/' + s.file) : (m.band + '/');
-    var color = BAND_COLORS[m.band] || '#888';
-    html +=
-      '<tr class="result-row">' +
-      '<td><div class="result-title">' + esc(s.title||'') + '</div><div class="result-artist">' + esc(s.artist||'—') + '</div></td>' +
-      '<td><span class="result-band-dot" style="background:' + color + '"></span><span class="result-band-name">' + esc(m.bandName||m.band) + '</span></td>' +
-      '<td class="result-meta">' + esc(s.key||'—') + '</td>' +
-      '<td class="result-meta">' + esc(s.bpm||'—') + '</td>' +
-      '<td class="result-meta">' + esc(s.bars||'—') + '</td>' +
-      '<td>' + (s.file ? '<a class="result-open" href="' + href + '">Open →</a>' : '') + '</td>' +
+  var keyMap = {};
+  ALL_SONGS.filter(function(s){return activeBand === 'all' || s.bandId === activeBand;}).forEach(function(s){if(s.key) keyMap[String(s.key).toLowerCase()] = s.key;});
+  var keys = Object.keys(keyMap).sort();
+  var kf = document.getElementById('key-filters');
+  kf.innerHTML = '<span class="filter-label">Key:</span><button class="filter-pill" data-key="all" onclick="setKeyFilter(\'all\')">All</button>' +
+    keys.map(function(k){return '<button class="filter-pill" data-key="'+esc(k)+'" onclick="setKeyFilter(\''+esc(k)+'\')">'+esc(keyMap[k])+'</button>';}).join('');
+  syncFilterState();
+}
+function syncFilterState(){
+  document.querySelectorAll('[data-band]').forEach(function(el){el.classList.toggle('active', el.dataset.band === activeBand);});
+  document.querySelectorAll('[data-key]').forEach(function(el){el.classList.toggle('active', el.dataset.key === activeKey);});
+}
+function renderSongs(){
+  var songs = getVisibleSongs();
+  var tbody = document.getElementById('song-list');
+  var empty = document.getElementById('empty-state');
+  tbody.innerHTML = songs.map(function(s,i){
+    var href = IS_ROOT ? s.href : s.file;
+    var bandCell = IS_ROOT ? '<td class="song-band"><span class="band-dot" style="background:'+esc(s.bandColor)+'"></span>'+esc(s.bandName)+'</td>' : '';
+    return '<tr class="song-row">' +
+      '<td class="song-num">'+String(i+1).padStart(2,'0')+'</td>' +
+      '<td><input class="setlist-input" type="text" value="'+esc(s.setlist||'')+'" readonly title="Generated from index source"></td>' +
+      '<td><div class="song-title">'+esc(s.title)+'</div><div class="song-artist">'+esc(s.artist || '-')+'</div></td>' +
+      bandCell +
+      '<td class="song-key">'+esc(s.key || '-')+'</td>' +
+      '<td class="song-bpm">'+esc(s.bpm || '-')+'</td>' +
+      '<td><a class="open-btn" href="'+esc(href)+'">Open</a></td>' +
       '</tr>';
-  });
-
-  html += '</tbody></table>';
-  resultsDiv.innerHTML = html;
+  }).join('');
+  empty.classList.toggle('hidden', songs.length !== 0);
+  var label = activeBand === 'all' ? 'all bands' : (ALL_BANDS.find(function(b){return b.id===activeBand;})||{}).name;
+  document.getElementById('stats').textContent = songs.length + ' songs · ' + label;
+  var ind = document.getElementById('sort-set-ind');
+  if(ind){ind.textContent = sortCol === 'setlist' ? (sortDir === 1 ? 'up' : 'down') : 'sort'; ind.className = 'sort-ind' + (sortCol === 'setlist' ? ' on' : '');}
 }
+function setBandFilter(id){activeBand = id; activeKey = 'all'; buildFilters(); renderSongs();}
+function setKeyFilter(key){activeKey = key; syncFilterState(); renderSongs();}
+function setSortBy(col){if(sortCol === col){sortDir = -sortDir;}else{sortCol = col; sortDir = 1;} renderSongs();}
+function clearFilters(){document.getElementById('search').value=''; activeBand = CURRENT_BAND || 'all'; activeKey = 'all'; sortCol = 'default'; sortDir = 1; buildFilters(); renderSongs();}
+function init(){buildBandCards(); buildFilters(); renderSongs();}
+init();
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── INIT ── */
-updateSongCounts();
 </script>
 </body>
 </html>

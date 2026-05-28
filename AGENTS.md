@@ -2,7 +2,7 @@
 
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
-Template อยู่ที่ `_template.html` — **current version: v6.0 prototype**
+Template อยู่ที่ `_template.html` — **current version: v6.02**
 
 ---
 
@@ -35,7 +35,7 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 ```
 Bandsheet/
 ├── AGENTS.md
-├── _template.html               ← template v6.0 prototype
+├── _template.html               ← template v6.02
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
 │   ├── _template-v2.html
 │   ├── virtual-insanity-v2.html
@@ -54,7 +54,16 @@ Bandsheet/
 
 ---
 
-## HTML Injection — จุดที่ต้องแก้ (v6.0 prototype)
+## UI Iteration Workflow
+- ระหว่าง iterate UI / review visual / browser comments ให้แก้เฉพาะ `_template.html` ก่อน
+- ห้าม sync ทุก micro-change ไป song sheets ระหว่าง review
+- sync `_template.html` ไป song sheets เฉพาะหลัง user confirm ว่า design/behavior ถูกต้องแล้ว
+- ก่อน go online เท่านั้น ค่อย run `python3 update_index.py` แล้วใช้ `push.sh`
+- ถ้ายังอยู่ช่วงทดลอง UI ห้าม run `update_index.py`, ห้าม commit, และห้าม push
+
+---
+
+## HTML Injection — จุดที่ต้องแก้ (v6.02)
 
 Fields: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, **`meta-vocalist`** (ใหม่ใน v2.1)
 
