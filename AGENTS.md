@@ -36,10 +36,11 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 Bandsheet/
 ├── AGENTS.md
 ├── _template.html               ← template v6.03
+├── bandsheet_import.py          ← validate/sanitize/import AI JSON
+├── update_index.py              ← rebuild root + band indexes
+├── push.sh                      ← update index + commit + push
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
-│   ├── _template-v2.html
-│   ├── virtual-insanity-v2.html
-│   └── stay-with-me-v2.html
+├── wait-for-delete/             ← ของเก่า/ต้นแบบที่แยกไว้ก่อนลบจริง
 ├── the-maewjons/
 │   └── virtual-insanity.html
 └── parkhaus108/

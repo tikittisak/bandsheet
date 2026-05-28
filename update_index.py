@@ -9,7 +9,7 @@ BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 VERSION = "bandsheet v6.03"
 UPDATED = "2026-05-28"
 
-SKIP_DIRS = {"backup", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
+SKIP_DIRS = {"backup", "wait-for-delete", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
 SKIP_FILES = {
     "index.html",
     "_template.html",
