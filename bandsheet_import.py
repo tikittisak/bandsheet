@@ -160,6 +160,32 @@ def validate_section(section, index):
             raise ValueError(f"{path}.rowSizes[{idx}] must be an integer from 1 to 8")
         clean_rows.append(size)
     out["rowSizes"] = clean_rows
+    if "rowRepeatGroups" in section:
+        if not isinstance(section["rowRepeatGroups"], dict):
+            raise ValueError(f"{path}.rowRepeatGroups must be an object")
+        groups = {}
+        for row_idx, group in section["rowRepeatGroups"].items():
+            row_key = as_text(row_idx, f"{path}.rowRepeatGroups key", 12)
+            if not re.fullmatch(r"\d+", row_key):
+                raise ValueError(f"{path}.rowRepeatGroups keys must be row indexes")
+            group_value = as_text(group, f"{path}.rowRepeatGroups[{row_key}]", 1).upper()
+            if group_value:
+                groups[row_key] = group_value
+        if groups:
+            out["rowRepeatGroups"] = groups
+    if "repeatCounts" in section:
+        if not isinstance(section["repeatCounts"], dict):
+            raise ValueError(f"{path}.repeatCounts must be an object")
+        repeats = {}
+        for group, count in section["repeatCounts"].items():
+            group_key = as_text(group, f"{path}.repeatCounts key", 1).upper()
+            if not group_key:
+                continue
+            if not isinstance(count, int) or count < 2 or count > 9:
+                raise ValueError(f"{path}.repeatCounts[{group_key}] must be an integer from 2 to 9")
+            repeats[group_key] = count
+        if repeats:
+            out["repeatCounts"] = repeats
     if "rhythmOn" in section:
         out["rhythmOn"] = bool(section.get("rhythmOn"))
     return out

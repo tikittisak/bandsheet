@@ -6,7 +6,7 @@ import re
 import subprocess
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = "bandsheet v6.10"
+VERSION = "bandsheet v6.11"
 UPDATED = "2026-06-02"
 
 SKIP_DIRS = {"backup", "wait-for-delete", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}

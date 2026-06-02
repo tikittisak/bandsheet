@@ -6,7 +6,8 @@
 .claude/
 .space/
 **/.space/
-_work/
+_work/*
+!_work/busk-import.html
 Backup/
 PDF/
 *.pdf

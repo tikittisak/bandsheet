@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Busk Import · Bandsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai','Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:24px 0 16px}
+.shell{max-width:1180px;margin:0 auto;padding:0 32px}
+.label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ui-muted)}
+h1{font-family:'Inter',sans-serif;font-size:25px;font-weight:600;margin-top:6px}
+.sub,.hint{font-size:12px;color:var(--text-muted);margin-top:6px}
+main{max-width:1180px;margin:0 auto;padding:22px 32px 56px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.72fr);gap:18px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;min-width:0}
+.panel-title{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ui-muted);margin-bottom:9px}
+textarea{width:100%;min-height:460px;resize:vertical;border:1px solid var(--border);border-radius:5px;background:#fbfdff;color:var(--text);padding:12px;font-family:'Inter',sans-serif;font-size:12px;line-height:1.5;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}
+textarea:focus{border-color:var(--border-strong);background:#fff}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+button{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text-muted);padding:7px 10px;cursor:pointer}
+button:hover{background:var(--ui-hover);border-color:var(--border-strong);color:var(--text)}
+button.primary{background:var(--ui-active);border-color:var(--ui-active);color:#fff}
+button.success{background:#059669;border-color:#059669;color:#fff}
+button.success:hover{background:#047857;border-color:#047857;color:#fff}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.meta div{background:var(--ui-soft);border-radius:5px;padding:8px 9px}
+.meta span{display:block;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ui-muted);margin-bottom:2px}
+.meta strong{font-family:'Inter',sans-serif;font-size:13px;font-weight:500}
+.warnings{display:flex;flex-direction:column;gap:6px;margin:8px 0 14px}
+.warn{font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;padding:7px 9px}
+.ok{font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:5px;padding:7px 9px;margin:8px 0 14px}
+.sections{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.sec{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--ui-line);padding:7px 0;font-size:12px}
+.sec b{font-weight:600}.sec span{color:var(--text-muted);font-family:'Inter',sans-serif;font-size:11px;white-space:nowrap}
+pre{max-height:420px;overflow:auto;background:#101827;color:#e5edf7;border-radius:6px;padding:12px;font-family:'Roboto Mono','SFMono-Regular',Consolas,monospace;font-size:11px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{font-size:12px;color:var(--text-muted);padding:8px 0}
+@media(max-width:900px){.shell,main{padding-left:18px;padding-right:18px}.grid{grid-template-columns:minmax(0,1fr)}textarea{min-height:320px}.meta{grid-template-columns:1fr}}
+@media(max-width:520px){.shell,main{padding-left:10px;padding-right:10px}.panel{padding:10px}.row button{flex:1 1 120px}.meta strong{font-size:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="shell">
+    <div class="label">Bandsheet Workbench</div>
+    <h1>Busk Import</h1>
+    <p class="sub">Paste Busk chord chart text, preview sections, then download Bandsheet HTML or JSON.</p>
+  </div>
+</header>
+<main>
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-title">Busk Text</div>
+      <textarea id="source" spellcheck="false" placeholder="Paste text from busk.town here..."></textarea>
+      <div class="row">
+        <button class="primary" onclick="parseNow()">parse</button>
+        <button class="success" onclick="downloadBandsheet()">download bandsheet</button>
+        <button onclick="copyJson()">copy json</button>
+        <button onclick="downloadJson()">download json</button>
+        <button onclick="loadSample()">sample</button>
+      </div>
+      <p class="hint">HTML download uses <code>../_template.html</code> v6.11 from this workspace.</p>
+    </section>
+    <aside class="panel">
+      <div class="panel-title">Preview</div>
+      <div id="preview" class="empty">ยังไม่มีข้อมูล กด parse หลัง paste text จาก Busk</div>
+      <div class="panel-title">JSON</div>
+      <pre id="jsonOut">{}</pre>
+    </aside>
+  </div>
+</main>
+<script>
+var currentPayload=null;
+var COLORS={
+  intro:{bar:"#ff3b30",bg:"#fff1f0",lbl:"#b00008"},
+  outro:{bar:"#ff3b30",bg:"#fff1f0",lbl:"#b00008"},
+  verse:{bar:"#3b82f6",bg:"#eef4fd",lbl:"#1e40af"},
+  pre:{bar:"#f59e0b",bg:"#fffbeb",lbl:"#78350f"},
+  chorus:{bar:"#ffcc00",bg:"#fffbe6",lbl:"#7a5e00"},
+  bridge:{bar:"#059669",bg:"#eafaf4",lbl:"#064e3b"},
+  instrument:{bar:"#8b5cf6",bg:"#f5f3ff",lbl:"#4c1d95"},
+  groove:{bar:"#ff6b30",bg:"#fff3ed",lbl:"#8a2e00"}
+};
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function attrEsc(s){return esc(s).replace(/'/g,'&#39;')}
+function clean(s){return String(s||'').replace(/\s+/g,' ').trim()}
+function slug(s){return clean(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'section'}
+function colorFor(label){
+  var low=label.toLowerCase();
+  if(low.indexOf('intro')>=0)return COLORS.intro;
+  if(low.indexOf('outro')>=0)return COLORS.outro;
+  if(low.indexOf('pre')>=0)return COLORS.pre;
+  if(low.indexOf('hook')>=0||low.indexOf('chorus')>=0)return COLORS.chorus;
+  if(low.indexOf('bridge')>=0)return COLORS.bridge;
+  if(low.indexOf('instrument')>=0||low.indexOf('solo')>=0||low.indexOf('interlude')>=0)return COLORS.instrument;
+  if(low.indexOf('groove')>=0||low.indexOf('vamp')>=0)return COLORS.groove;
+  return COLORS.verse;
+}
+function plainSectionHeading(line){
+  var text=clean(line);
+  if(!text||text.indexOf('|')>=0)return '';
+  if(/^(key:|duration:|\d+\s+\d+=|autoscroll|metronome|tools|compact|easy|got it|preferences)$/i.test(text))return '';
+  if(/(facts|table|join|cookie|incorrect|request|report)/i.test(text))return '';
+  if(/^(intro|interlude|instrument(?:s|al)?|verse(?:\s+\d+)?|pre[- ]?chorus(?:\s+\d+)?|chorus(?:\s+\d+)?|hook(?:\s+\d+)?|bridge|solo|outro|groove|vamp|last verse|final chorus)(?:\s*[-–—]\s*.+)?$/i.test(text))return text;
+  return '';
+}
+function uniqId(label,used){
+  var base=slug(label).replace(/-/g,'_'); if(/^\d/.test(base))base='section_'+base;
+  var id=base,i=2; while(used[id]){id=base+'_'+i;i++} used[id]=true; return id;
+}
+function chordAtom(t){
+  return /^[A-G](?:#|b)?(?:maj|min|dim|aug|sus|add|m|M|\+|-|Δ|ø|o)?(?:\d+)?(?:[#b]\d+)*(?:sus\d+)?(?:add\d+)?(?:\/[A-G](?:#|b)?)?$/.test(t);
+}
+function chordToken(t){
+  t=clean(t); if(!t)return false;
+  if(t.indexOf('/')>=0&&!/\/[A-G](?:#|b)?$/.test(t))return false;
+  return t.split('-').every(function(p){return p&&chordAtom(p)});
+}
+function parseChordSegment(seg){
+  var text=clean(seg), time='', repeat=0;
+  if(!text)return null;
+  text=clean(text.replace(/\[([^\]]+)\]/g,function(_,v){
+    v=clean(v);
+    if(/^\d+\s*\/\s*\d+$/.test(v)){time=v.replace(/\s+/g,'');return ' '}
+    if(/^x\s*\d+$/i.test(v)){repeat=parseInt(v.replace(/\D/g,''),10)||0;return ' '}
+    return '['+v+']';
+  }));
+  if(!text)return {repeat:repeat,time:time};
+  if(/^\d+\s+bars?$/i.test(text))return {placeholderBars:parseInt(text,10),repeat:repeat,time:time};
+  var tokens=text.split(' ');
+  if(!tokens.length||!tokens.every(chordToken))return null;
+  var bar={c:tokens.join('|'),a:'',h:false}; if(time)bar.sn=time;
+  return {bar:bar,repeat:repeat,time:time};
+}
+function noteCols(lines){
+  lines=lines.map(clean).filter(Boolean);
+  if(!lines.length)return [];
+  var pivot=lines.length>7?Math.ceil(lines.length/2):lines.length;
+  return [lines.slice(0,pivot),lines.slice(pivot)].map(function(col){
+    return col.length?'<p>'+col.map(esc).join('<br>')+'</p>':'';
+  });
+}
+function inferTitleArtist(lines){
+  var skip={autoscroll:1,metronome:1,tools:1,compact:1,easy:1,'got it':1,preferences:1};
+  var useful=lines.map(function(l){return clean(l.replace(/^#+\s*/,''))}).filter(function(l){
+    return l&&!skip[l.toLowerCase()]&&!/^(key:|duration:|\d+\s+\d+=)/i.test(l)&&!/^(1990s|2000s|pop|rock|english|thai)$/i.test(l);
+  });
+  return {title:useful[0]||'New Song',artist:(useful[1]&&!/^\|/.test(useful[1]))?useful[1]:''};
+}
+function parseBusk(text){
+  var lines=text.split(/\r?\n/).map(clean), joined=lines.join('\n'), ta=inferTitleArtist(lines);
+  var key=(joined.match(/\bKey:\s*([^\n(]+)/i)||[])[1]||'';
+  var bpm=(joined.match(/(?:=|tempo[:\s]|bpm[:\s])\s*(\d{2,3})\b/i)||joined.match(/\b(\d{2,3})\s*bpm\b/i)||[])[1]||'';
+  var tm=joined.match(/\b([2-9])\s+([24])\s*=/);
+  var payload={title:ta.title,artist:ta.artist,key:clean(key),bpm:bpm,time:tm?tm[1]+'/'+tm[2]:'4/4',vocalist:'',sections:[]};
+  var warnings=[],used={},current=null,lyrics=[];
+  function flushNote(sec){
+    var cols=noteCols(lyrics); lyrics=[];
+    if(cols.length)payload.sections.push({id:uniqId('lyric '+sec.label,used),type:'note',label:'Lyric — '+sec.label,cols:cols,color:sec.color});
+  }
+  function flush(){
+    if(!current)return;
+    if(!current.bars.length){current.bars=[{c:'—',a:'',h:false}];warnings.push(current.label+': no chord bars found, inserted one blank bar')}
+    payload.sections.push(current); flushNote(current); current=null;
+  }
+  function start(label){
+    if(current&&!current.bars.length&&!lyrics.length)current=null;
+    else flush();
+    current={id:uniqId(label,used),label:label,note:'',noteHidden:true,lyric:'',color:colorFor(label),bars:[],rowSizes:[]};
+  }
+  lines.forEach(function(line){
+    if(!line)return;
+    var h=line.match(/^#{2,3}\s+(.+)$/);
+    var label=h?clean(h[1]):plainSectionHeading(line);
+    if(label&&!/(facts|table|join|cookie|incorrect|request|report)/i.test(label)){start(label);return}
+    if(!current)return;
+    if(line.indexOf('|')<0){
+      var parsed=parseChordSegment(line);
+      if(parsed&&parsed.placeholderBars){for(var i=0;i<parsed.placeholderBars;i++)current.bars.push({c:'—',a:'',h:false})}
+      else if(parsed&&parsed.bar)current.bars.push(parsed.bar);
+      else if(!/^\[?x\s*\d+\]?$/i.test(line))lyrics.push(line);
+      return;
+    }
+    line.split('|').forEach(function(seg){
+      seg=clean(seg); if(!seg)return;
+      var parsed=parseChordSegment(seg);
+      if(!parsed){lyrics.push(seg);return}
+      if(parsed.placeholderBars){for(var i=0;i<parsed.placeholderBars;i++)current.bars.push({c:'—',a:'',h:false})}
+      else if(parsed.bar)current.bars.push(parsed.bar);
+      if(parsed.repeat){current.rowSizes=[Math.min(current.bars.length,8)];current.rowRepeatGroups={'0':'A'};current.repeatCounts={A:Math.min(Math.max(parsed.repeat,2),9)}}
+    });
+  });
+  flush();
+  if(!payload.sections.length)warnings.push('No sections found. Busk text should include headings like Verse 1 or ## Verse 1');
+  payload._warnings=warnings;
+  return payload;
+}
+function render(payload){
+  var p=document.getElementById('preview'), warnings=payload._warnings||[];
+  var chordSecs=payload.sections.filter(function(s){return s.type!=='note'});
+  p.innerHTML='<div class="meta">'+
+    '<div><span>title</span><strong>'+esc(payload.title)+'</strong></div>'+
+    '<div><span>artist</span><strong>'+esc(payload.artist||'—')+'</strong></div>'+
+    '<div><span>key</span><strong>'+esc(payload.key||'—')+'</strong></div>'+
+    '<div><span>bpm / time</span><strong>'+esc((payload.bpm||'—')+' / '+(payload.time||'4/4'))+'</strong></div>'+
+    '</div>'+
+    '<div class="ok">'+esc(chordSecs.length+' chord sections · '+chordSecs.reduce(function(n,s){return n+(s.bars?s.bars.length:0)},0)+' bars')+'</div>'+
+    (warnings.length?'<div class="warnings">'+warnings.map(function(w){return '<div class="warn">'+esc(w)+'</div>'}).join('')+'</div>':'')+
+    '<div class="sections">'+chordSecs.map(function(s){return '<div class="sec"><b>'+esc(s.label)+'</b><span>'+s.bars.length+' bars</span></div>'}).join('')+'</div>';
+}
+function parseNow(){
+  currentPayload=parseBusk(document.getElementById('source').value);
+  document.getElementById('jsonOut').textContent=JSON.stringify(currentPayload,null,2);
+  render(currentPayload);
+}
+function copyJson(){
+  if(!currentPayload)parseNow();
+  navigator.clipboard.writeText(JSON.stringify(currentPayload,null,2));
+}
+function downloadJson(){
+  if(!currentPayload)parseNow();
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(currentPayload,null,2)+'\n'],{type:'application/json'}));
+  a.download=slug(currentPayload.title||'busk-song')+'.json';
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href)},500);
+}
+function stripPrivateFields(payload){
+  var copy=JSON.parse(JSON.stringify(payload||{}));
+  delete copy._warnings;
+  return copy;
+}
+function setInputValue(doc,id,value){
+  var safe=attrEsc(value||'');
+  var re=new RegExp('(id=\"'+id.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\"[^>]*value=\")[^\"]*(\")');
+  return doc.replace(re,'$1'+safe+'$2');
+}
+function swapVar(doc,marker,decl,payload){
+  var i=doc.indexOf(marker);
+  if(i<0)throw new Error('template missing '+marker);
+  var s=doc.lastIndexOf(decl,i);
+  if(s<0)throw new Error('template missing '+decl);
+  return doc.slice(0,s)+decl+payload+';\n'+doc.slice(i);
+}
+function buildBandsheetHtml(tmpl,payload){
+  var cleanPayload=stripPrivateFields(payload);
+  var title=cleanPayload.title||'New Song';
+  var artist=cleanPayload.artist||'';
+  var footer=cleanPayload.footer||{notes:[]};
+  var settings=cleanPayload.settings||{chordSize:12.5,chordFont:'Roboto Condensed',transpose:0,noteSize:13};
+  var doc=tmpl.replace(/^<!DOCTYPE html>\s*/i,'');
+  doc=doc.replace(/<title>[^<]*<\/title>/,'<title>'+esc(title+(artist?' — '+artist:'')+' · bandsheet')+'</title>');
+  doc=setInputValue(doc,'tb-filename',title);
+  doc=setInputValue(doc,'tb-artist',artist?'— '+artist:'');
+  doc=setInputValue(doc,'meta-key',cleanPayload.key||'');
+  doc=setInputValue(doc,'meta-bpm',cleanPayload.bpm||'');
+  doc=setInputValue(doc,'meta-time',cleanPayload.time||'4/4');
+  doc=setInputValue(doc,'meta-vocalist',cleanPayload.vocalist||'');
+  doc=swapVar(doc,'// ── END DATA ──','var SECTIONS = ',JSON.stringify(cleanPayload.sections||[]));
+  doc=swapVar(doc,'// ── END FOOTER ──','var FOOTER = ',JSON.stringify(footer));
+  doc=swapVar(doc,'// ── END SETTINGS ──','var SETTINGS = ',JSON.stringify(settings));
+  return '<!DOCTYPE html>\n'+doc;
+}
+function downloadBlob(filename,content,type){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:type||'text/plain'}));
+  a.download=filename;
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href)},500);
+}
+async function loadTemplate(){
+  var paths=['../_template.html','/_template.html'];
+  var lastErr=null;
+  for(var i=0;i<paths.length;i++){
+    try{
+      var res=await fetch(paths[i]);
+      if(res.ok)return await res.text();
+      lastErr=new Error(paths[i]+' returned '+res.status);
+    }catch(err){lastErr=err}
+  }
+  throw lastErr||new Error('cannot load _template.html');
+}
+async function downloadBandsheet(){
+  if(!currentPayload)parseNow();
+  try{
+    var tmpl=await loadTemplate();
+    var html=buildBandsheetHtml(tmpl,currentPayload);
+    downloadBlob(slug(currentPayload.title||'busk-song')+'.html',html,'text/html');
+  }catch(err){
+    alert('โหลด _template.html ไม่ได้: '+(err&&err.message?err.message:err)+'\n\nถ้าเปิดผ่าน file:// แล้ว browser บล็อก ให้ใช้ copy/download JSON เป็น fallback หรือเปิดผ่าน local server.');
+  }
+}
+function loadSample(){
+  document.getElementById('source').value='# Virtual Insanity\nJamiroquai\n4 4=92 Duration: 3:48\nKey: Ebm (Ori)\n\n## Instruments\n| Ebm7 Ab7 | Db9 Gbmaj7 |Ooh, hey-hey, aw| Cm7b5 Bmaj7 | Bb7#9b13 |\n## Verse 1\n| Ebm7 Ab7 | Db9 Gbmaj7 |And it is a wonder| Cm7b5 Bmaj7 | Bb7#9b13 Ebm7 | [2/4] Ebm7 |\n## Hook 1\n| Bmaj7 Bb7/D | Ebm7 Ab13 Bb7#9b13 | [x2]';
+  parseNow();
+}
+</script>
+</body>
+</html>
