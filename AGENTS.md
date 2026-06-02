@@ -2,11 +2,11 @@
 
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
-Template อยู่ที่ `_template.html` — **current version: v6.04**
+Template อยู่ที่ `_template.html` — **current version: v6.10**
 
 UX/UI design language, lesson learned, design tokens, component rules, และ HTML-to-Figma starter snippets อยู่ที่ `DESIGN_LANGUAGE.md`
 - ใช้ไฟล์นี้เป็น source of truth เมื่อออกแบบ UI ใหม่, iterate `_template.html`, หรือเริ่ม project/app ใหม่ด้วยหลักการเดียวกัน
-- ยึด v6.04 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
+- ยึด v6.10 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
 
 ---
 
@@ -40,7 +40,7 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 bandsheet/
 ├── AGENTS.md
 ├── DESIGN_LANGUAGE.md           ← UX/UI source of truth + Figma HTML guide
-├── _template.html               ← template v6.04
+├── _template.html               ← template v6.10
 ├── bandsheet_import.py          ← validate/sanitize/import AI JSON
 ├── update_index.py              ← rebuild root + band indexes
 ├── push.sh                      ← update index + commit + push
@@ -71,7 +71,7 @@ bandsheet/
 
 ---
 
-## AI Import Guard — v6.04
+## AI Import Guard — v6.10
 
 ถ้าใช้ ChatGPT / Claude / AI ตัวอื่นเพื่อช่วยนำเข้าข้อมูล:
 - ให้ AI สร้าง **JSON เท่านั้น** อย่าให้แก้ HTML ทั้งไฟล์
@@ -111,7 +111,7 @@ JSON ที่ AI ควรส่ง:
 
 ---
 
-## HTML Injection — จุดที่ต้องแก้ (v6.04)
+## HTML Injection — จุดที่ต้องแก้ (v6.10)
 
 Fields: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, **`meta-vocalist`** (ใหม่ใน v2.1)
 
