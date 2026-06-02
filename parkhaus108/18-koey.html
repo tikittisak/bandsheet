@@ -132,7 +132,7 @@ body.view-mini .bar-snote{font-size:9px;top:3px}
 .bar-chord{font-family:var(--chord-font),sans-serif;font-size:15px;font-weight:600;color:var(--text);line-height:1.12;cursor:text;outline:none;width:100%;padding:0;word-break:normal;overflow-wrap:normal;white-space:pre-wrap;flex:1}
 .bar-chord:focus{background:rgba(0,0,0,.04);border-radius:2px;padding:0 2px;margin:0 -2px}
 .bar-chord-split{display:grid;width:100%;min-height:1.25em;align-self:center;flex:1;border:none;border-radius:0;overflow:hidden;background:transparent}
-.bar-chord-part{font-family:var(--chord-font),sans-serif;font-size:15px;font-weight:600;line-height:1.12;color:var(--text);cursor:text;outline:none;min-width:0;padding:0 5px;white-space:pre-wrap;overflow-wrap:anywhere;display:flex;align-items:center;border-left:none}
+.bar-chord-part{font-family:var(--chord-font),sans-serif;font-size:15px;font-weight:600;line-height:1.12;color:var(--text);cursor:text;outline:none;min-width:0;padding:0 5px;white-space:pre-wrap;overflow-wrap:anywhere;display:flex;align-items:center;justify-content:center;border-left:none}
 .bar-chord-part:focus{background:rgba(0,0,0,.035);border-radius:2px}
 body.view-mini .bar-chord-split{min-height:22px}
 body.view-mini .bar-chord-part{font-weight:500;line-height:1.05;padding:2px 5px;align-items:center}
@@ -969,21 +969,26 @@ function openRawSplitEditor(wrap,bar,si,bi){
 }
 function makeChordSplitEl(bar,si,bi){
   var parts=chordSplitParts(bar.c);
-  if(!parts||EDIT_MODE)return null;
+  if(!parts)return null;
   var wrap=document.createElement('div');
   wrap.className='bar-chord-split';
-	  wrap.title='';
-	  wrap.style.gridTemplateColumns='repeat('+parts.length+',minmax(0,1fr))';
-	  chordSplitSegments(parts).forEach(function(seg){
+  wrap.title=EDIT_MODE?'double click to edit raw split syntax':'';
+  wrap.style.gridTemplateColumns='repeat('+parts.length+',minmax(0,1fr))';
+  if(EDIT_MODE)wrap.ondblclick=function(e){e.stopPropagation();openRawSplitEditor(wrap,bar,si,bi)};
+  chordSplitSegments(parts).forEach(function(seg){
     var part=document.createElement('div');
     part.className='bar-chord-part';
     part.textContent=seg.text;
     part.style.gridColumn=(seg.start+1)+' / span '+seg.span;
     part.style.fontSize=CHORD_SIZE+'px';
     if(bar.h)part.style.color='#fff';
-	    part.contentEditable='false';
-	    part.spellcheck=false;
-	    part.onmousedown=part.onclick=function(e){e.stopPropagation()};
+    part.contentEditable=EDIT_MODE?'true':'false';
+    part.spellcheck=false;
+    if(EDIT_MODE){
+      part.oninput=function(){setSplitPart(si,bi,seg.start,this.textContent)};
+      part.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();this.blur()}};
+    }
+    part.onmousedown=part.onclick=function(e){e.stopPropagation()};
     wrap.appendChild(part);
   });
   return wrap;
