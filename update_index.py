@@ -178,9 +178,7 @@ def collect_songs(bands):
 
 
 def render_version_badge():
-    commit = git_value("%h") or "unknown"
-    stamp = git_value("%ci") or UPDATED
-    return f"{VERSION} · updated {UPDATED} · commit {commit} · {stamp}"
+    return f"{VERSION} · updated {UPDATED}"
 
 
 STYLE = """

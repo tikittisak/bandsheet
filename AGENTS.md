@@ -37,13 +37,15 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 
 ## File Structure
 ```
-Bandsheet/
+bandsheet/
 ├── AGENTS.md
 ├── DESIGN_LANGUAGE.md           ← UX/UI source of truth + Figma HTML guide
 ├── _template.html               ← template v6.04
 ├── bandsheet_import.py          ← validate/sanitize/import AI JSON
 ├── update_index.py              ← rebuild root + band indexes
 ├── push.sh                      ← update index + commit + push
+├── commands/                    ← copy/paste terminal commands + README
+├── _work/                       ← งานดิบ/transcription/draft ที่ไม่ publish
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
 ├── wait-for-delete/             ← ของเก่า/ต้นแบบที่แยกไว้ก่อนลบจริง
 ├── the-maewjons/
@@ -272,30 +274,8 @@ Codex "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่]
 
 ---
 
-## GitHub Auto-Push Workflow (ใหม่)
+## GitHub Auto-Push Workflow
 
-### หลัง save/แก้ไฟล์ ให้ run:
-```bash
-osascript -e 'do shell script "cd /Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet && bash push.sh 2>&1" '
-```
-หรือถ้าต้องการใส่ commit message เอง:
-```bash
-osascript -e 'do shell script "cd /Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet && bash push.sh \"add: song-name.html\" 2>&1" '
-```
+ใช้ `commands/README.md` เป็น source of truth สำหรับ workflow และคำสั่ง terminal ทั้งหมด
 
-### push.sh จะทำ:
-1. `python3 update_index.py` — อัพเดต SONGS array ในทุก band/index.html อัตโนมัติ
-2. `git add -A` — stage ไฟล์ทั้งหมด
-3. `git commit -m "..."` — commit
-4. `git push origin main` — push ไป github.com/tikittisak/bandsheet
-
-### Bandsheet Folder Path (ถูกต้อง):
-```
-/Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet/
-```
-
-### คำสั่ง write ไฟล์ใน Cowork (ต้องใช้ osascript):
-```python
-# ใช้ osascript เพื่อเขียนไฟล์ไปยัง Vault path
-do shell script "python3 -c '...' > /Users/ti_am1/Desktop/Vaults/Vault_ti.muse/Bandsheet/{band}/{song}.html"
-```
+ก่อน push จริงให้รัน dry-run ตาม README เสมอ
