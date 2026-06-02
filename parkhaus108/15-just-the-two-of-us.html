@@ -495,7 +495,7 @@ function colorFromBar(bar){return{bar:bar,bg:lighten(bar,.88),lbl:darken(bar,.35
 
 function currentVisualCap(){
   var w=window.innerWidth||document.documentElement.clientWidth||1024;
-  return w<=520?2:(w<=900?4:8);
+  return w<=900?4:8;
 }
 function visualColsFor(baseCols){
   var cap=currentVisualCap();
@@ -642,9 +642,11 @@ function updateCellWidth(){
   var ctrlW=EDIT_MODE?(32+72+14):0;
   var cols=EDIT_MODE?8:visualColsFor(8);
   var gaps=(cols-1)*gap;
-  var avail=sheetW-pad-rowPad-ctrlW-gaps-2;
-  var minW=cols<=2?150:(cols<=4?118:96);
-  var maxW=cols<=2?224:(cols<=4?170:138);
+  var narrow=(window.innerWidth||document.documentElement.clientWidth||1024)<=520;
+  var repeatReserve=(!EDIT_MODE&&narrow&&cols<=4)?30:0;
+  var avail=sheetW-pad-rowPad-ctrlW-gaps-repeatReserve-2;
+  var minW=narrow&&cols<=4?72:(cols<=2?150:(cols<=4?118:96));
+  var maxW=narrow&&cols<=4?96:(cols<=2?224:(cols<=4?170:138));
   var w=Math.max(minW,Math.min(maxW,Math.floor(avail/cols)));
   document.documentElement.style.setProperty('--cell-w',w+'px');
   syncNoteWidths();
