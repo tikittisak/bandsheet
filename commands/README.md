@@ -15,7 +15,13 @@ cd "/Users/ti_am1/Desktop/Vaults/Vault_ti.muse/bandsheet"
 
 ## Workflow หลัก หลังแก้หรือเพิ่มเพลง
 
-1. เช็กก่อน push จริง
+1. ดึงของล่าสุดจาก GitHub ก่อน ถ้าเคยแก้หรือ upload file ผ่านหน้าเว็บ GitHub
+
+```bash
+bash commands/sync-latest.sh
+```
+
+2. เช็กก่อน push จริง
 
 ```bash
 bash commands/dry-run.sh
@@ -26,7 +32,7 @@ bash commands/dry-run.sh
 - แสดงรายการไฟล์ที่จะถูกส่งขึ้น GitHub
 - ไม่ stage, ไม่ commit, ไม่ push
 
-2. ถ้ารายการไฟล์ถูกต้อง ค่อย push จริง
+3. ถ้ารายการไฟล์ถูกต้อง ค่อย push จริง
 
 ```bash
 bash commands/push-site.sh "update bandsheet workflow and parkhaus songs"
@@ -52,6 +58,7 @@ bash commands/update-index.sh
 
 ```text
 แก้/เพิ่มเพลง
+→ bash commands/sync-latest.sh
 → bash commands/dry-run.sh
 → อ่านรายการไฟล์
 → ถ้าถูกต้อง: bash commands/push-site.sh "update bandsheet workflow and parkhaus songs"
