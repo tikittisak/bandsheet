@@ -110,9 +110,9 @@ def plain_section_heading(line):
     if re.search(r"(facts|table|join|cookie|incorrect|request|report)", text, re.I):
         return ""
     if re.fullmatch(
-        r"(intro|interlude|instrument(?:s|al)?|verse(?:\s+\d+)?|pre[- ]?chorus(?:\s+\d+)?|"
+        r"(intro|interlude|instrument(?:s|al)?(?:\s*\([^)]*\))?|verse(?:\s+\d+)?|pre[- ]?chorus(?:\s+\d+)?|"
         r"chorus(?:\s+\d+)?|hook(?:\s+\d+)?|bridge|solo|outro|groove|vamp|"
-        r"last verse|final chorus)(?:\s*[-–—]\s*.+)?",
+        r"last[- ]?verse|last[- ]?hook|final[- ]?chorus)(?:\s*[-–—]\s*.+)?",
         text,
         re.I,
     ):
