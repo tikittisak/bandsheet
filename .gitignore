@@ -8,6 +8,7 @@
 **/.space/
 _work/*
 !_work/busk-import.html
+!_work/version-log-*.md
 Backup/
 PDF/
 *.pdf
