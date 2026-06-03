@@ -6,7 +6,7 @@ import re
 import subprocess
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = "bandsheet v6.12"
+VERSION = "bandsheet v6.16"
 UPDATED = "2026-06-02"
 
 SKIP_DIRS = {"backup", "wait-for-delete", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
@@ -202,6 +202,8 @@ h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:600;line-height:1.1
 .filter-field{display:flex;align-items:center;gap:6px}.filter-field .filter-input{width:104px}.filter-field.vocalist .filter-input{width:150px}
 .filter-pill,.clear-btn{font-family:'Inter',sans-serif;font-size:10px;font-weight:500;padding:5px 9px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text-muted);cursor:pointer;transition:background .12s,border-color .12s,color .12s;white-space:nowrap}
 .filter-pill:hover,.clear-btn:hover{background:var(--ui-hover);border-color:var(--border-strong);color:var(--ui-ink)}.filter-pill.active{background:var(--ui-active);border-color:var(--ui-active);color:#f8fbff}
+.toolbar-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;padding:4px 8px;border:none;border-radius:6px;background:transparent;color:var(--ui-ink);text-decoration:none;cursor:pointer;transition:background .1s,color .1s;white-space:nowrap;height:27px;display:inline-flex;align-items:center;letter-spacing:.012em;text-transform:lowercase}
+.toolbar-link:hover{background:var(--ui-hover);color:var(--ui-ink)}
 main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 .band-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:8px 0 24px}
 .band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:var(--border-strong);background:#fbfdff}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
@@ -334,6 +336,7 @@ def render_index(bands, songs, current_band=None):
     band_cards = '<section><div class="section-label">Bands</div><div class="band-grid" id="band-grid"></div></section>' if is_root else ""
     band_filter = '<div class="filter-group" id="band-filters"></div>' if is_root else ""
     band_header = "<th>Band</th>" if is_root else ""
+    importer_link = '<a class="toolbar-link" href="_work/busk-import.html">importer</a>' if is_root else ""
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
     home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'
@@ -374,6 +377,7 @@ def render_index(bands, songs, current_band=None):
       <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
     </label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
+    {importer_link}
   </div>
 </div>
 <main>
