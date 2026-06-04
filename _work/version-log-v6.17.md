@@ -38,3 +38,9 @@ Run before push:
 ```bash
 bash commands/dry-run.sh
 ```
+
+## Patch Notes After First Push
+
+- Auto-scroll now removes toolbar/metabar from layout during play before measuring page height, matching the footer exclusion behavior.
+- Speed can now be adjusted from the floating play HUD while auto-scroll is running.
+- Changing speed during play recalculates the remaining scroll duration from the current position.

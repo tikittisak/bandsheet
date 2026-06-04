@@ -57,12 +57,13 @@ body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(
 .meta-sep{color:var(--border-strong);font-size:12px;margin:0 4px}
 body.bars-hidden #toolbar{transform:translateY(calc(-1 * var(--toolbar-hide-y,56px)))}
 body.bars-hidden #metabar{transform:translateY(calc(-1 * (var(--toolbar-hide-y,56px) + var(--metabar-hide-y,36px))));opacity:0;pointer-events:none}
-body.autoscroll-on #toolbar{transform:translateY(calc(-1 * var(--toolbar-hide-y,56px)))}
-body.autoscroll-on #metabar{transform:translateY(calc(-1 * (var(--toolbar-hide-y,56px) + var(--metabar-hide-y,36px))));opacity:0;pointer-events:none}
+body.autoscroll-on #toolbar,body.autoscroll-on #metabar{display:none!important}
 body.autoscroll-on #footer-section{display:none!important}
 .scroll-hud{position:fixed;right:14px;bottom:14px;z-index:120;display:none;align-items:center;gap:6px;padding:6px 7px;border:1px solid var(--ui-line);border-radius:8px;background:rgba(255,255,255,.96);box-shadow:0 4px 18px rgba(23,32,51,.12);font-family:var(--ui-font)}
 body.autoscroll-on .scroll-hud{display:flex}
 .scroll-hud .tb-btn{height:24px;padding:3px 8px}
+.scroll-hud .seg-ctrl{height:24px}
+.scroll-hud .seg-btn{padding:0 8px}
 .scroll-hud-text{font-size:12px;font-weight:300;color:var(--ui-muted);min-width:40px;text-align:center}
 /* ── Sheet ── */
 #sheet{padding:8px 24px 24px;overflow-x:auto}
@@ -510,7 +511,11 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 <div class="scroll-hud" id="scrollHud">
   <button class="tb-btn primary" onclick="pauseAutoScroll()" title="Pause auto-scroll">pause</button>
-  <span class="scroll-hud-text" id="scroll-hud-speed">100%</span>
+  <div class="seg-ctrl" title="Auto-scroll speed">
+    <button class="seg-btn" onclick="changeAutoScrollSpeed(-5)">−</button>
+    <span class="scroll-hud-text" id="scroll-hud-speed">100%</span>
+    <button class="seg-btn" onclick="changeAutoScrollSpeed(5)">+</button>
+  </div>
 </div>
 <script>
 var PRESETS=[{bar:"#ff3b30",bg:"#fff1f0",lbl:"#b00008"},{bar:"#ff9500",bg:"#fff8ec",lbl:"#8a4e00"},{bar:"#ffcc00",bg:"#fffbe6",lbl:"#7a5e00"},{bar:"#34c759",bg:"#edfaf2",lbl:"#1a6e35"},{bar:"#007aff",bg:"#eef5ff",lbl:"#004ab0"},{bar:"#af52de",bg:"#f8f0fd",lbl:"#6a2a90"},{bar:"#ff2d55",bg:"#fff0f3",lbl:"#a0002e"},{bar:"#64748b",bg:"#f1f5f9",lbl:"#334155"},{bar:"#1f2937",bg:"#e5e7eb",lbl:"#111827"}];
@@ -1509,7 +1514,17 @@ function changeAutoScrollSpeed(delta){
   var pct=Math.round(((SETTINGS.autoScrollSpeed||1)*100)+delta);
   pct=Math.max(50,Math.min(160,pct));
   SETTINGS.autoScrollSpeed=pct/100;
+  if(AUTO_SCROLL_PLAYING)resetAutoScrollTiming();
   updateAutoScrollControls();
+}
+function resetAutoScrollTiming(){
+  var now=performance.now();
+  AUTO_SCROLL_FROM=window.scrollY||window.pageYOffset||0;
+  if(AUTO_SCROLL_TO<=AUTO_SCROLL_FROM+1)return;
+  var total=Math.max(1,AUTO_SCROLL_TO-AUTO_SCROLL_FROM);
+  var remaining=total/(AUTO_SCROLL_TO||total);
+  AUTO_SCROLL_DURATION=autoScrollSeconds()*remaining/Math.max(.5,SETTINGS.autoScrollSpeed||1);
+  AUTO_SCROLL_START=now;
 }
 function pauseAutoScroll(){
   AUTO_SCROLL_PLAYING=false;
