@@ -46,3 +46,20 @@ bash commands/dry-run.sh
 - Changing speed during play recalculates the remaining scroll duration from the current position.
 - The floating play HUD now uses compact `‹ x ›` controls: previous section, stop, and next section.
 - Section jump skips lyric/note blocks and keeps auto-scroll playing after recalculating from the new position.
+
+## Session Close
+
+Closed: 2026-06-04
+
+Final pushed commits:
+
+- `7ee9874` — v6.17: add auto scroll and mini edit controls
+- `418bd86` — v6.17: refine auto scroll measurement and speed controls
+- `0999c21` — v6.17: add auto scroll section jump controls
+
+Final state:
+
+- Root and band indexes rebuilt successfully: 52 songs across 4 bands.
+- `_template.html`, 52 published song files, and Busk importer embedded template are synced to v6.17 behavior.
+- Stay With Me keeps `autoScrollDuration: "5:12"` as the real-data prototype value.
+- Working tree was clean after the final push.
