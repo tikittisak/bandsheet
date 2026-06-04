@@ -62,6 +62,7 @@ body.autoscroll-on #footer-section{display:none!important}
 .scroll-hud{position:fixed;right:14px;bottom:14px;z-index:120;display:none;align-items:center;gap:6px;padding:6px 7px;border:1px solid var(--ui-line);border-radius:8px;background:rgba(255,255,255,.96);box-shadow:0 4px 18px rgba(23,32,51,.12);font-family:var(--ui-font)}
 body.autoscroll-on .scroll-hud{display:flex}
 .scroll-hud .tb-btn{height:24px;padding:3px 8px}
+.scroll-hud .jump-btn{width:24px;justify-content:center;padding:3px 0}
 .scroll-hud .seg-ctrl{height:24px}
 .scroll-hud .seg-btn{padding:0 8px}
 .scroll-hud-text{font-size:12px;font-weight:300;color:var(--ui-muted);min-width:40px;text-align:center}
@@ -510,7 +511,9 @@ document.addEventListener('DOMContentLoaded',function(){
   </div>
 </div>
 <div class="scroll-hud" id="scrollHud">
-  <button class="tb-btn primary" onclick="pauseAutoScroll()" title="Pause auto-scroll">pause</button>
+  <button class="tb-btn jump-btn" onclick="jumpAutoScrollSection(-1)" title="Previous section">‹</button>
+  <button class="tb-btn primary jump-btn" onclick="pauseAutoScroll()" title="Stop auto-scroll">x</button>
+  <button class="tb-btn jump-btn" onclick="jumpAutoScrollSection(1)" title="Next section">›</button>
   <div class="seg-ctrl" title="Auto-scroll speed">
     <button class="seg-btn" onclick="changeAutoScrollSpeed(-5)">−</button>
     <span class="scroll-hud-text" id="scroll-hud-speed">100%</span>
@@ -1532,6 +1535,27 @@ function pauseAutoScroll(){
   AUTO_SCROLL_RAF=0;
   document.body.classList.remove('autoscroll-on');
   updateAutoScrollControls();
+}
+function jumpAutoScrollSection(dir){
+  var sections=[].slice.call(document.querySelectorAll('.section:not(.note-type-sec)'));
+  if(!sections.length)return;
+  var y=window.scrollY||window.pageYOffset||0;
+  var target=null;
+  if(dir>0){
+    for(var i=0;i<sections.length;i++){
+      var top=sections[i].getBoundingClientRect().top+y;
+      if(top>y+8){target=sections[i];break;}
+    }
+  }else{
+    for(var j=sections.length-1;j>=0;j--){
+      var ptop=sections[j].getBoundingClientRect().top+y;
+      if(ptop<y-8){target=sections[j];break;}
+    }
+  }
+  if(!target)return toast(dir>0?'ไม่มี section ถัดไป':'ไม่มี section ก่อนหน้า');
+  AUTO_SCROLL_IGNORE_UNTIL=Date.now()+180;
+  window.scrollTo(0,Math.max(0,target.getBoundingClientRect().top+y));
+  if(AUTO_SCROLL_PLAYING)resetAutoScrollTiming();
 }
 function startAutoScroll(){
   if(EDIT_MODE)setDisplayMode();

@@ -44,3 +44,5 @@ bash commands/dry-run.sh
 - Auto-scroll now removes toolbar/metabar from layout during play before measuring page height, matching the footer exclusion behavior.
 - Speed can now be adjusted from the floating play HUD while auto-scroll is running.
 - Changing speed during play recalculates the remaining scroll duration from the current position.
+- The floating play HUD now uses compact `‹ x ›` controls: previous section, stop, and next section.
+- Section jump skips lyric/note blocks and keeps auto-scroll playing after recalculating from the new position.
