@@ -221,6 +221,24 @@ def infer_title_artist(lines):
     return title, artist
 
 
+def normalize_duration(value):
+    text = clean_line(value)
+    if not text:
+        return ""
+    match = re.search(r"(\d+(?::\d{1,2}){1,2})", text)
+    if match:
+        return match.group(1)
+    match = re.search(r"(\d+)\s*(?:m|min|minute)s?\s*(\d{1,2})?\s*(?:s|sec|second)?", text, re.I)
+    if match:
+        minutes = int(match.group(1))
+        seconds = int(match.group(2) or 0)
+        return f"{minutes}:{seconds:02d}"
+    match = re.search(r"\b(\d{2,4})\s*(?:s|sec|seconds?)?\b", text, re.I)
+    if match:
+        return match.group(1)
+    return text[:20]
+
+
 def parse_busk_text(text):
     raw_lines = [line.rstrip() for line in text.splitlines()]
     lines = [clean_line(line) for line in raw_lines]
@@ -232,6 +250,7 @@ def parse_busk_text(text):
     if not bpm_match:
         bpm_match = re.search(r"\b(\d{2,3})\s*bpm\b", joined, re.I)
     time_match = re.search(r"\b([2-9])\s+([24])\s*=", joined)
+    duration_match = re.search(r"\bDuration:\s*([^\n]+)", joined, re.I)
 
     payload = {
         "title": title,
@@ -240,6 +259,9 @@ def parse_busk_text(text):
         "bpm": bpm_match.group(1) if bpm_match else "",
         "time": f"{time_match.group(1)}/{time_match.group(2)}" if time_match else "4/4",
         "vocalist": "",
+        "settings": {
+            "autoScrollDuration": normalize_duration(duration_match.group(1)) if duration_match else "",
+        },
         "sections": [],
     }
     warnings = []

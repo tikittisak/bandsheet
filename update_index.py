@@ -6,10 +6,10 @@ import re
 import subprocess
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = "bandsheet v6.16"
+VERSION = "bandsheet v6.17"
 UPDATED = "2026-06-02"
 
-SKIP_DIRS = {"backup", "wait-for-delete", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values"}
+SKIP_DIRS = {"backup", "wait-for-delete", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values", "90alter"}
 SKIP_FILES = {
     "index.html",
     "_template.html",
@@ -26,11 +26,10 @@ BAND_META = {
     "ti-muse": {"name": "ti.muse", "color": "#60a5fa"},
     "the-maewjons": {"name": "THE MÆWJØNS", "color": "#EB3C1F"},
     "parkhaus108": {"name": "PARKHAUS108", "color": "#6D132D"},
-    "90alter": {"name": "90Alter", "color": "#fbbf24"},
     "parkhaus-studio": {"name": "PARKHAUS Studio", "color": "#6D132D"},
 }
 
-BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "90alter", "parkhaus-studio"]
+BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "parkhaus-studio"]
 
 
 def read_text(path):
@@ -263,6 +262,18 @@ function buildBandCards(){
       '<div class="band-song-count">'+b.songCount+' songs</div></a>';
   }).join('');
 }
+function importerHref(){
+  var href = '_work/busk-import.html';
+  if(activeBand && activeBand !== 'all') href += '?band=' + encodeURIComponent(activeBand);
+  return href;
+}
+function syncImporterLink(){
+  var link = document.getElementById('importer-link');
+  if(!link) return;
+  link.href = importerHref();
+  var band = activeBand === 'all' ? '' : (ALL_BANDS.find(function(b){return b.id===activeBand;})||{}).name;
+  link.textContent = band ? 'importer · ' + band : 'importer';
+}
 function buildFilters(){
   var bf = document.getElementById('band-filters');
   if(bf){
@@ -274,6 +285,7 @@ function buildFilters(){
 }
 function syncFilterState(){
   document.querySelectorAll('[data-band]').forEach(function(el){el.classList.toggle('active', el.dataset.band === activeBand);});
+  syncImporterLink();
 }
 function renderSongs(){
   var songs = getVisibleSongs();
@@ -336,7 +348,7 @@ def render_index(bands, songs, current_band=None):
     band_cards = '<section><div class="section-label">Bands</div><div class="band-grid" id="band-grid"></div></section>' if is_root else ""
     band_filter = '<div class="filter-group" id="band-filters"></div>' if is_root else ""
     band_header = "<th>Band</th>" if is_root else ""
-    importer_link = '<a class="toolbar-link" href="_work/busk-import.html">importer</a>' if is_root else ""
+    importer_link = '<a class="toolbar-link" id="importer-link" href="_work/busk-import.html">importer</a>' if is_root else ""
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
     home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'

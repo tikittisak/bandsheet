@@ -49,7 +49,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
     <div class="site-label">Band index</div>
     <h1>PARKHAUS108</h1>
     <p class="sub">24 songs · searchable by key, vocalist, and artist</p>
-    <div class="version-pill">bandsheet v6.16 · updated 2026-06-02</div>
+    <div class="version-pill">bandsheet v6.17 · updated 2026-06-02</div>
   </div>
 </header>
 <div class="toolbar">
@@ -110,14 +110,6 @@ var BANDS = [
     "path": "parkhaus108/",
     "indexHref": "parkhaus108/index.html",
     "songCount": 24
-  },
-  {
-    "id": "90alter",
-    "name": "90Alter",
-    "color": "#fbbf24",
-    "path": "90alter/",
-    "indexHref": "90alter/index.html",
-    "songCount": 0
   },
   {
     "id": "parkhaus-studio",
@@ -514,6 +506,18 @@ function buildBandCards(){
       '<div class="band-song-count">'+b.songCount+' songs</div></a>';
   }).join('');
 }
+function importerHref(){
+  var href = '_work/busk-import.html';
+  if(activeBand && activeBand !== 'all') href += '?band=' + encodeURIComponent(activeBand);
+  return href;
+}
+function syncImporterLink(){
+  var link = document.getElementById('importer-link');
+  if(!link) return;
+  link.href = importerHref();
+  var band = activeBand === 'all' ? '' : (ALL_BANDS.find(function(b){return b.id===activeBand;})||{}).name;
+  link.textContent = band ? 'importer · ' + band : 'importer';
+}
 function buildFilters(){
   var bf = document.getElementById('band-filters');
   if(bf){
@@ -525,6 +529,7 @@ function buildFilters(){
 }
 function syncFilterState(){
   document.querySelectorAll('[data-band]').forEach(function(el){el.classList.toggle('active', el.dataset.band === activeBand);});
+  syncImporterLink();
 }
 function renderSongs(){
   var songs = getVisibleSongs();

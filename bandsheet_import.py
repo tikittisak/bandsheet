@@ -16,6 +16,8 @@ DEFAULT_SETTINGS = {
     "chordFont": "Roboto Condensed",
     "transpose": 0,
     "noteSize": 13,
+    "autoScrollDuration": "",
+    "autoScrollSpeed": 1,
 }
 RHYTHM_IDS = {
     "q", "h", "dq", "dh", "e", "de", "ee", "ssss", "te",

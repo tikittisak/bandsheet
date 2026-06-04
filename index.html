@@ -49,7 +49,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
     <div class="site-label">Band Sheet Archive</div>
     <h1>bandsheet by ti.muse</h1>
     <p class="sub">Search songs by band, key, BPM, vocalist, or artist</p>
-    <div class="version-pill">bandsheet v6.16 · updated 2026-06-02</div>
+    <div class="version-pill">bandsheet v6.17 · updated 2026-06-02</div>
   </div>
 </header>
 <div class="toolbar">
@@ -68,7 +68,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
       <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
     </label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
-    <a class="toolbar-link" href="_work/busk-import.html">importer</a>
+    <a class="toolbar-link" id="importer-link" href="_work/busk-import.html">importer</a>
   </div>
 </div>
 <main>
@@ -110,14 +110,6 @@ var BANDS = [
     "path": "parkhaus108/",
     "indexHref": "parkhaus108/index.html",
     "songCount": 24
-  },
-  {
-    "id": "90alter",
-    "name": "90Alter",
-    "color": "#fbbf24",
-    "path": "90alter/",
-    "indexHref": "90alter/index.html",
-    "songCount": 0
   },
   {
     "id": "parkhaus-studio",
@@ -906,6 +898,18 @@ function buildBandCards(){
       '<div class="band-song-count">'+b.songCount+' songs</div></a>';
   }).join('');
 }
+function importerHref(){
+  var href = '_work/busk-import.html';
+  if(activeBand && activeBand !== 'all') href += '?band=' + encodeURIComponent(activeBand);
+  return href;
+}
+function syncImporterLink(){
+  var link = document.getElementById('importer-link');
+  if(!link) return;
+  link.href = importerHref();
+  var band = activeBand === 'all' ? '' : (ALL_BANDS.find(function(b){return b.id===activeBand;})||{}).name;
+  link.textContent = band ? 'importer · ' + band : 'importer';
+}
 function buildFilters(){
   var bf = document.getElementById('band-filters');
   if(bf){
@@ -917,6 +921,7 @@ function buildFilters(){
 }
 function syncFilterState(){
   document.querySelectorAll('[data-band]').forEach(function(el){el.classList.toggle('active', el.dataset.band === activeBand);});
+  syncImporterLink();
 }
 function renderSongs(){
   var songs = getVisibleSongs();
