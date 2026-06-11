@@ -8,7 +8,7 @@ color: var(--mk-color-orange)
 ## เริ่มต้น
 
 ```bash
-cd "/Users/ti_am1/Desktop/Vaults/Vault_ti.muse/bandsheet"
+cd "/Users/ti_am1/Vaults/ti.muse/bandsheet"
 ```
 
 หลังจากนั้นใช้คำสั่งด้านล่างได้เลย

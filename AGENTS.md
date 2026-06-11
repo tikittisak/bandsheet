@@ -4,9 +4,15 @@
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
 Template อยู่ที่ `_template.html` — **current version: v6.17**
 
-UX/UI design language, lesson learned, design tokens, component rules, และ HTML-to-Figma starter snippets อยู่ที่ `DESIGN_LANGUAGE.md`
-- ใช้ไฟล์นี้เป็น source of truth เมื่อออกแบบ UI ใหม่, iterate `_template.html`, หรือเริ่ม project/app ใหม่ด้วยหลักการเดียวกัน
-- ยึด v6.17 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
+Bar extraction workflow อยู่ที่ `BAR_EXTRACTOR.md`
+- ถ้า user พิมพ์ `bar-extractor song {slug}`, `extract bars song {slug}`, หรือขอ `PNG -> Song info + Bar` ให้ใช้ workflow นี้ทันที
+- เป้าหมายคืออ่าน PNG score แล้วสร้าง `_work/bar-extractor/outputs/{slug}.bars.json`
+- ห้ามเดาว่าเป็น app/OCR อัตโนมัติ ให้ทำแบบ Codex-assisted จากภาพจริงจนกว่าจะมี automation ที่ทดสอบแล้ว
+
+Vault-wide design philosophy อยู่ที่ `../DESIGN_PHILOSOPHY.md` และ shared UI rules อยู่ใน `../design/`
+- อ่านชุดกลางก่อนเมื่อออกแบบ UI/app/tool ใหม่ เพื่อรักษา philosophy เดียวกันทุก project
+- `DESIGN_LANGUAGE.md` ของ bandsheet เป็น local source of truth เฉพาะ chord chart, template, section color, import guard, และ HTML-to-Figma snippets
+- ยึด `_template.html` v6.17 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
 
 ---
 
@@ -39,6 +45,7 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 ```
 bandsheet/
 ├── AGENTS.md
+├── BAR_EXTRACTOR.md             ← workflow อ่าน PNG เป็น Song info + Bar JSON
 ├── DESIGN_LANGUAGE.md           ← UX/UI source of truth + Figma HTML guide
 ├── _template.html               ← template v6.17
 ├── bandsheet_import.py          ← validate/sanitize/import AI JSON
@@ -46,6 +53,7 @@ bandsheet/
 ├── push.sh                      ← update index + commit + push
 ├── commands/                    ← copy/paste terminal commands + README
 ├── _work/                       ← งานดิบ/transcription/draft ที่ไม่ publish
+│   └── bar-extractor/           ← PNG cases + bar JSON outputs
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
 ├── wait-for-delete/             ← ของเก่า/ต้นแบบที่แยกไว้ก่อนลบจริง
 ├── the-maewjons/
@@ -68,6 +76,27 @@ bandsheet/
 - sync `_template.html` ไป song sheets เฉพาะหลัง user confirm ว่า design/behavior ถูกต้องแล้ว
 - ก่อน go online เท่านั้น ค่อย run `python3 update_index.py` แล้วใช้ `push.sh`
 - ถ้ายังอยู่ช่วงทดลอง UI ห้าม run `update_index.py`, ห้าม commit, และห้าม push
+
+---
+
+## Bar Extractor Workflow
+
+ใช้เมื่อ user ขอ:
+- `bar-extractor song {slug}`
+- `extract bars song {slug}`
+- `อ่าน bar จาก PNG เพลง {slug}`
+- `PNG -> Song info + Bar`
+
+ให้เปิด `BAR_EXTRACTOR.md` ก่อน แล้วทำตามนั้น:
+1. อ่าน PNG จาก `_work/bar-extractor/cases/{slug}/`
+2. สร้าง `_work/bar-extractor/outputs/{slug}.bars.json`
+3. validate ด้วย `_work/bar-extractor/validate_bars.py`
+4. รายงาน total bars, section count, warnings, และ path ของ output
+
+ข้อสำคัญ:
+- workflow นี้ยังเป็น Codex-assisted ไม่ใช่ OCR/API อัตโนมัติ
+- ห้ามแก้ song HTML ระหว่าง extract เว้นแต่ user สั่งชัดเจน
+- ห้ามหา chord จาก web
 
 ---
 
