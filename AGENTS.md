@@ -77,6 +77,12 @@ bandsheet/
 - ก่อน go online เท่านั้น ค่อย run `python3 update_index.py` แล้วใช้ `push.sh`
 - ถ้ายังอยู่ช่วงทดลอง UI ห้าม run `update_index.py`, ห้าม commit, และห้าม push
 
+## Song Sheet Source Notes
+- อ่าน `IREALPRO_FORM_REFERENCE.md` ก่อนแปล chart จาก iReal Pro โดยเฉพาะ Coda, D.S./D.C., Link, และ split bar
+- ถ้า user ให้ bar map จาก drum track / score / screenshot reference ให้ถือว่า bar map นั้นเป็น source of truth สำหรับโครงคุมวง
+- ห้าม resize section หรือเพิ่ม/ลด bar เพื่อให้พอดีกับ chord text ที่ paste มา ถ้าคอร์ดไม่พอดี ให้ใส่หลายคอร์ดใน bar เดียว, เว้น bar เป็น `—`, หรือถาม user ก่อน
+- Final bandsheet ไม่ควรอ้างชื่อ website/source ภายนอกในตัวหน้าเพลง เว้นแต่ user สั่งชัดเจน ให้เก็บ source/method note แบบนี้ไว้ใน project notes หรือ `_work/` แทน
+
 ---
 
 ## Bar Extractor Workflow
