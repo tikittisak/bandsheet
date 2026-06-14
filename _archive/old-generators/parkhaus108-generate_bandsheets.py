@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json, re, os
 
-TEMPLATE = '/Users/ti_am1/Vaults/ti.muse/bandsheet/_template.html'
-OUT_DIR  = '/Users/ti_am1/Vaults/ti.muse/bandsheet/parkhaus108/'
+TEMPLATE = '/Users/ti_am1/Vaults/ti.muse/apps/bandsheet/_template.html'
+OUT_DIR  = '/Users/ti_am1/Vaults/ti.muse/apps/bandsheet/parkhaus108/'
 
 CI = {"bar":"#ff3b30","bg":"#fff1f0","lbl":"#b00008"}
 CV = {"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"}

@@ -221,11 +221,11 @@ claude "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่
 
 ### หลัง save/แก้ไฟล์ ให้ run:
 ```bash
-osascript -e 'do shell script "cd /Users/ti_am1/Vaults/ti.muse/bandsheet && bash push.sh 2>&1" '
+osascript -e 'do shell script "cd /Users/ti_am1/Vaults/ti.muse/apps/bandsheet && bash push.sh 2>&1" '
 ```
 หรือถ้าต้องการใส่ commit message เอง:
 ```bash
-osascript -e 'do shell script "cd /Users/ti_am1/Vaults/ti.muse/bandsheet && bash push.sh \"add: song-name.html\" 2>&1" '
+osascript -e 'do shell script "cd /Users/ti_am1/Vaults/ti.muse/apps/bandsheet && bash push.sh \"add: song-name.html\" 2>&1" '
 ```
 
 ### push.sh จะทำ:
@@ -236,11 +236,11 @@ osascript -e 'do shell script "cd /Users/ti_am1/Vaults/ti.muse/bandsheet && bash
 
 ### Bandsheet Folder Path (ถูกต้อง):
 ```
-/Users/ti_am1/Vaults/ti.muse/bandsheet/
+/Users/ti_am1/Vaults/ti.muse/apps/bandsheet/
 ```
 
 ### คำสั่ง write ไฟล์ใน Cowork (ต้องใช้ osascript):
 ```python
 # ใช้ osascript เพื่อเขียนไฟล์ไปยัง Vault path
-do shell script "python3 -c '...' > /Users/ti_am1/Vaults/ti.muse/bandsheet/{band}/{song}.html"
+do shell script "python3 -c '...' > /Users/ti_am1/Vaults/ti.muse/apps/bandsheet/{band}/{song}.html"
 ```

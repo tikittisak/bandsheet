@@ -8,7 +8,7 @@ color: var(--mk-color-orange)
 ## เริ่มต้น
 
 ```bash
-cd "/Users/ti_am1/Vaults/ti.muse/bandsheet"
+cd "/Users/ti_am1/vaults/ti.muse/apps/bandsheet"
 ```
 
 หลังจากนั้นใช้คำสั่งด้านล่างได้เลย
@@ -72,7 +72,6 @@ bash commands/update-index.sh
 .space/
 song-transcription/
 backup/
-wait-for-delete/
 ไฟล์ทดลอง
 ไฟล์รูปจำนวนมาก
 ```

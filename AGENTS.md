@@ -4,14 +4,14 @@
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
 Template อยู่ที่ `_template.html` — **current version: v6.17**
 
-Bar extraction workflow อยู่ที่ `BAR_EXTRACTOR.md`
+Bar extraction workflow อยู่ที่ `bar-extractor.md`
 - ถ้า user พิมพ์ `bar-extractor song {slug}`, `extract bars song {slug}`, หรือขอ `PNG -> Song info + Bar` ให้ใช้ workflow นี้ทันที
 - เป้าหมายคืออ่าน PNG score แล้วสร้าง `_work/bar-extractor/outputs/{slug}.bars.json`
 - ห้ามเดาว่าเป็น app/OCR อัตโนมัติ ให้ทำแบบ Codex-assisted จากภาพจริงจนกว่าจะมี automation ที่ทดสอบแล้ว
 
 Vault-wide design philosophy อยู่ที่ `../DESIGN_PHILOSOPHY.md` และ shared UI rules อยู่ใน `../design/`
 - อ่านชุดกลางก่อนเมื่อออกแบบ UI/app/tool ใหม่ เพื่อรักษา philosophy เดียวกันทุก project
-- `DESIGN_LANGUAGE.md` ของ bandsheet เป็น local source of truth เฉพาะ chord chart, template, section color, import guard, และ HTML-to-Figma snippets
+- `design-language.md` ของ bandsheet เป็น local source of truth เฉพาะ chord chart, template, section color, import guard, และ HTML-to-Figma snippets
 - ยึด `_template.html` v6.17 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
 
 ---
@@ -45,8 +45,8 @@ Read `_template.html` → inject ข้อมูล → save เป็น `{band
 ```
 bandsheet/
 ├── AGENTS.md
-├── BAR_EXTRACTOR.md             ← workflow อ่าน PNG เป็น Song info + Bar JSON
-├── DESIGN_LANGUAGE.md           ← UX/UI source of truth + Figma HTML guide
+├── bar-extractor.md             ← workflow อ่าน PNG เป็น Song info + Bar JSON
+├── design-language.md           ← UX/UI source of truth + Figma HTML guide
 ├── _template.html               ← template v6.17
 ├── bandsheet_import.py          ← validate/sanitize/import AI JSON
 ├── update_index.py              ← rebuild root + band indexes
@@ -55,7 +55,7 @@ bandsheet/
 ├── _work/                       ← งานดิบ/transcription/draft ที่ไม่ publish
 │   └── bar-extractor/           ← PNG cases + bar JSON outputs
 ├── backup/                      ← เก็บ snapshot ของแต่ละ version
-├── wait-for-delete/             ← ของเก่า/ต้นแบบที่แยกไว้ก่อนลบจริง
+├── _archive/                    ← ของเก่า/ต้นแบบที่แยกไว้ก่อนลบจริง
 ├── the-maewjons/
 │   └── virtual-insanity.html
 └── parkhaus108/
@@ -78,7 +78,7 @@ bandsheet/
 - ถ้ายังอยู่ช่วงทดลอง UI ห้าม run `update_index.py`, ห้าม commit, และห้าม push
 
 ## Song Sheet Source Notes
-- อ่าน `IREALPRO_FORM_REFERENCE.md` ก่อนแปล chart จาก iReal Pro โดยเฉพาะ Coda, D.S./D.C., Link, และ split bar
+- อ่าน `irealpro-form-reference.md` ก่อนแปล chart จาก iReal Pro โดยเฉพาะ Coda, D.S./D.C., Link, และ split bar
 - ถ้า user ให้ bar map จาก drum track / score / screenshot reference ให้ถือว่า bar map นั้นเป็น source of truth สำหรับโครงคุมวง
 - ห้าม resize section หรือเพิ่ม/ลด bar เพื่อให้พอดีกับ chord text ที่ paste มา ถ้าคอร์ดไม่พอดี ให้ใส่หลายคอร์ดใน bar เดียว, เว้น bar เป็น `—`, หรือถาม user ก่อน
 - Final bandsheet ไม่ควรอ้างชื่อ website/source ภายนอกในตัวหน้าเพลง เว้นแต่ user สั่งชัดเจน ให้เก็บ source/method note แบบนี้ไว้ใน project notes หรือ `_work/` แทน
@@ -93,7 +93,7 @@ bandsheet/
 - `อ่าน bar จาก PNG เพลง {slug}`
 - `PNG -> Song info + Bar`
 
-ให้เปิด `BAR_EXTRACTOR.md` ก่อน แล้วทำตามนั้น:
+ให้เปิด `bar-extractor.md` ก่อน แล้วทำตามนั้น:
 1. อ่าน PNG จาก `_work/bar-extractor/cases/{slug}/`
 2. สร้าง `_work/bar-extractor/outputs/{slug}.bars.json`
 3. validate ด้วย `_work/bar-extractor/validate_bars.py`

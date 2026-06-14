@@ -11,7 +11,9 @@ _work/*
 !_work/version-log-*.md
 Backup/
 PDF/
+pdf/
 *.pdf
+!parkhaus108/2026-06-27-parkhaus108.pdf
 backup/
 *_diff*.txt
 __pycache__/

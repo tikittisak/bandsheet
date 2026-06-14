@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json, re, os
 
-TEMPLATE_PATH = '/Users/ti_am1/Vaults/ti.muse/bandsheet/_template.html'
-OUT_DIR = '/Users/ti_am1/Vaults/ti.muse/bandsheet/the-maewjons'
+TEMPLATE_PATH = '/Users/ti_am1/Vaults/ti.muse/apps/bandsheet/_template.html'
+OUT_DIR = '/Users/ti_am1/Vaults/ti.muse/apps/bandsheet/the-maewjons'
 
 with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
     TMPL = f.read()

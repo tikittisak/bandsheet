@@ -8,7 +8,7 @@ bar-extractor song {song-slug}
 
 Expected behavior:
 
-1. Read `BAR_EXTRACTOR.md`.
+1. Read `bar-extractor.md`.
 2. Read PNGs from `_work/bar-extractor/cases/{song-slug}/`.
 3. Create `_work/bar-extractor/outputs/{song-slug}.bars.json`.
 4. Validate with `_work/bar-extractor/validate_bars.py`.

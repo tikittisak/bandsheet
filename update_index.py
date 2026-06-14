@@ -9,7 +9,7 @@ BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 VERSION = "bandsheet v6.17"
 UPDATED = "2026-06-02"
 
-SKIP_DIRS = {"backup", "wait-for-delete", ".git", ".claude", "PDF", "Backup", "__pycache__", "node_modules", "Note Values", "90alter"}
+SKIP_DIRS = {"backup", "_archive", ".git", ".claude", "PDF", "pdf", "Backup", "__pycache__", "node_modules", "Note Values", "90alter"}
 SKIP_FILES = {
     "index.html",
     "_template.html",
@@ -30,6 +30,14 @@ BAND_META = {
 }
 
 BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "parkhaus-studio"]
+
+PDF_LINKS = [
+    {
+        "bandId": "parkhaus108",
+        "label": "pdf · PARKHAUS108",
+        "href": "parkhaus108/2026-06-27-parkhaus108.pdf",
+    },
+]
 
 
 def read_text(path):
@@ -61,6 +69,32 @@ def git_value(fmt):
 def get_input_value(doc, field_id):
     m = re.search(r'id="' + re.escape(field_id) + r'"[^>]*value="([^"]*)"', doc)
     return html.unescape(m.group(1)).strip() if m else ""
+
+
+def count_bars(doc):
+    marker = "// ── END DATA ──"
+    decl = "var SECTIONS = "
+    marker_pos = doc.find(marker)
+    if marker_pos < 0:
+        return ""
+    start = doc.rfind(decl, 0, marker_pos)
+    if start < 0:
+        return ""
+    payload = doc[start + len(decl):marker_pos].strip()
+    if payload.endswith(";"):
+        payload = payload[:-1].strip()
+    try:
+        sections = json.loads(payload)
+    except Exception:
+        return ""
+
+    total = 0
+    for section in sections:
+        bars = section.get("bars") if isinstance(section, dict) else None
+        if not isinstance(bars, list):
+            continue
+        total += sum(1 for bar in bars if not (isinstance(bar, dict) and bar.get("skipCount")))
+    return str(total) if total else ""
 
 
 def title_from_filename(filepath):
@@ -98,7 +132,7 @@ def extract_meta(filepath):
         "key": get_input_value(doc, "meta-key"),
         "bpm": get_input_value(doc, "meta-bpm"),
         "vocalist": get_input_value(doc, "meta-vocalist"),
-        "bars": "",
+        "bars": count_bars(doc),
         "file": os.path.basename(filepath),
     }
 
@@ -178,6 +212,26 @@ def collect_songs(bands):
 
 def render_version_badge():
     return f"{VERSION} · updated {UPDATED}"
+
+
+def render_pdf_links(current_band=None):
+    links = []
+    for item in PDF_LINKS:
+        if current_band and item["bandId"] != current_band:
+            continue
+        href = item["href"]
+        if current_band:
+            prefix = current_band + "/"
+            if href.startswith(prefix):
+                href = href[len(prefix):]
+        links.append(
+            '<a class="toolbar-link" href="'
+            + html.escape(href, quote=True)
+            + '" target="_blank" rel="noopener">'
+            + html.escape(item["label"])
+            + "</a>"
+        )
+    return "".join(links)
 
 
 STYLE = """
@@ -349,6 +403,7 @@ def render_index(bands, songs, current_band=None):
     band_filter = '<div class="filter-group" id="band-filters"></div>' if is_root else ""
     band_header = "<th>Band</th>" if is_root else ""
     importer_link = '<a class="toolbar-link" id="importer-link" href="_work/busk-import.html">importer</a>' if is_root else ""
+    pdf_links = render_pdf_links(current_band)
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
     home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'
@@ -389,6 +444,7 @@ def render_index(bands, songs, current_band=None):
       <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
     </label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
+    {pdf_links}
     {importer_link}
   </div>
 </div>
