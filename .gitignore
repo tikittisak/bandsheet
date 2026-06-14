@@ -13,7 +13,7 @@ Backup/
 PDF/
 pdf/
 *.pdf
-!parkhaus108/2026-06-27-parkhaus108.pdf
+!parkhaus108/2026-06-27-PARKHAUS108.pdf
 backup/
 *_diff*.txt
 __pycache__/

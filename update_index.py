@@ -35,7 +35,7 @@ PDF_LINKS = [
     {
         "bandId": "parkhaus108",
         "label": "pdf · PARKHAUS108",
-        "href": "parkhaus108/2026-06-27-parkhaus108.pdf",
+        "href": "parkhaus108/2026-06-27-PARKHAUS108.pdf",
     },
 ]
 
