@@ -97,6 +97,19 @@ def count_bars(doc):
     return str(total) if total else ""
 
 
+def validate_pdf_links(bands):
+    band_ids = {band["id"] for band in bands}
+    for item in PDF_LINKS:
+        band_id = item.get("bandId", "")
+        href = item.get("href", "")
+        if band_id not in band_ids:
+            raise ValueError(f"PDF link uses unknown bandId: {band_id}")
+        if not href or os.path.isabs(href) or ".." in href.split("/"):
+            raise ValueError(f"PDF link must be a project-relative path: {href}")
+        if not os.path.exists(os.path.join(BAND_ROOT, href)):
+            raise ValueError(f"PDF link target is missing: {href}")
+
+
 def title_from_filename(filepath):
     name = os.path.splitext(os.path.basename(filepath))[0]
     name = re.sub(r"^\d+[-_\s]+", "", name)
@@ -105,7 +118,7 @@ def title_from_filename(filepath):
 
 def extract_meta(filepath):
     try:
-        doc = read_text(filepath)[:80000]
+        doc = read_text(filepath)
     except Exception:
         return None
 
@@ -476,32 +489,11 @@ var IS_ROOT = {str(is_root).lower()};
 """
 
 
-def update_version_files():
-    template_path = os.path.join(BAND_ROOT, "_template.html")
-    if os.path.exists(template_path):
-        doc = read_text(template_path).replace("bandsheet v6.0 prototype", VERSION)
-        doc = doc.replace("bandsheet v6.01", VERSION)
-        write_text(template_path, doc)
-
-    agents_path = os.path.join(BAND_ROOT, "AGENTS.md")
-    if os.path.exists(agents_path):
-        doc = read_text(agents_path)
-        doc = doc.replace("current version: v6.0 prototype", "current version: v6.01")
-        doc = doc.replace("template v6.0 prototype", "template v6.01")
-        doc = doc.replace("(v6.0 prototype)", "(v6.01)")
-        doc = doc.replace("current version: v6.01", "current version: v6.02")
-        doc = doc.replace("template v6.01", "template v6.02")
-        doc = doc.replace("(v6.01)", "(v6.02)")
-        doc = doc.replace("current version: v6.02", "current version: v6.03")
-        doc = doc.replace("template v6.02", "template v6.03")
-        doc = doc.replace("(v6.02)", "(v6.03)")
-        write_text(agents_path, doc)
-
-
 def main():
     print("Bandsheet Index Updater")
     print("-" * 40)
     bands = discover_bands()
+    validate_pdf_links(bands)
     songs = collect_songs(bands)
 
     write_text(os.path.join(BAND_ROOT, "index.html"), render_index(bands, songs))
@@ -512,7 +504,6 @@ def main():
         write_text(os.path.join(BAND_ROOT, band["id"], "index.html"), render_index(bands, band_songs, band["id"]))
         print(f"  OK {band['id']}/index.html - {len(band_songs)} songs")
 
-    update_version_files()
     print("-" * 40)
     print(f"Done - {len(songs)} songs across {len(bands)} bands")
 
