@@ -20,6 +20,7 @@ SKIP_FILES = {
     "CLAUDE.md",
     "bandsheet_workflow_summary.html",
     "_prototype-rhythm-strip.html",
+    "bluebird-jazz.html",
 }
 
 BAND_META = {
@@ -43,7 +44,7 @@ PROJECT_LINKS = [
     {
         "bandId": "the-maewjons",
         "label": "project · Bluebird",
-        "href": "the-maewjons/bluebird-jazz-bar.html",
+        "href": "the-maewjons/bluebird-jazz.html",
     },
 ]
 
