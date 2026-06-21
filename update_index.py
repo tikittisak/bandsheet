@@ -39,6 +39,14 @@ PDF_LINKS = [
     },
 ]
 
+PROJECT_LINKS = [
+    {
+        "bandId": "the-maewjons",
+        "label": "project · Bluebird",
+        "href": "the-maewjons/bluebird-jazz-bar.html",
+    },
+]
+
 
 def read_text(path):
     with open(path, encoding="utf-8") as f:
@@ -225,6 +233,26 @@ def collect_songs(bands):
 
 def render_version_badge():
     return f"{VERSION} · updated {UPDATED}"
+
+
+def render_project_links(current_band=None):
+    links = []
+    for item in PROJECT_LINKS:
+        if current_band and item["bandId"] != current_band:
+            continue
+        href = item["href"]
+        if current_band:
+            prefix = current_band + "/"
+            if href.startswith(prefix):
+                href = href[len(prefix):]
+        links.append(
+            '<a class="toolbar-link" href="'
+            + html.escape(href, quote=True)
+            + '">'
+            + html.escape(item["label"])
+            + "</a>"
+        )
+    return "".join(links)
 
 
 def render_pdf_links(current_band=None):
@@ -416,6 +444,7 @@ def render_index(bands, songs, current_band=None):
     band_filter = '<div class="filter-group" id="band-filters"></div>' if is_root else ""
     band_header = "<th>Band</th>" if is_root else ""
     importer_link = '<a class="toolbar-link" id="importer-link" href="_work/busk-import.html">importer</a>' if is_root else ""
+    project_links = render_project_links(current_band)
     pdf_links = render_pdf_links(current_band)
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
@@ -457,6 +486,7 @@ def render_index(bands, songs, current_band=None):
       <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
     </label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
+    {project_links}
     {pdf_links}
     {importer_link}
   </div>
