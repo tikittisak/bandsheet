@@ -25,9 +25,12 @@ h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:600;line-height:1.1
 .filter-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.filter-label{font-family:'Inter',sans-serif;font-size:10px;color:var(--ui-muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 .filter-field{display:flex;align-items:center;gap:6px}.filter-field .filter-input{width:104px}.filter-field.vocalist .filter-input{width:150px}
 .filter-pill,.clear-btn{font-family:'Inter',sans-serif;font-size:10px;font-weight:500;padding:5px 9px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text-muted);cursor:pointer;transition:background .12s,border-color .12s,color .12s;white-space:nowrap}
-.filter-pill:hover,.clear-btn:hover{background:var(--ui-hover);border-color:var(--border-strong);color:var(--ui-ink)}.filter-pill.active{background:var(--ui-active);border-color:var(--ui-active);color:#f8fbff}
-.toolbar-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;padding:4px 8px;border:none;border-radius:6px;background:transparent;color:var(--ui-ink);text-decoration:none;cursor:pointer;transition:background .1s,color .1s;white-space:nowrap;height:27px;display:inline-flex;align-items:center;letter-spacing:.012em;text-transform:lowercase}
-.toolbar-link:hover{background:var(--ui-hover);color:var(--ui-ink)}
+.filter-pill{position:relative;overflow:hidden;padding-left:13px}.filter-pill::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--item-color,var(--accent));opacity:.9}
+.filter-pill:hover,.clear-btn:hover{background:var(--ui-hover);border-color:var(--border-strong);color:var(--ui-ink)}.filter-pill.active{background:var(--ui-active);border-color:var(--ui-active);color:#f8fbff}.filter-pill.active::before{background:#f8fbff;opacity:.75}
+.toolbar-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;padding:4px 8px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ui-ink);text-decoration:none;cursor:pointer;transition:background .1s,color .1s,border-color .1s;white-space:nowrap;height:27px;display:inline-flex;align-items:center;letter-spacing:.012em;text-transform:lowercase}
+.toolbar-link.accent-link{position:relative;overflow:hidden;padding-left:13px;border-color:var(--border);background:var(--surface);color:var(--text-muted)}
+.toolbar-link.accent-link::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--item-color,var(--accent))}
+.toolbar-link:hover{background:var(--ui-hover);border-color:var(--border-strong);color:var(--ui-ink)}
 main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 .band-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:8px 0 24px}
 .band-card{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 13px 11px 15px;position:relative;overflow:hidden;transition:border-color .15s,background .15s}.band-card:hover{border-color:var(--border-strong);background:#fbfdff}.band-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--band-color)}
@@ -68,7 +71,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
       <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
     </label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
-    <a class="toolbar-link" href="bluebird-jazz.html">project · Bluebird</a>
+    <a class="toolbar-link accent-link" style="--item-color:#EB3C1F" href="bluebird-jazz.html">project · Bluebird</a>
     
     
   </div>
@@ -720,8 +723,8 @@ function buildFilters(){
   var bf = document.getElementById('band-filters');
   if(bf){
     bf.innerHTML = '<span class="filter-label">Band:</span>' +
-      '<button class="filter-pill" data-band="all" onclick="setBandFilter(\'all\')">All</button>' +
-      ALL_BANDS.map(function(b){return '<button class="filter-pill" data-band="'+esc(b.id)+'" onclick="setBandFilter(\''+esc(b.id)+'\')">'+esc(b.name)+'</button>';}).join('');
+      '<button class="filter-pill" style="--item-color:#60758d" data-band="all" onclick="setBandFilter(\'all\')">All</button>' +
+      ALL_BANDS.map(function(b){return '<button class="filter-pill" style="--item-color:'+esc(b.color)+'" data-band="'+esc(b.id)+'" onclick="setBandFilter(\''+esc(b.id)+'\')">'+esc(b.name)+'</button>';}).join('');
   }
   syncFilterState();
 }
