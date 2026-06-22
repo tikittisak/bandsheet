@@ -81,6 +81,10 @@ bandsheet/
 - อ่าน `irealpro-form-reference.md` ก่อนแปล chart จาก iReal Pro โดยเฉพาะ Coda, D.S./D.C., Link, และ split bar
 - ถ้า user ให้ bar map จาก drum track / score / screenshot reference ให้ถือว่า bar map นั้นเป็น source of truth สำหรับโครงคุมวง
 - ห้าม resize section หรือเพิ่ม/ลด bar เพื่อให้พอดีกับ chord text ที่ paste มา ถ้าคอร์ดไม่พอดี ให้ใส่หลายคอร์ดใน bar เดียว, เว้น bar เป็น `—`, หรือถาม user ก่อน
+- เมื่อแปลงจาก PDF/PNG score ให้ดูภาพจริงหรือ word coordinate ก่อนเสมอ ห้ามนับ chord token เรียงไปเป็น bar เอง
+- ให้ map chord ตามตำแหน่งใต้เลข bar/ช่อง bar ใน score: ถ้า 1 bar มีหลาย chord ให้ใส่ใน bar เดียวด้วย `|` เช่น `Fmaj7|E7` หรือ `Am7|G#m7|Gm7|C7`
+- ใช้ `-` เฉพาะเมื่อ source หรือ user ตั้งใจให้เป็น passing/chromatic chord จริง ๆ ไม่ใช้แทน chord หลายตัวใน bar เดียว
+- หลัง generate จาก PDF/PNG ต้องเทียบ phrase แรกของอย่างน้อย 1 section กับภาพจริงก่อนส่ง โดยเช็ก bar count, chord grouping, และ lyric line แรก
 - Final bandsheet ไม่ควรอ้างชื่อ website/source ภายนอกในตัวหน้าเพลง เว้นแต่ user สั่งชัดเจน ให้เก็บ source/method note แบบนี้ไว้ใน project notes หรือ `_work/` แทน
 
 ---

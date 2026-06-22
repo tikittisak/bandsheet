@@ -61,3 +61,7 @@ python3 _work/bar-extractor/validate_bars.py _work/bar-extractor/outputs/{song-s
 - Do not use web chord data.
 - If a section is ambiguous, keep the best guess but add confidence and warning.
 - If screenshots appear to be from a different arrangement/version, say so clearly.
+- For any PDF/PNG-to-bandsheet work that does include chords, inspect the visual bar grid or word coordinates first. Never convert a plain text chord stream into bars by token order alone.
+- Chords belong to the numbered bar cell they sit under. Multiple chords inside one bar must remain in one `bar.c` joined with `|`, for example `Fmaj7|E7` or `Am7|G#m7|Gm7|C7`.
+- Use `-` only for intentional passing/chromatic notation from the source or user, not for splitting several chords that live in one bar.
+- Before delivering generated HTML from a score image/PDF, compare the first phrase of at least one section against the source image for bar count, chord grouping, and first lyric line.
