@@ -123,6 +123,14 @@ var BANDS = [
     "path": "parkhaus-studio/",
     "indexHref": "parkhaus-studio/index.html",
     "songCount": 0
+  },
+  {
+    "id": "the-light-of-erebus",
+    "name": "The Light of Erebus",
+    "color": "#7c3aed",
+    "path": "the-light-of-erebus/",
+    "indexHref": "the-light-of-erebus/index.html",
+    "songCount": 5
   }
 ];
 var SONGS = [];
@@ -204,7 +212,7 @@ function renderSongs(){
   var tbody = document.getElementById('song-list');
   var empty = document.getElementById('empty-state');
   tbody.innerHTML = songs.map(function(s,i){
-    var href = IS_ROOT ? s.href : s.file;
+    var href = IS_ROOT ? s.href : (s.bandHref || s.file);
     var bandCell = IS_ROOT ? '<td class="song-band"><span class="band-dot" style="background:'+esc(s.bandColor)+'"></span>'+esc(s.bandName)+'</td>' : '';
     return '<tr class="song-row" data-href="'+esc(href)+'" tabindex="0" onclick="openSongRow(event,this)" onkeydown="openSongRowKey(event,this)">' +
       '<td class="song-num">'+String(i+1).padStart(2,'0')+'</td>' +

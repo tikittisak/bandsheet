@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ti.muse · Bandsheet</title>
+<title>The Light of Erebus · Bandsheet</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--text-faint:#b7c3d1;--ui-ink:#5f6f83;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d;--accent:#3b82f6}
@@ -48,10 +48,10 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
 <body class="band-index">
 <header>
   <div class="page-shell">
-    <div class="breadcrumb"><a href="../">Band Sheet</a> / ti.muse</div>
+    <div class="breadcrumb"><a href="../">Band Sheet</a> / The Light of Erebus</div>
     <div class="site-label">Band index</div>
-    <h1>ti.muse</h1>
-    <p class="sub">2 songs · searchable by key, vocalist, and artist</p>
+    <h1>The Light of Erebus</h1>
+    <p class="sub">5 songs · searchable by key, vocalist, and artist</p>
     <div class="version-pill">bandsheet v6.17 · updated 2026-06-02</div>
   </div>
 </header>
@@ -135,39 +135,84 @@ var BANDS = [
 ];
 var SONGS = [
   {
-    "title": "guitar-practice-1",
-    "artist": "Ta Woraseth",
-    "key": "",
-    "bpm": "",
+    "title": "The Adventures of Rain Dance Maggie",
+    "artist": "Red Hot Chili Peppers",
+    "key": "E minor",
+    "bpm": "106",
     "vocalist": "",
-    "bars": "16",
-    "file": "guitar-practice-1.html",
-    "bandId": "ti-muse",
-    "bandName": "ti.muse",
-    "bandColor": "#60a5fa",
-    "href": "ti-muse/guitar-practice-1.html",
-    "bandHref": "guitar-practice-1.html",
-    "setlist": ""
+    "bars": "126",
+    "file": "the-adventures-of-rain-dance-maggie.html",
+    "bandId": "the-light-of-erebus",
+    "bandName": "The Light of Erebus",
+    "bandColor": "#7c3aed",
+    "href": "songs/the-adventures-of-rain-dance-maggie.html",
+    "bandHref": "../songs/the-adventures-of-rain-dance-maggie.html",
+    "setlist": "1"
   },
   {
-    "title": "Sleepwalk",
-    "artist": "Larry Carlton",
-    "key": "C / Eb",
-    "bpm": "~133 BPM",
+    "title": "Take Me Out",
+    "artist": "Franz Ferdinand",
+    "key": "E minor",
+    "bpm": "143",
     "vocalist": "",
-    "bars": "136",
-    "file": "sleepwalk.html",
-    "bandId": "ti-muse",
-    "bandName": "ti.muse",
-    "bandColor": "#60a5fa",
-    "href": "ti-muse/sleepwalk.html",
-    "bandHref": "sleepwalk.html",
-    "setlist": ""
+    "bars": "110",
+    "file": "take-me-out.html",
+    "bandId": "the-light-of-erebus",
+    "bandName": "The Light of Erebus",
+    "bandColor": "#7c3aed",
+    "href": "songs/take-me-out.html",
+    "bandHref": "../songs/take-me-out.html",
+    "setlist": "2"
+  },
+  {
+    "title": "Megalomaniac",
+    "artist": "Incubus",
+    "key": "G minor",
+    "bpm": "140",
+    "vocalist": "",
+    "bars": "139",
+    "file": "megalomaniac.html",
+    "bandId": "the-light-of-erebus",
+    "bandName": "The Light of Erebus",
+    "bandColor": "#7c3aed",
+    "href": "songs/megalomaniac.html",
+    "bandHref": "../songs/megalomaniac.html",
+    "setlist": "3"
+  },
+  {
+    "title": "Hysteria",
+    "artist": "Muse",
+    "key": "A minor",
+    "bpm": "93",
+    "vocalist": "",
+    "bars": "88",
+    "file": "hysteria.html",
+    "bandId": "the-light-of-erebus",
+    "bandName": "The Light of Erebus",
+    "bandColor": "#7c3aed",
+    "href": "songs/hysteria.html",
+    "bandHref": "../songs/hysteria.html",
+    "setlist": "4"
+  },
+  {
+    "title": "ศรัทธา",
+    "artist": "หิน เหล็ก ไฟ",
+    "key": "G",
+    "bpm": "80",
+    "vocalist": "",
+    "bars": "88",
+    "file": "sattha.html",
+    "bandId": "the-light-of-erebus",
+    "bandName": "The Light of Erebus",
+    "bandColor": "#7c3aed",
+    "href": "songs/sattha.html",
+    "bandHref": "../songs/sattha.html",
+    "setlist": "5"
   }
 ];
 var ALL_BANDS = BANDS;
 var ALL_SONGS = SONGS;
-var CURRENT_BAND = "ti-muse";
+var CURRENT_BAND = "the-light-of-erebus";
 var IS_ROOT = false;
 
 var activeBand = CURRENT_BAND || 'all';

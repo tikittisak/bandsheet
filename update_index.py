@@ -8,8 +8,10 @@ import subprocess
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 VERSION = "bandsheet v6.17"
 UPDATED = "2026-06-02"
+SONG_LIBRARY_DIR = "songs"
+BAND_SETLIST_DIR = "bands"
 
-SKIP_DIRS = {"backup", "_archive", ".git", ".claude", "PDF", "pdf", "Backup", "__pycache__", "node_modules", "Note Values", "90alter"}
+SKIP_DIRS = {"backup", "_archive", ".git", ".claude", "PDF", "pdf", "Backup", "__pycache__", "node_modules", "Note Values", "90alter", SONG_LIBRARY_DIR, BAND_SETLIST_DIR}
 SKIP_FILES = {
     "index.html",
     "_template.html",
@@ -28,9 +30,10 @@ BAND_META = {
     "the-maewjons": {"name": "THE MÆWJØNS", "color": "#EB3C1F"},
     "parkhaus108": {"name": "PARKHAUS108", "color": "#6D132D"},
     "parkhaus-studio": {"name": "PARKHAUS Studio", "color": "#6D132D"},
+    "the-light-of-erebus": {"name": "The Light of Erebus", "color": "#7c3aed"},
 }
 
-BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "parkhaus-studio"]
+BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "parkhaus-studio", "the-light-of-erebus"]
 
 PDF_LINKS = [
     {
@@ -183,8 +186,39 @@ def read_existing_setlists(index_path):
         return {}
 
 
+def read_band_song_lists():
+    folder = os.path.join(BAND_ROOT, BAND_SETLIST_DIR)
+    if not os.path.isdir(folder):
+        return {}
+    out = {}
+    for file_name in sorted(os.listdir(folder)):
+        if not file_name.endswith(".json"):
+            continue
+        band_id = os.path.splitext(file_name)[0]
+        path = os.path.join(folder, file_name)
+        try:
+            data = json.loads(read_text(path))
+        except Exception as exc:
+            raise ValueError(f"Invalid band setlist JSON: {file_name}: {exc}")
+        songs = data.get("songs", [])
+        if not isinstance(songs, list):
+            raise ValueError(f"{file_name}: songs must be a list")
+        out[band_id] = songs
+    return out
+
+
+def song_library_path(song_ref):
+    if not song_ref or os.path.isabs(song_ref) or ".." in song_ref.split("/"):
+        raise ValueError(f"Invalid song library path: {song_ref}")
+    if not song_ref.endswith(".html"):
+        raise ValueError(f"Song library path must be an HTML file: {song_ref}")
+    return os.path.join(BAND_ROOT, SONG_LIBRARY_DIR, song_ref)
+
+
 def discover_bands():
+    band_song_lists = read_band_song_lists()
     found = []
+    seen = set()
     for name in sorted(os.listdir(BAND_ROOT)):
         path = os.path.join(BAND_ROOT, name)
         if not os.path.isdir(path) or name in SKIP_DIRS or name.startswith("."):
@@ -199,18 +233,60 @@ def discover_bands():
             "path": name + "/",
             "indexHref": name + "/index.html",
         })
+        seen.add(name)
+    for name in sorted(band_song_lists):
+        if name in seen:
+            continue
+        meta = BAND_META.get(name, {"name": name, "color": "#888888"})
+        found.append({
+            "id": name,
+            "name": meta["name"],
+            "color": meta["color"],
+            "path": name + "/",
+            "indexHref": name + "/index.html",
+        })
     found.sort(key=lambda b: BAND_ORDER.index(b["id"]) if b["id"] in BAND_ORDER else 999)
     return found
 
 
 def collect_songs(bands):
+    band_song_lists = read_band_song_lists()
     setlists = {}
     for band in bands:
         setlists.update(read_existing_setlists(os.path.join(BAND_ROOT, band["id"], "index.html")))
 
     songs = []
     for band in bands:
+        if band["id"] in band_song_lists:
+            for entry in band_song_lists[band["id"]]:
+                if isinstance(entry, str):
+                    song_ref = entry
+                    setlist_value = ""
+                elif isinstance(entry, dict):
+                    song_ref = entry.get("file", "")
+                    setlist_value = str(entry.get("setlist", "")).strip()
+                else:
+                    raise ValueError(f"{band['id']}: song entries must be strings or objects")
+                filepath = song_library_path(song_ref)
+                if not os.path.exists(filepath):
+                    raise ValueError(f"{band['id']}: song library file is missing: {song_ref}")
+                song = extract_meta(filepath)
+                if not song:
+                    continue
+                file_name = os.path.basename(song_ref)
+                song["bandId"] = band["id"]
+                song["bandName"] = band["name"]
+                song["bandColor"] = band["color"]
+                song["file"] = file_name
+                song["href"] = SONG_LIBRARY_DIR + "/" + song_ref
+                song["bandHref"] = "../" + SONG_LIBRARY_DIR + "/" + song_ref
+                song["setlist"] = setlist_value or setlists.get((band["id"], file_name), setlists.get(("", file_name), ""))
+                songs.append(song)
+            continue
+
         band_dir = os.path.join(BAND_ROOT, band["id"])
+        if not os.path.isdir(band_dir):
+            continue
         html_files = sorted(
             f for f in os.listdir(band_dir)
             if f.endswith(".html") and f not in SKIP_FILES
@@ -223,6 +299,7 @@ def collect_songs(bands):
             song["bandName"] = band["name"]
             song["bandColor"] = band["color"]
             song["href"] = band["path"] + file_name
+            song["bandHref"] = file_name
             song["setlist"] = setlists.get((band["id"], file_name), setlists.get(("", file_name), ""))
             songs.append(song)
 
@@ -397,7 +474,7 @@ function renderSongs(){
   var tbody = document.getElementById('song-list');
   var empty = document.getElementById('empty-state');
   tbody.innerHTML = songs.map(function(s,i){
-    var href = IS_ROOT ? s.href : s.file;
+    var href = IS_ROOT ? s.href : (s.bandHref || s.file);
     var bandCell = IS_ROOT ? '<td class="song-band"><span class="band-dot" style="background:'+esc(s.bandColor)+'"></span>'+esc(s.bandName)+'</td>' : '';
     return '<tr class="song-row" data-href="'+esc(href)+'" tabindex="0" onclick="openSongRow(event,this)" onkeydown="openSongRowKey(event,this)">' +
       '<td class="song-num">'+String(i+1).padStart(2,'0')+'</td>' +
