@@ -1693,8 +1693,8 @@ function toggleSpelling(){
   if(btn){btn.textContent='♯/♭';btn.classList.toggle('primary',SPELL==='flat');}
 }
 function goHome(){
-  var inBand=/\/(ti-muse|the-maewjons|parkhaus108|90alter|parkhaus-studio)\//.test(location.pathname);
-  window.location.href=inBand?'../index.html':'index.html';
+  var inNestedLibrary=/\/(songs|ti-muse|the-maewjons|parkhaus108|90alter|parkhaus-studio)\//.test(location.pathname);
+  window.location.href=inNestedLibrary?'../index.html':'index.html';
 }
 
 
