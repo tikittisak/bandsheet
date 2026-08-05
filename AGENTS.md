@@ -1,5 +1,45 @@
 # Bandsheet Project — Codex Instructions
 
+## Right-Tool Escalation Rule
+
+Follow `00-vault-system/ai-working/right-ai-tool-escalation-rule.md`. When the
+current tool or session becomes materially inefficient, recommend either a fresh
+session in the same tool or the best-fit different tool. Always consider the current
+tool itself, explain why, and provide a ready-to-use handoff. Do not switch without
+Ti's approval.
+
+## Cost-Aware Model Routing Rule
+
+Follow `00-vault-system/ai-working/cost-aware-model-routing-rule.md`. Use the
+lightest reliable model for each work phase; step up before critical reasoning or
+final review, step down afterward, and consider a fresh session to reduce stale context.
+
+## Ti Style Rule
+
+For Ti-facing writing, thinking, summarizing, planning, and decision-support work, follow the vault-wide style seed:
+
+```text
+00-vault-system/ai-working/ti-style-value-density-principle.md
+```
+
+Operating summary:
+
+- Optimize for usable thinking, not pleasant prose.
+- Answer the core question first.
+- Prefer tables, rankings, frameworks, decision logic, and reusable artifacts over narrative.
+- Default output modes: `answer`, `table`, `patch`, `prompt`, `review`.
+- Ask first when format changes artifact, voice, audience, or decision path.
+- Use the short companion by default; read the full policy only for style-sensitive work or policy updates.
+- Apply the style silently; do not explain the rule back to Ti unless asked.
+- Cut generic intros, obvious explanations, public-friendly filler, and repeated summaries.
+- Preserve Ti's thinking voice; do not replace it with AI voice.
+- If prose becomes polished but low-value, convert it back into a thinking artifact.
+
+Scope:
+
+- Default for direct communication with Ti and personal thinking notes.
+- For company/public content, combine this with the project brand, claims, legal, and channel rules.
+
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
 Template อยู่ที่ `_template.html` — **current version: v6.17**
@@ -111,6 +151,18 @@ bandsheet/
 ---
 
 ## AI Import Guard — v6.17
+
+ถ้า user ส่งไฟล์ HTML ที่แก้จาก browser/download มา:
+- **ห้าม copy HTML ทั้งไฟล์ทับ song file โดยตรง**
+- ใช้ `import_edited_song_html.py` เท่านั้น เพื่อดึงเฉพาะ metadata, `SECTIONS`, `FOOTER`, `SETTINGS` แล้ว regenerate จาก `_template.html`
+- ก่อนเขียนจริงให้รัน `--check`; หลังเขียนให้รัน `python3 update_index.py`
+
+ตัวอย่าง:
+```bash
+python3 import_edited_song_html.py "/Users/ti_am1/Downloads/ศรัทธา edit.html" --output songs/sattha.html --check
+python3 import_edited_song_html.py "/Users/ti_am1/Downloads/ศรัทธา edit.html" --output songs/sattha.html
+python3 update_index.py
+```
 
 ถ้าใช้ ChatGPT / Claude / AI ตัวอื่นเพื่อช่วยนำเข้าข้อมูล:
 - ให้ AI สร้าง **JSON เท่านั้น** อย่าให้แก้ HTML ทั้งไฟล์
@@ -306,6 +358,7 @@ Codex "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่]
 ## ข้อควรระวัง
 - **ห้ามหา chord จาก web** — ผิดพลาดได้ง่าย user จะให้มาเอง
 - **อย่าแก้ `_template.html` โดยตรงเพื่อสร้างเพลง** — ใช้ inject แล้ว write ไปยัง path ใหม่
+- **อย่าใช้ `cp Downloads/*.html songs/*.html`** — ไฟล์ browser/download มี rendered DOM และ CSS เก่าฝังอยู่ ให้ใช้ `import_edited_song_html.py`
 - **ถ้า update template** (เพิ่ม feature, เปลี่ยน layout) — backup ก่อน แล้ว update ทุก song file พร้อมกัน
 - **ตรวจ marker** `// ── END DATA ──`, `// ── END FOOTER ──`, `// ── END SETTINGS ──` ก่อน inject
 - Lyric note block ต้องใช้ `"type": "note"` — ถ้าไม่มี field นี้จะ render เป็น chord section แทน

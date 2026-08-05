@@ -259,7 +259,7 @@ def inject(template, payload):
     doc = swap_var(doc, "// ── END DATA ──", "var SECTIONS = ", json.dumps(payload["sections"], ensure_ascii=False))
     doc = swap_var(doc, "// ── END FOOTER ──", "var FOOTER = ", json.dumps(payload["footer"], ensure_ascii=False))
     doc = swap_var(doc, "// ── END SETTINGS ──", "var SETTINGS = ", json.dumps(payload["settings"], ensure_ascii=False))
-    return "<!DOCTYPE html>\n" + doc
+    return doc if doc.lstrip().lower().startswith("<!doctype html>") else "<!DOCTYPE html>\n" + doc
 
 
 def main():

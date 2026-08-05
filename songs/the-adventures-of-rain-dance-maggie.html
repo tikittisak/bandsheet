@@ -313,6 +313,8 @@ body:not(.edit-mode) .add-rhythm-hint{display:none!important}
 body.view-mini{--cell-h:44px;--gap:0px}
 body.view-mini .section{margin-bottom:13px}
 body.view-mini .section-head{margin-bottom:4px}
+body.edit-mode.view-mini .section-actions{display:grid;grid-template-columns:repeat(2,max-content);gap:4px;width:max-content;max-width:112px}
+body.edit-mode.view-mini .section-actions .sec-btn{padding:2px 6px;min-width:20px}
 body.view-mini .bar-row{min-height:calc(var(--cell-h) + 1px);padding:1px 0;margin-bottom:4px}
 body.view-mini .bar-row.repeat-break-after,body.edit-mode .bar-row.repeat-break-after{margin-bottom:18px}
 body.view-mini .bar-cell{padding:12px 3px 0 6px;height:var(--cell-h);min-height:var(--cell-h);border:none;border-radius:1px;overflow:hidden;box-shadow:inset 2px 0 0 var(--bar-accent,#3b82f6);flex-direction:column;align-items:flex-start;justify-content:center}
@@ -330,7 +332,7 @@ body.view-mini .bar-col.has-rhythm .bar-cell{border-radius:0 0 1px 1px}
 body.view-mini .bar-cell.skip-count .bar-num{opacity:.18}
 body.view-mini .bar-cell.skip-count,body.view-mini .bar-cell.skip-count:hover{box-shadow:none}
 body.view-mini .count-bypass-btn{border:none;border-radius:1px;font-size:9px;font-weight:700;font-family:var(--ui-font)}
-body.edit-mode.view-mini .bar-cell{justify-content:flex-start;padding-bottom:14px}
+body.edit-mode.view-mini .bar-cell{justify-content:center;padding-bottom:0}
 body.edit-mode.view-mini .bar-chord{flex:0 0 1.05em;max-height:1.05em;white-space:nowrap}
 body.edit-mode.view-mini .bar-chord-split{flex:0 0 18px;max-height:18px}
 body.edit-mode.view-mini .highlight-btn,body.edit-mode.view-mini .rhythm-bar-btn,body.edit-mode.view-mini .count-bypass-btn{width:12px;height:12px;font-size:8px}
@@ -1511,8 +1513,9 @@ function render(){
     addNoteBtn.onclick=(function(idx){return function(e){e.stopPropagation();addNoteSection(idx+1,idx);};})(si);
 	    addActs.appendChild(addSecBtn);addActs.appendChild(addNoteBtn);
 	    if(sec.type!=='note'){addActs.appendChild(barCountInp);addActs.appendChild(addRowBtn);addActs.appendChild(removeRowBtn);acts.appendChild(dupBtn);}
+    addActs.appendChild(delSecBtn);
     acts.appendChild(renumBtn);
-    acts.appendChild(upBtn);acts.appendChild(dnBtn);acts.appendChild(rstSecBtn);acts.appendChild(delSecBtn);
+    acts.appendChild(upBtn);acts.appendChild(dnBtn);acts.appendChild(rstSecBtn);
     if(sec.type==='note'){
       // migrate old single-text data
       if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];

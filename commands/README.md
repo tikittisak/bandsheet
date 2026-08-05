@@ -44,6 +44,16 @@ bash commands/push-site.sh "update bandsheet workflow and parkhaus songs"
 bash commands/push-site.sh "add: blue-bird bandsheet"
 ```
 
+## Import ไฟล์ HTML ที่แก้จาก browser/download
+
+ห้าม copy ไฟล์จาก Downloads ทับ `songs/*.html` ตรง ๆ ให้ดึงเฉพาะ data แล้ว regenerate จาก `_template.html`
+
+```bash
+python3 import_edited_song_html.py "/Users/ti_am1/Downloads/ศรัทธา edit.html" --output songs/sattha.html --check
+python3 import_edited_song_html.py "/Users/ti_am1/Downloads/ศรัทธา edit.html" --output songs/sattha.html
+python3 update_index.py
+```
+
 ## Workflow รอง อัปเดต index อย่างเดียว
 
 ใช้เมื่อต้องการ rebuild หน้า index ในเครื่อง แต่ยังไม่อยากเช็กหรือ push
