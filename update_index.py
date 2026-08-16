@@ -598,11 +598,6 @@ def write_playlist_pages():
     for playlist in read_playlists():
         band_id = playlist["bandId"]
         out_path = os.path.join(BAND_ROOT, "playlists", band_id, playlist["slug"] + ".html")
-        if os.path.exists(out_path):
-            if playlist["slug"] == "2026-muse-cover-main" and band_id == "tmj":
-                doc = read_text(out_path).replace('href="../../../tmj/index.html"', 'href="../../tmj/index.html"')
-                write_text(out_path, doc)
-            continue
         band_name = BAND_META.get(band_id, {"name": band_id})["name"]
         rows = []
         for item in playlist["songs"]:
