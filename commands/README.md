@@ -27,6 +27,16 @@ bash commands/sync-latest.sh
 bash commands/dry-run.sh
 ```
 
+ก่อนแสดงรายการไฟล์ คำสั่งนี้จะตรวจ source truth, duplicate references,
+playlist links, sheet metadata และ external dependencies พร้อมเขียนรายงานไว้ที่
+`_work/reports/bandsheet-change-report-YYYY-MM-DD.md`
+
+ถ้าต้องการตรวจอย่างเดียวโดยไม่ทำ dry-run:
+
+```bash
+bash commands/validate.sh
+```
+
 คำสั่งนี้จะ:
 - อัปเดต index ให้ล่าสุด
 - แสดงรายการไฟล์ที่จะถูกส่งขึ้น GitHub

@@ -1,0 +1,31 @@
+{
+  "title": "2026 Speaker Box",
+  "band": "parkhaus108",
+  "songs": [
+    {"setlist": "1", "file": "dee-gern-pai.html"},
+    {"setlist": "2", "file": "lom-hai-jai.html"},
+    {"setlist": "3", "file": "mai-bok-thoe.html"},
+    {"setlist": "4", "file": "its-my-life.html"},
+    {"setlist": "5", "file": "keuab.html"},
+    {"setlist": "6", "file": "birds-of-a-feather.html"},
+    {"setlist": "7", "file": "she-will-be-loved.html"},
+    {"setlist": "8", "file": "shallow.html"},
+    {"setlist": "9", "file": "ride.html"},
+    {"setlist": "10", "file": "if-i-aint-got-you.html"},
+    {"setlist": "11", "file": "saving-all-my-love.html"},
+    {"setlist": "12", "file": "versace-on-the-floor.html"},
+    {"setlist": "13", "file": "get-lucky.html"},
+    {"setlist": "14", "file": "love-story.html"},
+    {"setlist": "15", "file": "just-the-two-of-us-wawa.html"},
+    {"setlist": "16", "file": "just-the-two-of-us.html"},
+    {"setlist": "17", "file": "lum-long.html"},
+    {"setlist": "18", "file": "koey.html"},
+    {"setlist": "19", "file": "gohok.html"},
+    {"setlist": "20", "file": "sabai-dee.html"},
+    {"setlist": "21", "file": "busbaa.html"},
+    {"setlist": "22", "file": "blue-bird.html"},
+    {"setlist": "23", "file": "butter-fly.html"},
+    {"setlist": "24", "file": "stay-with-me.html"},
+    {"setlist": "25", "file": "the-game-of-love.html"}
+  ]
+}

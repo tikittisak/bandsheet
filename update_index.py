@@ -4,14 +4,13 @@ import json
 import os
 import re
 import subprocess
+from pathlib import Path
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = "bandsheet v6.17"
-UPDATED = "2026-06-02"
 SONG_LIBRARY_DIR = "songs"
-BAND_SETLIST_DIR = "bands"
+BAND_CATALOG_DIR = "bands"
 
-SKIP_DIRS = {"backup", "_archive", ".git", ".claude", "PDF", "pdf", "Backup", "__pycache__", "node_modules", "Note Values", "90alter", SONG_LIBRARY_DIR, BAND_SETLIST_DIR}
+SKIP_DIRS = {"backup", "_archive", ".git", ".claude", "PDF", "pdf", "Backup", "__pycache__", "node_modules", "Note Values", "90alter", SONG_LIBRARY_DIR, BAND_CATALOG_DIR}
 SKIP_FILES = {
     "index.html",
     "_template.html",
@@ -22,18 +21,17 @@ SKIP_FILES = {
     "CLAUDE.md",
     "bandsheet_workflow_summary.html",
     "_prototype-rhythm-strip.html",
-    "bluebird-jazz.html",
 }
 
 BAND_META = {
     "ti-muse": {"name": "ti.muse", "color": "#60a5fa"},
-    "the-maewjons": {"name": "THE MÆWJØNS", "color": "#EB3C1F"},
+    "tmj": {"name": "THE MÆWJØNS", "color": "#EB3C1F"},
     "parkhaus108": {"name": "PARKHAUS108", "color": "#6D132D"},
     "parkhaus-studio": {"name": "PARKHAUS Studio", "color": "#6D132D"},
-    "the-light-of-erebus": {"name": "The Light of Erebus", "color": "#7c3aed"},
+    "tloe": {"name": "The Light of Erebus", "color": "#7c3aed"},
 }
 
-BAND_ORDER = ["ti-muse", "the-maewjons", "parkhaus108", "parkhaus-studio", "the-light-of-erebus"]
+BAND_ORDER = ["ti-muse", "tmj", "parkhaus108", "parkhaus-studio", "tloe"]
 
 PDF_LINKS = [
     {
@@ -46,12 +44,31 @@ PDF_LINKS = [
 
 PROJECT_LINKS = [
     {
-        "bandId": "the-maewjons",
-        "label": "project · Bluebird",
-        "href": "the-maewjons/bluebird-jazz.html",
+        "bandId": "tmj",
+        "label": "playlist · 2026 Muse Cover Main",
+        "href": "playlists/tmj/2026-muse-cover-main.html",
         "color": "#EB3C1F",
     },
 ]
+
+
+def read_playlists():
+    out = []
+    playlist_root = os.path.join(BAND_ROOT, "playlists")
+    if not os.path.isdir(playlist_root):
+        return out
+    for band_id in sorted(os.listdir(playlist_root)):
+        band_dir = os.path.join(playlist_root, band_id)
+        if not os.path.isdir(band_dir):
+            continue
+        for file_name in sorted(os.listdir(band_dir)):
+            if not file_name.endswith(".json"):
+                continue
+            path = os.path.join(band_dir, file_name)
+            data = json.loads(read_text(path))
+            slug = os.path.splitext(file_name)[0]
+            out.append({"bandId": band_id, "slug": slug, "title": data.get("title", slug), "songs": data.get("songs", [])})
+    return out
 
 
 def read_text(path):
@@ -152,7 +169,6 @@ def extract_meta(filepath):
         return None
     if artist.lower() in {"artist", "song artist"}:
         artist = ""
-
     return {
         "title": title,
         "artist": artist,
@@ -187,7 +203,7 @@ def read_existing_setlists(index_path):
 
 
 def read_band_song_lists():
-    folder = os.path.join(BAND_ROOT, BAND_SETLIST_DIR)
+    folder = os.path.join(BAND_ROOT, BAND_CATALOG_DIR)
     if not os.path.isdir(folder):
         return {}
     out = {}
@@ -218,25 +234,7 @@ def song_library_path(song_ref):
 def discover_bands():
     band_song_lists = read_band_song_lists()
     found = []
-    seen = set()
-    for name in sorted(os.listdir(BAND_ROOT)):
-        path = os.path.join(BAND_ROOT, name)
-        if not os.path.isdir(path) or name in SKIP_DIRS or name.startswith("."):
-            continue
-        if not os.path.exists(os.path.join(path, "index.html")):
-            continue
-        meta = BAND_META.get(name, {"name": name, "color": "#888888"})
-        found.append({
-            "id": name,
-            "name": meta["name"],
-            "color": meta["color"],
-            "path": name + "/",
-            "indexHref": name + "/index.html",
-        })
-        seen.add(name)
     for name in sorted(band_song_lists):
-        if name in seen:
-            continue
         meta = BAND_META.get(name, {"name": name, "color": "#888888"})
         found.append({
             "id": name,
@@ -251,14 +249,12 @@ def discover_bands():
 
 def collect_songs(bands):
     band_song_lists = read_band_song_lists()
-    setlists = {}
-    for band in bands:
-        setlists.update(read_existing_setlists(os.path.join(BAND_ROOT, band["id"], "index.html")))
-
     songs = []
     for band in bands:
-        if band["id"] in band_song_lists:
-            for entry in band_song_lists[band["id"]]:
+        if band["id"] not in band_song_lists:
+            raise ValueError(f"Missing band catalog: {band['id']}.json")
+        seen_in_band = set()
+        for entry in band_song_lists[band["id"]]:
                 if isinstance(entry, str):
                     song_ref = entry
                     setlist_value = ""
@@ -267,6 +263,9 @@ def collect_songs(bands):
                     setlist_value = str(entry.get("setlist", "")).strip()
                 else:
                     raise ValueError(f"{band['id']}: song entries must be strings or objects")
+                if song_ref in seen_in_band:
+                    raise ValueError(f"{band['id']}: duplicate song reference: {song_ref}")
+                seen_in_band.add(song_ref)
                 filepath = song_library_path(song_ref)
                 if not os.path.exists(filepath):
                     raise ValueError(f"{band['id']}: song library file is missing: {song_ref}")
@@ -280,28 +279,8 @@ def collect_songs(bands):
                 song["file"] = file_name
                 song["href"] = SONG_LIBRARY_DIR + "/" + song_ref
                 song["bandHref"] = "../" + SONG_LIBRARY_DIR + "/" + song_ref
-                song["setlist"] = setlist_value or setlists.get((band["id"], file_name), setlists.get(("", file_name), ""))
+                song["setlist"] = setlist_value
                 songs.append(song)
-            continue
-
-        band_dir = os.path.join(BAND_ROOT, band["id"])
-        if not os.path.isdir(band_dir):
-            continue
-        html_files = sorted(
-            f for f in os.listdir(band_dir)
-            if f.endswith(".html") and f not in SKIP_FILES
-        )
-        for file_name in html_files:
-            song = extract_meta(os.path.join(band_dir, file_name))
-            if not song:
-                continue
-            song["bandId"] = band["id"]
-            song["bandName"] = band["name"]
-            song["bandColor"] = band["color"]
-            song["href"] = band["path"] + file_name
-            song["bandHref"] = file_name
-            song["setlist"] = setlists.get((band["id"], file_name), setlists.get(("", file_name), ""))
-            songs.append(song)
 
     counts = {band["id"]: 0 for band in bands}
     for song in songs:
@@ -309,10 +288,6 @@ def collect_songs(bands):
     for band in bands:
         band["songCount"] = counts[band["id"]]
     return songs
-
-
-def render_version_badge():
-    return f"{VERSION} · updated {UPDATED}"
 
 
 def render_project_links(current_band=None):
@@ -325,6 +300,8 @@ def render_project_links(current_band=None):
             prefix = current_band + "/"
             if href.startswith(prefix):
                 href = href[len(prefix):]
+            else:
+                href = "../" + href
         links.append(
             '<a class="toolbar-link accent-link" style="--item-color:'
             + html.escape(item.get("color", "#60758d"), quote=True)
@@ -359,6 +336,21 @@ def render_pdf_links(current_band=None):
     return "".join(links)
 
 
+def render_playlist_links(current_band=None):
+    links = []
+    for item in read_playlists():
+        if current_band and item["bandId"] != current_band:
+            continue
+        href = f"playlists/{item['bandId']}/{item['slug']}.html"
+        if current_band:
+            href = "../" + href
+        links.append(
+            '<a class="toolbar-link accent-link" style="--item-color:#60758d" href="'
+            + html.escape(href, quote=True) + '">' + html.escape(item["title"]) + "</a>"
+        )
+    return "".join(links)
+
+
 STYLE = """
 :root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--text-faint:#b7c3d1;--ui-ink:#5f6f83;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d;--accent:#3b82f6}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -371,7 +363,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:2
 .site-label,.section-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ui-muted)}
 h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:600;line-height:1.18;letter-spacing:0;margin-top:6px;color:var(--text)}
 .sub,.stats{font-size:12px;color:var(--text-muted);margin-top:6px}
-.version-pill{display:inline-flex;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ui-ink);border:1px solid var(--border-strong);background:var(--ui-soft);border-radius:4px;padding:4px 9px;margin-top:12px}
 .toolbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--ui-line);padding:10px 0}
 .toolbar-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1 1 260px;max-width:430px}.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ui-muted);font-size:13px;pointer-events:none}
@@ -514,7 +505,7 @@ function openSongRowKey(event,row){
 function setBandFilter(id){activeBand = id; syncFilterState(); renderSongs();}
 function setSortBy(col){if(sortCol === col){sortDir = -sortDir;}else{sortCol = col; sortDir = 1;} renderSongs();}
 function clearFilters(){document.getElementById('search').value=''; document.getElementById('key-filter').value=''; document.getElementById('vocalist-filter').value=''; activeBand = CURRENT_BAND || 'all'; sortCol = 'default'; sortDir = 1; buildFilters(); renderSongs();}
-function init(){buildBandCards(); buildFilters(); renderSongs();}
+function init(){if(IS_ROOT)return; buildBandCards(); buildFilters(); renderSongs();}
 init();
 """
 
@@ -525,26 +516,57 @@ def render_index(bands, songs, current_band=None):
     title = "Bandsheet · ti.muse" if is_root else f"{band['name']} · Bandsheet"
     heading = "bandsheet by ti.muse" if is_root else band["name"]
     label = "Band Sheet Archive" if is_root else "Band index"
-    subtitle = "Search songs by band, key, BPM, vocalist, or artist" if is_root else f"{band['songCount']} songs · searchable by key, vocalist, and artist"
+    subtitle = "Choose a band" if is_root else f"{band['songCount']} songs · searchable by key, vocalist, and artist"
     breadcrumb = "" if is_root else '<div class="breadcrumb"><a href="../">Band Sheet</a> / ' + html.escape(band["name"]) + "</div>"
-    band_cards = ""
-    band_filter = '<div class="filter-group" id="band-filters"></div>' if is_root else ""
-    band_header = "<th>Band</th>" if is_root else ""
+    band_cards = "" if not is_root else '<div class="band-grid">' + "".join(
+        '<a class="band-card" href="' + html.escape(item["indexHref"], quote=True) + '" style="--band-color:'
+        + html.escape(item["color"], quote=True) + '"><div class="band-name">'
+        + html.escape(item["name"]) + '</div></a>' for item in bands
+    ) + "</div>"
+    band_filter = ""
+    band_header = ""
     importer_link = '<a class="toolbar-link" id="importer-link" href="_work/busk-import.html">importer</a>' if is_root else ""
-    project_links = render_project_links(current_band)
+    project_links = render_playlist_links(current_band) if not is_root else ""
     pdf_links = render_pdf_links(current_band)
     current = "null" if is_root else json.dumps(current_band)
     body_class = "root-index" if is_root else "band-index"
     home_link = "" if is_root else '<span><a href="../" style="color:var(--muted);text-decoration:none">back to all bands</a></span>'
-    version_badge = render_version_badge()
-
+    toolbar = "" if is_root else f"""<div class="toolbar">
+  <div class="page-shell toolbar-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search" id="search" type="text" placeholder="Search songs, artists, vocalist, key, BPM..." oninput="renderSongs()" autocomplete="off">
+    </div>
+    <label class="filter-field key" for="key-filter"><span class="filter-label">Key:</span><input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off"></label>
+    <label class="filter-field vocalist" for="vocalist-filter"><span class="filter-label">Vocal:</span><input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off"></label>
+    <button class="clear-btn" onclick="clearFilters()">Clear</button>
+    {project_links}
+    {pdf_links}
+    {importer_link}
+  </div>
+</div>"""
+    content = band_cards if is_root else f"""<section>
+    <div class="section-label" id="stats"></div>
+    <div class="table-wrap"><table class="song-table">
+      <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th></tr></thead>
+      <tbody id="song-list"></tbody></table></div>
+    <div class="empty hidden" id="empty-state">No songs found. Try clearing search or filters.</div>
+  </section>"""
+    script_block = "" if is_root else f"""<script>
+var BANDS = {js_json(bands)};
+var SONGS = {js_json(songs)};
+var ALL_BANDS = BANDS;
+var ALL_SONGS = SONGS;
+var CURRENT_BAND = {current};
+var IS_ROOT = false;
+{SCRIPT}
+</script>"""
     return f"""<!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{html.escape(title)}</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>{STYLE}</style>
 </head>
 <body class="{body_class}">
@@ -554,56 +576,47 @@ def render_index(bands, songs, current_band=None):
     <div class="site-label">{html.escape(label)}</div>
     <h1>{html.escape(heading)}</h1>
     <p class="sub">{html.escape(subtitle)}</p>
-    <div class="version-pill">{html.escape(version_badge)}</div>
   </div>
 </header>
-<div class="toolbar">
-  <div class="page-shell toolbar-inner">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input class="search" id="search" type="text" placeholder="Search songs, artists, vocalist, key, BPM..." oninput="renderSongs()" autocomplete="off">
-    </div>
-    {band_filter}
-    <label class="filter-field key" for="key-filter">
-      <span class="filter-label">Key:</span>
-      <input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off">
-    </label>
-    <label class="filter-field vocalist" for="vocalist-filter">
-      <span class="filter-label">Vocal:</span>
-      <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
-    </label>
-    <button class="clear-btn" onclick="clearFilters()">Clear</button>
-    {project_links}
-    {pdf_links}
-    {importer_link}
-  </div>
-</div>
+{toolbar}
 <main>
-  {band_cards}
-  <section>
-    <div class="section-label" id="stats"></div>
-    <div class="table-wrap">
-      <table class="song-table">
-        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th>{band_header}</tr></thead>
-        <tbody id="song-list"></tbody>
-      </table>
-    </div>
-    <div class="empty hidden" id="empty-state">No songs found. Try clearing search or filters.</div>
-  </section>
+  {content}
 </main>
 <footer><span>vault.ti.muse / bandsheet</span>{home_link}</footer>
-<script>
-var BANDS = {js_json(bands)};
-var SONGS = {js_json(songs)};
-var ALL_BANDS = BANDS;
-var ALL_SONGS = SONGS;
-var CURRENT_BAND = {current};
-var IS_ROOT = {str(is_root).lower()};
-{SCRIPT}
-</script>
+{script_block}
 </body>
 </html>
 """
+
+
+def write_playlist_pages():
+    songs_by_file = {}
+    for path in sorted(Path(os.path.join(BAND_ROOT, SONG_LIBRARY_DIR)).glob("*.html")):
+        song = extract_meta(str(path))
+        if song:
+            songs_by_file[path.name] = song
+    for playlist in read_playlists():
+        band_id = playlist["bandId"]
+        out_path = os.path.join(BAND_ROOT, "playlists", band_id, playlist["slug"] + ".html")
+        if os.path.exists(out_path):
+            if playlist["slug"] == "2026-muse-cover-main" and band_id == "tmj":
+                doc = read_text(out_path).replace('href="../../../tmj/index.html"', 'href="../../tmj/index.html"')
+                write_text(out_path, doc)
+            continue
+        band_name = BAND_META.get(band_id, {"name": band_id})["name"]
+        rows = []
+        for item in playlist["songs"]:
+            file_name = item.get("file", "") if isinstance(item, dict) else str(item)
+            song = songs_by_file.get(file_name, {})
+            title = song.get("title", file_name.rsplit(".", 1)[0].replace("-", " ").title())
+            artist = song.get("artist", "")
+            bpm = item.get("bpm", song.get("bpm", "")) if isinstance(item, dict) else song.get("bpm", "")
+            rows.append('<tr><td class="setno">' + html.escape(str(item.get("setlist", ""))) + '</td><td><a href="../../songs/' + html.escape(file_name, quote=True) + '">' + html.escape(title) + '</a><div>' + html.escape(artist) + '</div></td><td>' + html.escape(song.get("vocalist", "")) + '</td><td>' + html.escape(song.get("key", "")) + '</td><td>' + html.escape(str(bpm)) + '</td></tr>')
+        html_doc = f'''<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{html.escape(playlist["title"])} · Bandsheet</title>
+<style>:root{{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--text:#172033;--muted:#7d8ca0;--line:#e6edf5;--active:#60758d}}*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Inter','IBM Plex Sans Thai',sans-serif}}a{{color:inherit}}header{{background:var(--surface);border-bottom:1px solid var(--border);padding:26px 38px 18px}}main{{max-width:1120px;margin:0 auto;padding:22px 38px 54px}}.shell{{max-width:1120px;margin:0 auto}}.crumb{{font-size:12px;color:var(--muted);margin-bottom:12px}}.crumb a{{text-decoration:none;color:var(--muted)}}h1{{font-size:28px;line-height:1.15;margin:0 0 8px;font-weight:650}}.sub{{font-size:13px;color:var(--muted)}}.actions{{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}}.btn{{font-size:12px;text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:6px 10px;background:#fff;color:#5f6f83}}.btn:hover{{background:#f3f7fb}}table{{width:100%;border-collapse:collapse}}th{{font-size:10px;text-align:left;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:10px;border-bottom:1px solid var(--border);white-space:nowrap}}td{{padding:12px 10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle;white-space:nowrap}}td:nth-child(2){{white-space:normal}}.setno{{width:44px;font-weight:650;color:var(--active)}}td div{{font-size:11px;color:var(--muted);margin-top:2px}}@media(max-width:720px){{header,main{{padding-left:18px;padding-right:18px}}table{{min-width:700px}}.wrap{{overflow-x:auto}}}}</style></head>
+<body><header><div class="shell"><div class="crumb"><a href="../../index.html">Band Sheet</a> / <a href="../../{html.escape(band_id, quote=True)}/index.html">{html.escape(band_name)}</a></div><h1>{html.escape(playlist["title"])}</h1><div class="sub">Playlist · {len(rows)} songs</div><div class="actions"><a class="btn" href="../../{html.escape(band_id, quote=True)}/index.html">{html.escape(band_name)} index</a><a class="btn" href="../../index.html">All bands</a></div></div></header><main><div class="wrap"><table><thead><tr><th>Set</th><th>Song / Artist</th><th>Vocalist</th><th>Key</th><th>BPM</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></main></body></html>'''
+        write_text(out_path, html_doc)
 
 
 def main():
@@ -612,6 +625,7 @@ def main():
     bands = discover_bands()
     validate_pdf_links(bands)
     songs = collect_songs(bands)
+    write_playlist_pages()
 
     write_text(os.path.join(BAND_ROOT, "index.html"), render_index(bands, songs))
     print(f"  OK index.html - {len(songs)} songs across {len(bands)} bands")

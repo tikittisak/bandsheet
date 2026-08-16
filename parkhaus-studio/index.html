@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PARKHAUS Studio · Bandsheet</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--text-faint:#b7c3d1;--ui-ink:#5f6f83;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d;--accent:#3b82f6}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -17,7 +16,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:2
 .site-label,.section-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ui-muted)}
 h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:600;line-height:1.18;letter-spacing:0;margin-top:6px;color:var(--text)}
 .sub,.stats{font-size:12px;color:var(--text-muted);margin-top:6px}
-.version-pill{display:inline-flex;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ui-ink);border:1px solid var(--border-strong);background:var(--ui-soft);border-radius:4px;padding:4px 9px;margin-top:12px}
 .toolbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--ui-line);padding:10px 0}
 .toolbar-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1 1 260px;max-width:430px}.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ui-muted);font-size:13px;pointer-events:none}
@@ -51,8 +49,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
     <div class="breadcrumb"><a href="../">Band Sheet</a> / PARKHAUS Studio</div>
     <div class="site-label">Band index</div>
     <h1>PARKHAUS Studio</h1>
-    <p class="sub">0 songs · searchable by key, vocalist, and artist</p>
-    <div class="version-pill">bandsheet v6.17 · updated 2026-06-02</div>
+    <p class="sub">1 songs · searchable by key, vocalist, and artist</p>
   </div>
 </header>
 <div class="toolbar">
@@ -61,15 +58,8 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
       <span class="search-icon">⌕</span>
       <input class="search" id="search" type="text" placeholder="Search songs, artists, vocalist, key, BPM..." oninput="renderSongs()" autocomplete="off">
     </div>
-    
-    <label class="filter-field key" for="key-filter">
-      <span class="filter-label">Key:</span>
-      <input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off">
-    </label>
-    <label class="filter-field vocalist" for="vocalist-filter">
-      <span class="filter-label">Vocal:</span>
-      <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
-    </label>
+    <label class="filter-field key" for="key-filter"><span class="filter-label">Key:</span><input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off"></label>
+    <label class="filter-field vocalist" for="vocalist-filter"><span class="filter-label">Vocal:</span><input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off"></label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
     
     
@@ -77,15 +67,11 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
   </div>
 </div>
 <main>
-  
   <section>
     <div class="section-label" id="stats"></div>
-    <div class="table-wrap">
-      <table class="song-table">
-        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th></tr></thead>
-        <tbody id="song-list"></tbody>
-      </table>
-    </div>
+    <div class="table-wrap"><table class="song-table">
+      <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th></tr></thead>
+      <tbody id="song-list"></tbody></table></div>
     <div class="empty hidden" id="empty-state">No songs found. Try clearing search or filters.</div>
   </section>
 </main>
@@ -101,11 +87,11 @@ var BANDS = [
     "songCount": 2
   },
   {
-    "id": "the-maewjons",
+    "id": "tmj",
     "name": "THE MÆWJØNS",
     "color": "#EB3C1F",
-    "path": "the-maewjons/",
-    "indexHref": "the-maewjons/index.html",
+    "path": "tmj/",
+    "indexHref": "tmj/index.html",
     "songCount": 36
   },
   {
@@ -114,7 +100,7 @@ var BANDS = [
     "color": "#6D132D",
     "path": "parkhaus108/",
     "indexHref": "parkhaus108/index.html",
-    "songCount": 25
+    "songCount": 24
   },
   {
     "id": "parkhaus-studio",
@@ -122,18 +108,34 @@ var BANDS = [
     "color": "#6D132D",
     "path": "parkhaus-studio/",
     "indexHref": "parkhaus-studio/index.html",
-    "songCount": 0
+    "songCount": 1
   },
   {
-    "id": "the-light-of-erebus",
+    "id": "tloe",
     "name": "The Light of Erebus",
     "color": "#7c3aed",
-    "path": "the-light-of-erebus/",
-    "indexHref": "the-light-of-erebus/index.html",
+    "path": "tloe/",
+    "indexHref": "tloe/index.html",
     "songCount": 5
   }
 ];
-var SONGS = [];
+var SONGS = [
+  {
+    "title": "ลุ่มหลง",
+    "artist": "Parkhaus108",
+    "key": "C",
+    "bpm": "93",
+    "vocalist": "PhorChor",
+    "bars": "107",
+    "file": "lum-long.html",
+    "bandId": "parkhaus-studio",
+    "bandName": "PARKHAUS Studio",
+    "bandColor": "#6D132D",
+    "href": "songs/lum-long.html",
+    "bandHref": "../songs/lum-long.html",
+    "setlist": ""
+  }
+];
 var ALL_BANDS = BANDS;
 var ALL_SONGS = SONGS;
 var CURRENT_BAND = "parkhaus-studio";
@@ -252,7 +254,7 @@ function openSongRowKey(event,row){
 function setBandFilter(id){activeBand = id; syncFilterState(); renderSongs();}
 function setSortBy(col){if(sortCol === col){sortDir = -sortDir;}else{sortCol = col; sortDir = 1;} renderSongs();}
 function clearFilters(){document.getElementById('search').value=''; document.getElementById('key-filter').value=''; document.getElementById('vocalist-filter').value=''; activeBand = CURRENT_BAND || 'all'; sortCol = 'default'; sortDir = 1; buildFilters(); renderSongs();}
-function init(){buildBandCards(); buildFilters(); renderSongs();}
+function init(){if(IS_ROOT)return; buildBandCards(); buildFilters(); renderSongs();}
 init();
 
 </script>

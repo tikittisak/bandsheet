@@ -1,0 +1,27 @@
+{
+  "title": "2026 Speaker Box",
+  "band": "tmj",
+  "songs": [
+    {"setlist": "1", "file": "black-hole-sun.html"},
+    {"setlist": "2", "file": "starlight.html"},
+    {"setlist": "3", "file": "somebody-told-me.html"},
+    {"setlist": "4", "file": "i-put-a-spell-on-you.html"},
+    {"setlist": "5", "file": "man-who-cant-be-moved.html"},
+    {"setlist": "6", "file": "supersonic.html"},
+    {"setlist": "7", "file": "live-forever.html"},
+    {"setlist": "8", "file": "sweet-disposition.html"},
+    {"setlist": "9", "file": "crazy.html"},
+    {"setlist": "10", "file": "vampire.html"},
+    {"setlist": "11", "file": "yellow.html"},
+    {"setlist": "12", "file": "use-somebody.html"},
+    {"setlist": "13", "file": "beautiful-ones.html"},
+    {"setlist": "14", "file": "forever-young.html"},
+    {"setlist": "15", "file": "lovefool.html"},
+    {"setlist": "16", "file": "toxic.html"},
+    {"setlist": "17", "file": "bad-guy.html"},
+    {"setlist": "18", "file": "when-you-were-young.html"},
+    {"setlist": "19", "file": "beggin.html"},
+    {"setlist": "20", "file": "bring-me-to-life.html"},
+    {"setlist": "21", "file": "hysteria.html", "bpm": "186"}
+  ]
+}

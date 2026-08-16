@@ -1,0 +1,21 @@
+{
+  "title": "2026 Muse Cover Main",
+  "band": "tmj",
+  "songs": [
+    {"setlist": "1", "file": "uprising.html"},
+    {"setlist": "2", "file": "somebody-told-me.html"},
+    {"setlist": "3", "file": "psycho.html"},
+    {"setlist": "4", "file": "supermassive-black-hole.html"},
+    {"setlist": "5", "file": "bring-me-to-life.html"},
+    {"setlist": "6", "file": "resistance.html"},
+    {"setlist": "7", "file": "vampire.html"},
+    {"setlist": "8", "file": "anna-molly.html"},
+    {"setlist": "10", "file": "time-is-running-out.html"},
+    {"setlist": "11", "file": "i-see-red.html"},
+    {"setlist": "12", "file": "starlight.html"},
+    {"setlist": "13", "file": "plug-in-baby.html"},
+    {"setlist": "14", "file": "hysteria.html"},
+    {"setlist": "15", "file": "knights-of-cydonia.html"},
+    {"setlist": "16", "file": "jesus-of-suburbia.html"}
+  ]
+}

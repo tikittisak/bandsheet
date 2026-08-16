@@ -36,6 +36,13 @@ def extract_json_var(doc, name, marker):
     return json.loads(payload)
 
 
+def extract_optional_json_var(doc, name, marker, default):
+    try:
+        return extract_json_var(doc, name, marker)
+    except ValueError:
+        return default
+
+
 def load_bandsheet_import():
     path = BAND_ROOT / "bandsheet_import.py"
     spec = importlib.util.spec_from_file_location("bandsheet_import", path)
@@ -88,6 +95,12 @@ def extract_payload(source_html):
         "sections": extract_json_var(doc, "SECTIONS", "// ── END DATA ──"),
         "footer": extract_json_var(doc, "FOOTER", "// ── END FOOTER ──"),
         "settings": extract_json_var(doc, "SETTINGS", "// ── END SETTINGS ──"),
+        "sheetMeta": extract_optional_json_var(
+            doc,
+            "SHEET_META",
+            "// ── END SHEET META ──",
+            {"templateVersion": "v6.17", "sheetRevision": 1, "contentUpdated": "", "contentSource": "browser-import"},
+        ),
     }
     if not payload["title"]:
         raise ValueError("missing song title in tb-filename")

@@ -19,6 +19,12 @@ DEFAULT_SETTINGS = {
     "autoScrollDuration": "",
     "autoScrollSpeed": 1,
 }
+DEFAULT_SHEET_META = {
+    "templateVersion": "v6.17",
+    "sheetRevision": 1,
+    "contentUpdated": "",
+    "contentSource": "imported",
+}
 RHYTHM_IDS = {
     "q", "h", "dq", "dh", "e", "de", "ee", "ssss", "te",
     "rq", "re", "rs", "w", "rw", "rh", "s", "ss", "ds",
@@ -67,6 +73,7 @@ def ensure_template_integrity(template):
         "// ── END DATA ──",
         "// ── END FOOTER ──",
         "// ── END SETTINGS ──",
+        "// ── END SHEET META ──",
         'id="tb-filename"',
         'id="tb-artist"',
         'id="meta-key"',
@@ -220,7 +227,20 @@ def load_payload(path):
     settings = dict(DEFAULT_SETTINGS)
     if isinstance(payload.get("settings"), dict):
         settings.update(payload["settings"])
+    settings["chordFont"] = "Roboto Condensed"
     payload["settings"] = settings
+    sheet_meta = payload.get("sheetMeta", dict(DEFAULT_SHEET_META))
+    if not isinstance(sheet_meta, dict):
+        raise ValueError("sheetMeta must be an object")
+    revision = sheet_meta.get("sheetRevision", 1)
+    if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
+        raise ValueError("sheetMeta.sheetRevision must be a positive integer")
+    payload["sheetMeta"] = {
+        "templateVersion": as_text(sheet_meta.get("templateVersion", "v6.17"), "sheetMeta.templateVersion", 40) or "v6.17",
+        "sheetRevision": revision,
+        "contentUpdated": as_text(sheet_meta.get("contentUpdated", ""), "sheetMeta.contentUpdated", 20),
+        "contentSource": as_text(sheet_meta.get("contentSource", "imported"), "sheetMeta.contentSource", 80) or "imported",
+    }
     return payload
 
 
@@ -259,6 +279,7 @@ def inject(template, payload):
     doc = swap_var(doc, "// ── END DATA ──", "var SECTIONS = ", json.dumps(payload["sections"], ensure_ascii=False))
     doc = swap_var(doc, "// ── END FOOTER ──", "var FOOTER = ", json.dumps(payload["footer"], ensure_ascii=False))
     doc = swap_var(doc, "// ── END SETTINGS ──", "var SETTINGS = ", json.dumps(payload["settings"], ensure_ascii=False))
+    doc = swap_var(doc, "// ── END SHEET META ──", "var SHEET_META = ", json.dumps(payload["sheetMeta"], ensure_ascii=False))
     return doc if doc.lstrip().lower().startswith("<!doctype html>") else "<!DOCTYPE html>\n" + doc
 
 

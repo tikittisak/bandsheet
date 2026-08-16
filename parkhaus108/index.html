@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PARKHAUS108 · Bandsheet</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--text-faint:#b7c3d1;--ui-ink:#5f6f83;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d;--accent:#3b82f6}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -17,7 +16,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:2
 .site-label,.section-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ui-muted)}
 h1{font-family:'Inter',sans-serif;font-size:26px;font-weight:600;line-height:1.18;letter-spacing:0;margin-top:6px;color:var(--text)}
 .sub,.stats{font-size:12px;color:var(--text-muted);margin-top:6px}
-.version-pill{display:inline-flex;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ui-ink);border:1px solid var(--border-strong);background:var(--ui-soft);border-radius:4px;padding:4px 9px;margin-top:12px}
 .toolbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--ui-line);padding:10px 0}
 .toolbar-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1 1 260px;max-width:430px}.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ui-muted);font-size:13px;pointer-events:none}
@@ -51,8 +49,7 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
     <div class="breadcrumb"><a href="../">Band Sheet</a> / PARKHAUS108</div>
     <div class="site-label">Band index</div>
     <h1>PARKHAUS108</h1>
-    <p class="sub">25 songs · searchable by key, vocalist, and artist</p>
-    <div class="version-pill">bandsheet v6.17 · updated 2026-06-02</div>
+    <p class="sub">24 songs · searchable by key, vocalist, and artist</p>
   </div>
 </header>
 <div class="toolbar">
@@ -61,31 +58,20 @@ main{padding:22px 38px 50px;max-width:1160px;margin:0 auto}
       <span class="search-icon">⌕</span>
       <input class="search" id="search" type="text" placeholder="Search songs, artists, vocalist, key, BPM..." oninput="renderSongs()" autocomplete="off">
     </div>
-    
-    <label class="filter-field key" for="key-filter">
-      <span class="filter-label">Key:</span>
-      <input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off">
-    </label>
-    <label class="filter-field vocalist" for="vocalist-filter">
-      <span class="filter-label">Vocal:</span>
-      <input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off">
-    </label>
+    <label class="filter-field key" for="key-filter"><span class="filter-label">Key:</span><input class="filter-input" id="key-filter" type="text" placeholder="A, Dm..." oninput="renderSongs()" autocomplete="off"></label>
+    <label class="filter-field vocalist" for="vocalist-filter"><span class="filter-label">Vocal:</span><input class="filter-input" id="vocalist-filter" type="text" placeholder="name..." oninput="renderSongs()" autocomplete="off"></label>
     <button class="clear-btn" onclick="clearFilters()">Clear</button>
-    
+    <a class="toolbar-link accent-link" style="--item-color:#60758d" href="../playlists/parkhaus108/2026-speaker-box.html">2026 Speaker Box</a>
     <a class="toolbar-link accent-link" style="--item-color:#6D132D" href="2026-06-27-PARKHAUS108.pdf" target="_blank" rel="noopener">pdf · PARKHAUS108</a>
     
   </div>
 </div>
 <main>
-  
   <section>
     <div class="section-label" id="stats"></div>
-    <div class="table-wrap">
-      <table class="song-table">
-        <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th></tr></thead>
-        <tbody id="song-list"></tbody>
-      </table>
-    </div>
+    <div class="table-wrap"><table class="song-table">
+      <thead><tr><th>#</th><th class="th-sortable" onclick="setSortBy('setlist')">Set <span class="sort-ind" id="sort-set-ind">sort</span></th><th class="th-sortable" onclick="setSortBy('title')">Song / Artist</th><th>Key</th><th>BPM</th><th class="th-sortable" onclick="setSortBy('vocalist')">Vocalist <span class="sort-ind" id="sort-vocalist-ind">sort</span></th></tr></thead>
+      <tbody id="song-list"></tbody></table></div>
     <div class="empty hidden" id="empty-state">No songs found. Try clearing search or filters.</div>
   </section>
 </main>
@@ -101,11 +87,11 @@ var BANDS = [
     "songCount": 2
   },
   {
-    "id": "the-maewjons",
+    "id": "tmj",
     "name": "THE MÆWJØNS",
     "color": "#EB3C1F",
-    "path": "the-maewjons/",
-    "indexHref": "the-maewjons/index.html",
+    "path": "tmj/",
+    "indexHref": "tmj/index.html",
     "songCount": 36
   },
   {
@@ -114,7 +100,7 @@ var BANDS = [
     "color": "#6D132D",
     "path": "parkhaus108/",
     "indexHref": "parkhaus108/index.html",
-    "songCount": 25
+    "songCount": 24
   },
   {
     "id": "parkhaus-studio",
@@ -122,14 +108,14 @@ var BANDS = [
     "color": "#6D132D",
     "path": "parkhaus-studio/",
     "indexHref": "parkhaus-studio/index.html",
-    "songCount": 0
+    "songCount": 1
   },
   {
-    "id": "the-light-of-erebus",
+    "id": "tloe",
     "name": "The Light of Erebus",
     "color": "#7c3aed",
-    "path": "the-light-of-erebus/",
-    "indexHref": "the-light-of-erebus/index.html",
+    "path": "tloe/",
+    "indexHref": "tloe/index.html",
     "songCount": 5
   }
 ];
@@ -141,12 +127,12 @@ var SONGS = [
     "bpm": "90",
     "vocalist": "",
     "bars": "81",
-    "file": "01-dee-gern-pai.html",
+    "file": "dee-gern-pai.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/01-dee-gern-pai.html",
-    "bandHref": "01-dee-gern-pai.html",
+    "href": "songs/dee-gern-pai.html",
+    "bandHref": "../songs/dee-gern-pai.html",
     "setlist": ""
   },
   {
@@ -156,12 +142,12 @@ var SONGS = [
     "bpm": "120",
     "vocalist": "",
     "bars": "105",
-    "file": "02-lom-hai-jai.html",
+    "file": "lom-hai-jai.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/02-lom-hai-jai.html",
-    "bandHref": "02-lom-hai-jai.html",
+    "href": "songs/lom-hai-jai.html",
+    "bandHref": "../songs/lom-hai-jai.html",
     "setlist": ""
   },
   {
@@ -171,12 +157,12 @@ var SONGS = [
     "bpm": "110",
     "vocalist": "",
     "bars": "121",
-    "file": "03-mai-bok-thoe.html",
+    "file": "mai-bok-thoe.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/03-mai-bok-thoe.html",
-    "bandHref": "03-mai-bok-thoe.html",
+    "href": "songs/mai-bok-thoe.html",
+    "bandHref": "../songs/mai-bok-thoe.html",
     "setlist": ""
   },
   {
@@ -186,12 +172,12 @@ var SONGS = [
     "bpm": "120",
     "vocalist": "",
     "bars": "141",
-    "file": "04-its-my-life.html",
+    "file": "its-my-life.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/04-its-my-life.html",
-    "bandHref": "04-its-my-life.html",
+    "href": "songs/its-my-life.html",
+    "bandHref": "../songs/its-my-life.html",
     "setlist": ""
   },
   {
@@ -201,12 +187,12 @@ var SONGS = [
     "bpm": "85",
     "vocalist": "",
     "bars": "81",
-    "file": "05-keuab.html",
+    "file": "keuab.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/05-keuab.html",
-    "bandHref": "05-keuab.html",
+    "href": "songs/keuab.html",
+    "bandHref": "../songs/keuab.html",
     "setlist": ""
   },
   {
@@ -216,12 +202,12 @@ var SONGS = [
     "bpm": "105",
     "vocalist": "",
     "bars": "90",
-    "file": "06-birds-of-a-feather.html",
+    "file": "birds-of-a-feather.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/06-birds-of-a-feather.html",
-    "bandHref": "06-birds-of-a-feather.html",
+    "href": "songs/birds-of-a-feather.html",
+    "bandHref": "../songs/birds-of-a-feather.html",
     "setlist": ""
   },
   {
@@ -231,12 +217,12 @@ var SONGS = [
     "bpm": "105",
     "vocalist": "",
     "bars": "94",
-    "file": "07-she-will-be-loved.html",
+    "file": "she-will-be-loved.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/07-she-will-be-loved.html",
-    "bandHref": "07-she-will-be-loved.html",
+    "href": "songs/she-will-be-loved.html",
+    "bandHref": "../songs/she-will-be-loved.html",
     "setlist": ""
   },
   {
@@ -246,12 +232,12 @@ var SONGS = [
     "bpm": "96",
     "vocalist": "",
     "bars": "117",
-    "file": "08-shallow.html",
+    "file": "shallow.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/08-shallow.html",
-    "bandHref": "08-shallow.html",
+    "href": "songs/shallow.html",
+    "bandHref": "../songs/shallow.html",
     "setlist": ""
   },
   {
@@ -261,12 +247,12 @@ var SONGS = [
     "bpm": "78",
     "vocalist": "",
     "bars": "54",
-    "file": "09-ride.html",
+    "file": "ride.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/09-ride.html",
-    "bandHref": "09-ride.html",
+    "href": "songs/ride.html",
+    "bandHref": "../songs/ride.html",
     "setlist": ""
   },
   {
@@ -276,12 +262,12 @@ var SONGS = [
     "bpm": "118",
     "vocalist": "",
     "bars": "73",
-    "file": "10-if-i-aint-got-you.html",
+    "file": "if-i-aint-got-you.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/10-if-i-aint-got-you.html",
-    "bandHref": "10-if-i-aint-got-you.html",
+    "href": "songs/if-i-aint-got-you.html",
+    "bandHref": "../songs/if-i-aint-got-you.html",
     "setlist": ""
   },
   {
@@ -291,12 +277,12 @@ var SONGS = [
     "bpm": "99",
     "vocalist": "",
     "bars": "78",
-    "file": "11-saving-all-my-love.html",
+    "file": "saving-all-my-love.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/11-saving-all-my-love.html",
-    "bandHref": "11-saving-all-my-love.html",
+    "href": "songs/saving-all-my-love.html",
+    "bandHref": "../songs/saving-all-my-love.html",
     "setlist": ""
   },
   {
@@ -306,12 +292,12 @@ var SONGS = [
     "bpm": "87",
     "vocalist": "",
     "bars": "109",
-    "file": "12-versace-on-the-floor.html",
+    "file": "versace-on-the-floor.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/12-versace-on-the-floor.html",
-    "bandHref": "12-versace-on-the-floor.html",
+    "href": "songs/versace-on-the-floor.html",
+    "bandHref": "../songs/versace-on-the-floor.html",
     "setlist": ""
   },
   {
@@ -321,12 +307,12 @@ var SONGS = [
     "bpm": "116",
     "vocalist": "",
     "bars": "116",
-    "file": "13-get-lucky.html",
+    "file": "get-lucky.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/13-get-lucky.html",
-    "bandHref": "13-get-lucky.html",
+    "href": "songs/get-lucky.html",
+    "bandHref": "../songs/get-lucky.html",
     "setlist": ""
   },
   {
@@ -336,12 +322,12 @@ var SONGS = [
     "bpm": "119",
     "vocalist": "",
     "bars": "117",
-    "file": "14-love-story.html",
+    "file": "love-story.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/14-love-story.html",
-    "bandHref": "14-love-story.html",
+    "href": "songs/love-story.html",
+    "bandHref": "../songs/love-story.html",
     "setlist": ""
   },
   {
@@ -351,12 +337,12 @@ var SONGS = [
     "bpm": "87",
     "vocalist": "Wawa",
     "bars": "64",
-    "file": "15-just-the-two-of-us-wawa.html",
+    "file": "just-the-two-of-us-wawa.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/15-just-the-two-of-us-wawa.html",
-    "bandHref": "15-just-the-two-of-us-wawa.html",
+    "href": "songs/just-the-two-of-us-wawa.html",
+    "bandHref": "../songs/just-the-two-of-us-wawa.html",
     "setlist": ""
   },
   {
@@ -366,27 +352,12 @@ var SONGS = [
     "bpm": "87",
     "vocalist": "",
     "bars": "97",
-    "file": "15-just-the-two-of-us.html",
+    "file": "just-the-two-of-us.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/15-just-the-two-of-us.html",
-    "bandHref": "15-just-the-two-of-us.html",
-    "setlist": ""
-  },
-  {
-    "title": "ลุ่มหลง",
-    "artist": "Parkhaus108",
-    "key": "C",
-    "bpm": "93",
-    "vocalist": "PhorChor",
-    "bars": "107",
-    "file": "17-lum-long.html",
-    "bandId": "parkhaus108",
-    "bandName": "PARKHAUS108",
-    "bandColor": "#6D132D",
-    "href": "parkhaus108/17-lum-long.html",
-    "bandHref": "17-lum-long.html",
+    "href": "songs/just-the-two-of-us.html",
+    "bandHref": "../songs/just-the-two-of-us.html",
     "setlist": ""
   },
   {
@@ -396,12 +367,12 @@ var SONGS = [
     "bpm": "90",
     "vocalist": "",
     "bars": "136",
-    "file": "18-koey.html",
+    "file": "koey.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/18-koey.html",
-    "bandHref": "18-koey.html",
+    "href": "songs/koey.html",
+    "bandHref": "../songs/koey.html",
     "setlist": ""
   },
   {
@@ -411,12 +382,12 @@ var SONGS = [
     "bpm": "120",
     "vocalist": "",
     "bars": "91",
-    "file": "19-gohok.html",
+    "file": "gohok.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/19-gohok.html",
-    "bandHref": "19-gohok.html",
+    "href": "songs/gohok.html",
+    "bandHref": "../songs/gohok.html",
     "setlist": ""
   },
   {
@@ -426,12 +397,12 @@ var SONGS = [
     "bpm": "122",
     "vocalist": "",
     "bars": "100",
-    "file": "20-sabai-dee.html",
+    "file": "sabai-dee.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/20-sabai-dee.html",
-    "bandHref": "20-sabai-dee.html",
+    "href": "songs/sabai-dee.html",
+    "bandHref": "../songs/sabai-dee.html",
     "setlist": ""
   },
   {
@@ -441,12 +412,12 @@ var SONGS = [
     "bpm": "116",
     "vocalist": "",
     "bars": "207",
-    "file": "21-busbaa.html",
+    "file": "busbaa.html",
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/21-busbaa.html",
-    "bandHref": "21-busbaa.html",
+    "href": "songs/busbaa.html",
+    "bandHref": "../songs/busbaa.html",
     "setlist": ""
   },
   {
@@ -460,8 +431,8 @@ var SONGS = [
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/blue-bird.html",
-    "bandHref": "blue-bird.html",
+    "href": "songs/blue-bird.html",
+    "bandHref": "../songs/blue-bird.html",
     "setlist": ""
   },
   {
@@ -475,8 +446,8 @@ var SONGS = [
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/butter-fly.html",
-    "bandHref": "butter-fly.html",
+    "href": "songs/butter-fly.html",
+    "bandHref": "../songs/butter-fly.html",
     "setlist": ""
   },
   {
@@ -490,8 +461,8 @@ var SONGS = [
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/stay-with-me.html",
-    "bandHref": "stay-with-me.html",
+    "href": "songs/stay-with-me.html",
+    "bandHref": "../songs/stay-with-me.html",
     "setlist": ""
   },
   {
@@ -505,8 +476,8 @@ var SONGS = [
     "bandId": "parkhaus108",
     "bandName": "PARKHAUS108",
     "bandColor": "#6D132D",
-    "href": "parkhaus108/the-game-of-love.html",
-    "bandHref": "the-game-of-love.html",
+    "href": "songs/the-game-of-love.html",
+    "bandHref": "../songs/the-game-of-love.html",
     "setlist": ""
   }
 ];
@@ -628,7 +599,7 @@ function openSongRowKey(event,row){
 function setBandFilter(id){activeBand = id; syncFilterState(); renderSongs();}
 function setSortBy(col){if(sortCol === col){sortDir = -sortDir;}else{sortCol = col; sortDir = 1;} renderSongs();}
 function clearFilters(){document.getElementById('search').value=''; document.getElementById('key-filter').value=''; document.getElementById('vocalist-filter').value=''; activeBand = CURRENT_BAND || 'all'; sortCol = 'default'; sortDir = 1; buildFilters(); renderSongs();}
-function init(){buildBandCards(); buildFilters(); renderSongs();}
+function init(){if(IS_ROOT)return; buildBandCards(); buildFilters(); renderSongs();}
 init();
 
 </script>
