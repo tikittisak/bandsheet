@@ -12,15 +12,15 @@ BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_PATH = os.path.join(BAND_ROOT, "_template.html")
 DEFAULT_COLOR = {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"}
 DEFAULT_SETTINGS = {
-    "chordSize": 12.5,
+    "chordSize": 14.5,
     "chordFont": "Roboto Condensed",
     "transpose": 0,
-    "noteSize": 13,
+    "noteSize": 20,
     "autoScrollDuration": "",
     "autoScrollSpeed": 1,
 }
 DEFAULT_SHEET_META = {
-    "templateVersion": "v6.17",
+    "templateVersion": "v6.18",
     "sheetRevision": 1,
     "contentUpdated": "",
     "contentSource": "imported",
@@ -236,7 +236,7 @@ def load_payload(path):
     if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
         raise ValueError("sheetMeta.sheetRevision must be a positive integer")
     payload["sheetMeta"] = {
-        "templateVersion": as_text(sheet_meta.get("templateVersion", "v6.17"), "sheetMeta.templateVersion", 40) or "v6.17",
+        "templateVersion": as_text(sheet_meta.get("templateVersion", "v6.18"), "sheetMeta.templateVersion", 40) or "v6.18",
         "sheetRevision": revision,
         "contentUpdated": as_text(sheet_meta.get("contentUpdated", ""), "sheetMeta.contentUpdated", 20),
         "contentSource": as_text(sheet_meta.get("contentSource", "imported"), "sheetMeta.contentSource", 80) or "imported",

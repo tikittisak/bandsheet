@@ -99,7 +99,7 @@ def extract_payload(source_html):
             doc,
             "SHEET_META",
             "// ── END SHEET META ──",
-            {"templateVersion": "v6.17", "sheetRevision": 1, "contentUpdated": "", "contentSource": "browser-import"},
+            {"templateVersion": "v6.18", "sheetRevision": 1, "contentUpdated": "", "contentSource": "browser-import"},
         ),
     }
     if not payload["title"]:

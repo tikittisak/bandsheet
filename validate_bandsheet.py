@@ -65,7 +65,7 @@ def validate():
             meta = js_var(doc, "SHEET_META", "// ── END SHEET META ──")
             versions[str(meta.get("templateVersion", ""))] += 1
             revisions[str(meta.get("sheetRevision", ""))] += 1
-            if meta.get("templateVersion") != "v6.17":
+            if meta.get("templateVersion") != "v6.18":
                 errors.append(f"{path.name}: unexpected templateVersion {meta.get('templateVersion')!r}")
             if not isinstance(meta.get("sheetRevision"), int) or meta["sheetRevision"] < 1:
                 errors.append(f"{path.name}: invalid sheetRevision")

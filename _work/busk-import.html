@@ -71,7 +71,7 @@ pre{max-height:420px;overflow:auto;background:#101827;color:#e5edf7;border-radiu
         <button onclick="downloadJson()">download json</button>
         <button onclick="loadSample()">sample</button>
       </div>
-      <p class="hint">HTML download uses <code>../_template.html</code> v6.17 from this workspace.</p>
+      <p class="hint">HTML download uses <code>../_template.html</code> v6.18 from this workspace.</p>
     </section>
     <aside class="panel">
       <div class="panel-title">Preview</div>
@@ -366,7 +366,7 @@ function buildBandsheetHtml(tmpl,payload){
   var title=cleanPayload.title||'New Song';
   var artist=cleanPayload.artist||'';
   var footer=cleanPayload.footer||{notes:[]};
-  var settings=Object.assign({chordSize:12.5,chordFont:'Roboto Condensed',transpose:0,noteSize:13,autoScrollDuration:'',autoScrollSpeed:1},cleanPayload.settings||{});
+  var settings=Object.assign({chordSize:14.5,chordFont:'Roboto Condensed',transpose:0,noteSize:20,autoScrollDuration:'',autoScrollSpeed:1},cleanPayload.settings||{});
   var doc=tmpl.replace(/^<!DOCTYPE html>\s*/i,'');
   doc=doc.replace(/<title>[^<]*<\/title>/,'<title>'+esc(title+(artist?' — '+artist:'')+' · bandsheet')+'</title>');
   doc=setInputValue(doc,'tb-filename',title);
@@ -390,7 +390,7 @@ function extractInjectedJson(html,name,marker){
 }
 function normalizedForCompare(payload){
   var clean=stripPrivateFields(payload||{});
-  var settings=Object.assign({chordSize:12.5,chordFont:'Roboto Condensed',transpose:0,noteSize:13,autoScrollDuration:'',autoScrollSpeed:1},clean.settings||{});
+  var settings=Object.assign({chordSize:14.5,chordFont:'Roboto Condensed',transpose:0,noteSize:20,autoScrollDuration:'',autoScrollSpeed:1},clean.settings||{});
   return {
     title:clean.title||'New Song',
     artist:clean.artist||'',
@@ -419,8 +419,8 @@ function assertDownloadedHtmlMatchesPayload(html,payload){
   if(JSON.stringify(actual)!==JSON.stringify(expected)){
     throw new Error('download verify failed: generated HTML data does not match preview JSON');
   }
-  if(html.indexOf('brand-version">v6.17')<0){
-    throw new Error('download verify failed: template version is not v6.17');
+  if(html.indexOf('brand-version">v6.18')<0){
+    throw new Error('download verify failed: template version is not v6.18');
   }
 }
 function downloadBlob(filename,content,type){
