@@ -2,11 +2,11 @@
   "title": "2026 SCB Music Festival",
   "band": "tloe",
   "songs": [
-    {"setlist": "1", "file": "what-you-know.html"},
-    {"setlist": "2", "file": "take-me-out.html"},
-    {"setlist": "3", "file": "the-adventures-of-rain-dance-maggie.html"},
-    {"setlist": "4", "file": "megalomaniac.html"},
-    {"setlist": "5", "file": "sattha.html"},
-    {"setlist": "6", "file": "hysteria.html"}
+    {"setlist": "1", "file": "hysteria.html"},
+    {"setlist": "2", "file": "the-adventures-of-rain-dance-maggie.html"},
+    {"setlist": "3", "file": "take-me-out.html"},
+    {"setlist": "4", "file": "what-you-know.html"},
+    {"setlist": "5", "file": "megalomaniac.html"},
+    {"setlist": "6", "file": "sattha.html"}
   ]
 }
