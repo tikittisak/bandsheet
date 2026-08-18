@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 </head>
-<body class="view-mini" spellcheck="false">
+<body class="view-mini notes-hidden" spellcheck="false">
 <div id="toolbar">
   <div class="tb-group">
     <button class="tb-btn home-btn" onclick="goHome()" title="Back to index">&lt;</button>
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="tb-group">
     <span class="tb-group-label">view</span>
     <button class="tb-btn" id="chords-toggle-btn" onclick="toggleAllChords()" title="Hide / show all chord bars">chord</button>
-    <button class="tb-btn" id="notes-btn" onclick="toggleNotesView()" title="Hide / show all section notes">note</button>
+    <button class="tb-btn active" id="notes-btn" onclick="toggleNotesView()" title="Hide / show all section notes">note</button>
   </div>
   <div class="tb-group">
     <button class="tb-btn" id="play-btn" onclick="toggleAutoScroll()" title="Auto-scroll in display mode">play</button>
@@ -1723,7 +1723,7 @@ function injectData(html){
 }
 function cleanRuntimeHtml(html){
   html=html.replace(/<html([^>]*)style="[^"]*"([^>]*)>/,'<html$1$2>');
-  html=html.replace(/<body[^>]*>/,'<body class="view-mini">');
+  html=html.replace(/<body[^>]*>/,'<body class="view-mini notes-hidden">');
   html=html.replace(/<div id="toolbar"[^>]*>/,'<div id="toolbar">');
   html=html.replace(/<div id="metabar"[^>]*>/,'<div id="metabar">');
   html=html.replace(/<div id="sheet">[\s\S]*?<\/div>\s*<div class="color-popup" id="colorPopup">/,'<div id="sheet"></div>\n<div class="color-popup" id="colorPopup">');
