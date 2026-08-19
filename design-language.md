@@ -1,6 +1,6 @@
-# Bandsheet v6.18 Design Language Manual
+# Bandsheet v6.19 Design Language Manual
 
-เอกสารนี้เป็น local source of truth สำหรับ Bandsheet โดยยึด `_template.html` v6.18 เป็น baseline ที่ใช้งานจริง ไม่ใช่การออกแบบจากศูนย์
+เอกสารนี้เป็น local source of truth สำหรับ Bandsheet โดยยึด `_template.html` v6.19 เป็น baseline ที่ใช้งานจริง ไม่ใช่การออกแบบจากศูนย์
 
 ก่อนใช้ไฟล์นี้กับงาน UI ให้อ่าน shared design layer ที่ root ของ Vault ก่อน:
 
@@ -25,7 +25,7 @@
 
 ## Product Concept
 
-Bandsheet v6.18 คือ working surface สำหรับนักดนตรีและคนจัด chord chart ไม่ใช่ landing page หรือ document viewer ธรรมดา เป้าหมายคือทำให้ rehearsal อ่านเร็ว แก้เร็ว และ export ได้ทันที
+Bandsheet v6.19 คือ working surface สำหรับนักดนตรีและคนจัด chord chart ไม่ใช่ landing page หรือ document viewer ธรรมดา เป้าหมายคือทำให้ rehearsal อ่านเร็ว แก้เร็ว และ export ได้ทันที
 
 หลักคิดสำคัญ:
 
@@ -37,7 +37,7 @@ Bandsheet v6.18 คือ working surface สำหรับนักดนต�
 
 ## UX Model
 
-โครงสร้างหน้า v6.18 แบ่งเป็น 4 ชั้น:
+โครงสร้างหน้า v6.19 แบ่งเป็น 4 ชั้น:
 
 1. **Toolbar**: sticky utility bar สำหรับ mode, view, font, size, transpose, save/export และ AI prompt
 2. **Metabar**: metadata row สำหรับ title, artist, key, bpm, time, vocalist
@@ -67,7 +67,7 @@ Edit mode ไม่ควรเปลี่ยนบุคลิกของ app
 
 ## Design Tokens
 
-Tokens ต่อไปนี้มาจาก `_template.html` v6.18 และควรเป็น baseline ของ project ใหม่
+Tokens ต่อไปนี้มาจาก `_template.html` v6.19 และควรเป็น baseline ของ project ใหม่
 
 ```css
 :root {
@@ -303,7 +303,7 @@ AI import rule:
       <span class="seg-val">12.5</span>
       <button>A+</button>
     </div>
-    <div class="brand">bandsheet by ti.muse <span>v6.18</span></div>
+    <div class="brand">bandsheet by ti.muse <span>v6.19</span></div>
   </div>
 
   <div class="metabar">
@@ -497,7 +497,7 @@ Figma mapping:
 
 ## Builder Checklist
 
-ใช้ checklist นี้เมื่อสร้าง project ใหม่จากหลักการ v6.18:
+ใช้ checklist นี้เมื่อสร้าง project ใหม่จากหลักการ v6.19:
 
 - หน้าแรกต้องเป็น usable working surface ไม่ใช่ marketing page
 - กำหนด data model ก่อน UI detail: sections, items/bars, notes, settings
@@ -512,7 +512,7 @@ Figma mapping:
 
 ## Lessons Learned
 
-- อย่าเริ่มจากหน้าเปล่า ให้เริ่มจาก v6.18 behavior ที่พิสูจน์แล้ว: toolbar, metabar, mini sheet, edit mode, export
+- อย่าเริ่มจากหน้าเปล่า ให้เริ่มจาก v6.19 behavior ที่พิสูจน์แล้ว: toolbar, metabar, mini sheet, edit mode, export
 - ความเร็วในการอ่านสำคัญกว่าความสวยแบบ showcase
 - ความแน่นของข้อมูลใช้ได้ ถ้า hierarchy, color และ spacing คุมดี
 - Section color ต้องช่วยจำตำแหน่งในเพลง ไม่ควรกลายเป็น palette โชว์

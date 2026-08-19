@@ -42,7 +42,7 @@ Scope:
 
 ## Project Overview
 สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
-Template อยู่ที่ `_template.html` — **current version: v6.18**
+Template อยู่ที่ `_template.html` — **current version: v6.19**
 
 Bar extraction workflow อยู่ที่ `bar-extractor.md`
 - ถ้า user พิมพ์ `bar-extractor song {slug}`, `extract bars song {slug}`, หรือขอ `PNG -> Song info + Bar` ให้ใช้ workflow นี้ทันที
@@ -52,7 +52,7 @@ Bar extraction workflow อยู่ที่ `bar-extractor.md`
 Vault-wide design philosophy อยู่ที่ `../DESIGN_PHILOSOPHY.md` และ shared UI rules อยู่ใน `../design/`
 - อ่านชุดกลางก่อนเมื่อออกแบบ UI/app/tool ใหม่ เพื่อรักษา philosophy เดียวกันทุก project
 - `design-language.md` ของ bandsheet เป็น local source of truth เฉพาะ chord chart, template, section color, import guard, และ HTML-to-Figma snippets
-- ยึด `_template.html` v6.18 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
+- ยึด `_template.html` v6.19 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
 
 ---
 
@@ -87,7 +87,7 @@ bandsheet/
 ├── AGENTS.md
 ├── bar-extractor.md             ← workflow อ่าน PNG เป็น Song info + Bar JSON
 ├── design-language.md           ← UX/UI source of truth + Figma HTML guide
-├── _template.html               ← template v6.18
+├── _template.html               ← template v6.19
 ├── bandsheet_import.py          ← validate/sanitize/import AI JSON
 ├── update_index.py              ← rebuild root + band indexes
 ├── push.sh                      ← update index + commit + push
@@ -150,7 +150,7 @@ bandsheet/
 
 ---
 
-## AI Import Guard — v6.18
+## AI Import Guard — v6.19
 
 ถ้า user ส่งไฟล์ HTML ที่แก้จาก browser/download มา:
 - **ห้าม copy HTML ทั้งไฟล์ทับ song file โดยตรง**
@@ -202,7 +202,7 @@ JSON ที่ AI ควรส่ง:
 
 ---
 
-## HTML Injection — จุดที่ต้องแก้ (v6.18)
+## HTML Injection — จุดที่ต้องแก้ (v6.19)
 
 Fields: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, **`meta-vocalist`** (ใหม่ใน v2.1)
 

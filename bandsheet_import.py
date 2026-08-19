@@ -20,7 +20,7 @@ DEFAULT_SETTINGS = {
     "autoScrollSpeed": 1,
 }
 DEFAULT_SHEET_META = {
-    "templateVersion": "v6.18",
+    "templateVersion": "v6.19",
     "sheetRevision": 1,
     "contentUpdated": "",
     "contentSource": "imported",
@@ -236,7 +236,7 @@ def load_payload(path):
     if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
         raise ValueError("sheetMeta.sheetRevision must be a positive integer")
     payload["sheetMeta"] = {
-        "templateVersion": as_text(sheet_meta.get("templateVersion", "v6.18"), "sheetMeta.templateVersion", 40) or "v6.18",
+        "templateVersion": as_text(sheet_meta.get("templateVersion", "v6.19"), "sheetMeta.templateVersion", 40) or "v6.19",
         "sheetRevision": revision,
         "contentUpdated": as_text(sheet_meta.get("contentUpdated", ""), "sheetMeta.contentUpdated", 20),
         "contentSource": as_text(sheet_meta.get("contentSource", "imported"), "sheetMeta.contentSource", 80) or "imported",
