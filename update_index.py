@@ -601,12 +601,22 @@ def write_playlist_pages():
         band_name = BAND_META.get(band_id, {"name": band_id})["name"]
         rows = []
         for item in playlist["songs"]:
-            file_name = item.get("file", "") if isinstance(item, dict) else str(item)
+            item_data = item if isinstance(item, dict) else {"file": str(item)}
+            file_name = item_data.get("file", "")
             song = songs_by_file.get(file_name, {})
-            title = song.get("title", file_name.rsplit(".", 1)[0].replace("-", " ").title())
-            artist = song.get("artist", "")
-            bpm = item.get("bpm", song.get("bpm", "")) if isinstance(item, dict) else song.get("bpm", "")
-            rows.append('<tr><td class="setno">' + html.escape(str(item.get("setlist", ""))) + '</td><td><a href="../../songs/' + html.escape(file_name, quote=True) + '">' + html.escape(title) + '</a><div>' + html.escape(artist) + '</div></td><td>' + html.escape(song.get("vocalist", "")) + '</td><td>' + html.escape(song.get("key", "")) + '</td><td>' + html.escape(str(bpm)) + '</td></tr>')
+            fallback_title = file_name.rsplit(".", 1)[0].replace("-", " ").title() if file_name else "Untitled"
+            title = item_data.get("title", song.get("title", fallback_title))
+            artist = item_data.get("artist", song.get("artist", ""))
+            vocalist = item_data.get("vocalist", song.get("vocalist", ""))
+            key = item_data.get("key", song.get("key", ""))
+            bpm = item_data.get("bpm", song.get("bpm", ""))
+            status = item_data.get("status", "")
+            if file_name:
+                title_html = '<a href="../../songs/' + html.escape(file_name, quote=True) + '">' + html.escape(title) + '</a>'
+            else:
+                title_html = '<span>' + html.escape(title) + '</span>'
+            detail = artist + (" · pending bandsheet" if status == "pending" else "")
+            rows.append('<tr><td class="setno">' + html.escape(str(item_data.get("setlist", ""))) + '</td><td>' + title_html + '<div>' + html.escape(detail) + '</div></td><td>' + html.escape(vocalist) + '</td><td>' + html.escape(key) + '</td><td>' + html.escape(str(bpm)) + '</td></tr>')
         html_doc = f'''<!DOCTYPE html>
 <html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{html.escape(playlist["title"])} · Bandsheet</title>
 <style>:root{{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--text:#172033;--muted:#7d8ca0;--line:#e6edf5;--active:#60758d}}*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Inter','IBM Plex Sans Thai',sans-serif}}a{{color:inherit}}header{{background:var(--surface);border-bottom:1px solid var(--border);padding:26px 38px 18px}}main{{max-width:1120px;margin:0 auto;padding:22px 38px 54px}}.shell{{max-width:1120px;margin:0 auto}}.crumb{{font-size:12px;color:var(--muted);margin-bottom:12px}}.crumb a{{text-decoration:none;color:var(--muted)}}h1{{font-size:28px;line-height:1.15;margin:0 0 8px;font-weight:650}}.sub{{font-size:13px;color:var(--muted)}}.actions{{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}}.btn{{font-size:12px;text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:6px 10px;background:#fff;color:#5f6f83}}.btn:hover{{background:#f3f7fb}}table{{width:100%;border-collapse:collapse}}th{{font-size:10px;text-align:left;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:10px;border-bottom:1px solid var(--border);white-space:nowrap}}td{{padding:12px 10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle;white-space:nowrap}}td:nth-child(2){{white-space:normal}}.setno{{width:44px;font-weight:650;color:var(--active)}}td div{{font-size:11px;color:var(--muted);margin-top:2px}}@media(max-width:720px){{header,main{{padding-left:18px;padding-right:18px}}table{{min-width:700px}}.wrap{{overflow-x:auto}}}}</style></head>

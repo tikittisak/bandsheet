@@ -93,6 +93,7 @@ def validate():
 
     playlist_count = 0
     playlist_refs = []
+    playlist_pending = []
     for path in sorted(PLAYLISTS.glob("*/*.json")):
         playlist_count += 1
         try:
@@ -102,6 +103,13 @@ def validate():
                 errors.append(f"{path.relative_to(ROOT)} missing generated page")
             for item in data.get("songs", []):
                 ref = item.get("file") if isinstance(item, dict) else item
+                if isinstance(item, dict) and item.get("status") == "pending" and not ref:
+                    title = item.get("title", "").strip()
+                    if not title:
+                        errors.append(f"{path.relative_to(ROOT)}: pending song is missing title")
+                    else:
+                        playlist_pending.append(title)
+                    continue
                 if ref not in song_names:
                     errors.append(f"{path.relative_to(ROOT)}: missing song reference {ref!r}")
                 playlist_refs.append(ref)
@@ -119,6 +127,7 @@ def validate():
         "unique_band_songs": len(set(band_refs)),
         "playlists": playlist_count,
         "playlist_entries": len(playlist_refs),
+        "playlist_pending_entries": playlist_pending,
         "template_versions": dict(versions),
         "revisions": dict(revisions),
         "duplicate_cross_band_refs": sorted(ref for ref, count in Counter(band_refs).items() if count > 1),
