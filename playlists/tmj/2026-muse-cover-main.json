@@ -2,7 +2,7 @@
   "title": "2026 Muse Cover Main",
   "band": "tmj",
   "songs": [
-    {"setlist": "1", "title": "Supremacy", "artist": "Muse", "vocalist": "TI", "key": "A minor", "bpm": "159", "status": "pending"},
+    {"setlist": "1", "file": "supremacy.html"},
     {"setlist": "2", "file": "uprising.html"},
     {"setlist": "3", "file": "psycho.html"},
     {"setlist": "4", "file": "stockholm-syndrome.html"},
