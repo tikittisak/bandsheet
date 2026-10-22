@@ -114,8 +114,29 @@ bandsheet/
 - ระหว่าง iterate UI / review visual / browser comments ให้แก้เฉพาะ `_template.html` ก่อน
 - ห้าม sync ทุก micro-change ไป song sheets ระหว่าง review
 - sync `_template.html` ไป song sheets เฉพาะหลัง user confirm ว่า design/behavior ถูกต้องแล้ว
+- งาน template/CSS sync ห้ามเปลี่ยน metadata, `SECTIONS`, `FOOTER`, chord หรือ lyric ของเพลง
+- ก่อน commit/push ต้องผ่าน `content_guard.py`; semantic content ที่ตั้งใจแก้ต้องใช้
+  `--allow-content songs/<exact-name>.html` แยกทุกเพลง ห้ามใช้ wildcard หรือ bulk allowlist
+- เมื่อ Ti ยืนยันว่า sheet ผ่านแล้ว ให้บันทึก approved fingerprint ด้วย
+  `content_guard.py --lock ... --approval-note ...`; ห้าม refresh lock โดยอนุมานเอง
+- ก่อนซ้อม/เล่นจริง ให้รัน `commands/rehearsal-check.sh` กับ playlist ที่ใช้ และห้ามรายงาน
+  ว่า ready ถ้ายังมี blank/incomplete/unlocked song
 - ก่อน go online เท่านั้น ค่อย run `python3 update_index.py` แล้วใช้ `push.sh`
 - ถ้ายังอยู่ช่วงทดลอง UI ห้าม run `update_index.py`, ห้าม commit, และห้าม push
+
+## Browser Edit Durability Gate
+
+- state ที่แก้อยู่ใน browser แต่ยังไม่ได้กด `Save HTML` เป็น **unsaved runtime state** ไม่ใช่ source of truth
+- เมื่อ Ti บอกว่า “แก้เสร็จแล้ว” ห้ามสรุปจาก Git ว่าไฟล์ล่าสุดแล้ว ต้องหา exported HTML
+  ที่ตรงกับงานนั้นและนำเข้าด้วย `import_edited_song_html.py --check` ก่อน
+- ถ้ายังไม่มี exported HTML ให้รายงานทันทีว่า revision ยังไม่ durable และหยุดงานที่อาจเปลี่ยน
+  URL/path, regenerate sheet, sync template, commit หรือ push จนกว่าจะ export และ import สำเร็จ
+- ห้ามใช้ความเหมือนกันของไฟล์ใน Git เป็นหลักฐานหักล้างคำยืนยันของ Ti ว่าเคยแก้ใน browser;
+  กรณีนี้ต้องจัดเป็น `provenance gap` และค้นหา export/backup ก่อน
+- ก่อนย้าย path หรือเปลี่ยน playlist link ต้องยืนยันว่า browser edit ทุกเพลงที่เกี่ยวข้องมีไฟล์ export,
+  ถูก import แล้ว และมี fingerprint ที่ตรวจซ้ำได้
+- ถ้าหา revision ที่ Ti เคยแก้ไม่พบ ห้ามเติม lyric/chord จาก web เพื่อทำให้ดูครบเอง ให้คงสถานะ
+  `provenance gap` และขอ source จาก Ti หรือทำ reconstruction เป็นงานใหม่ที่แยกจาก recovery
 
 ## Song Sheet Source Notes
 - อ่าน `irealpro-form-reference.md` ก่อนแปล chart จาก iReal Pro โดยเฉพาะ Coda, D.S./D.C., Link, และ split bar

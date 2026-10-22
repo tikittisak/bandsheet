@@ -6,3 +6,4 @@ cd "$ROOT"
 
 python3 update_index.py
 python3 validate_bandsheet.py --report "_work/reports/bandsheet-change-report-$(date +%F).md"
+python3 content_guard.py "$@"
