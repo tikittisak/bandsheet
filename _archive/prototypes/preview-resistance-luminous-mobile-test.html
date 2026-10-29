@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   body.edit-mode #metabar input { background: var(--ui-soft); }
   .mobile-view-switch { display: none; }
+  .mobile-more-toggle { display: none; }
   .mobile-view-switch .seg-btn.active {
     background: var(--ui-active);
     color: #ffffff;
@@ -565,9 +566,9 @@ document.addEventListener('DOMContentLoaded',function(){
     box-shadow: none !important;
   }
   body.view-mini .bar-cell.highlighted {
-    background: var(--highlight-bg) !important;
-    border-color: var(--highlight-line) !important;
-    box-shadow: inset 3px 0 0 var(--accent) !important;
+    background: var(--bar-surface) !important;
+    border-color: var(--accent) !important;
+    box-shadow: inset 0 0 0 1px var(--accent) !important;
   }
   body.view-mini .bar-cell.highlighted .bar-chord,
   body.view-mini .bar-cell.highlighted .bar-chord-part,
@@ -589,6 +590,8 @@ document.addEventListener('DOMContentLoaded',function(){
     color: #5873a5 !important;
     font-weight: 500 !important;
   }
+  body:not(.edit-mode) .bar-num { display: none !important; }
+  body:not(.edit-mode).view-mini .bar-cell { padding: 0 6px; }
 
   /* Desktop: chord chart and its adjacent lyric are one section row. */
   body:not(.edit-mode) .section-pair {
@@ -616,16 +619,74 @@ document.addEventListener('DOMContentLoaded',function(){
   .chord-peek-btn {
     display: none;
     position: absolute;
-    right: 4px;
-    top: 3px;
-    height: 16px;
-    padding: 0 6px;
+    right: 0;
+    top: 0;
+    height: 32px;
+    min-width: 64px;
+    padding: 0 8px;
     border: 0;
     border-radius: 3px;
     background: rgba(255,255,255,.76);
     color: #526177;
-    font: 600 9px/16px var(--ui-font);
+    font: 600 9px/32px var(--ui-font);
     cursor: pointer;
+  }
+  body:not(.edit-mode) .section-tag,
+  body:not(.edit-mode) .bar-cell { cursor: pointer; }
+  body:not(.edit-mode) .section.focus-anchor-section .section-tag {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  body:not(.edit-mode) .bar-cell.focus-anchor-target {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px;
+    z-index: 6;
+  }
+  body:not(.edit-mode) .bar-cell.focus-anchor-target::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 2px var(--bar-surface);
+    pointer-events: none;
+  }
+  body:not(.edit-mode) .section.contains-focus-anchor .section-tag {
+    box-shadow: inset 0 -2px 0 rgba(39,93,255,.45);
+  }
+  .focus-return {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 130;
+    display: none;
+    align-items: center;
+    gap: 7px;
+    max-width: min(320px, calc(100vw - 24px));
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--accent);
+    border-radius: 18px;
+    background: rgba(255,255,255,.96);
+    color: #1736a8;
+    box-shadow: 0 5px 18px rgba(23,32,51,.16);
+    font: 600 11px/1 var(--content-font);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+  body:not(.edit-mode).has-focus-anchor .focus-return { display: inline-flex; }
+  .focus-return::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
   }
 
   /* Remove low-value authoring decisions from the prototype surface. */
@@ -766,7 +827,41 @@ document.addEventListener('DOMContentLoaded',function(){
     .prototype-badge, .top-brand { display: none; }
     .tb-group + .tb-group { margin-left: 4px; padding-left: 5px; }
     body:not(.edit-mode) .mobile-view-switch { display: flex; }
+    body:not(.edit-mode) .mobile-more-toggle { display: flex; }
     body.edit-mode .mobile-view-switch { display: none; }
+    body:not(.edit-mode):not(.toolbar-more-open) #toolbar {
+      flex-wrap: nowrap;
+      overflow-x: hidden;
+      scrollbar-width: none;
+    }
+    body:not(.edit-mode):not(.toolbar-more-open) #toolbar .tb-group + .tb-group {
+      margin-left: 2px;
+      padding-left: 2px;
+    }
+    body:not(.edit-mode):not(.toolbar-more-open) #toolbar .tb-btn {
+      padding-inline: 5px;
+    }
+    body:not(.edit-mode):not(.toolbar-more-open) #toolbar .seg-btn {
+      padding-inline: 5px;
+    }
+    body:not(.edit-mode):not(.toolbar-more-open) #toolbar .seg-val {
+      padding-inline: 5px;
+      min-width: 25px;
+    }
+    body:not(.edit-mode):not(.toolbar-more-open) #display-btn,
+    body:not(.edit-mode):not(.toolbar-more-open) .tb-group[aria-label="Visibility"],
+    body:not(.edit-mode):not(.toolbar-more-open) #spell-btn {
+      display: none;
+    }
+    body:not(.edit-mode).mobile-lyric:not(.toolbar-more-open) .tb-group[aria-label="Readability"] .seg-ctrl:first-child,
+    body:not(.edit-mode).mobile-band:not(.toolbar-more-open) .tb-group[aria-label="Readability"] .seg-ctrl:last-child {
+      display: none;
+    }
+    body:not(.edit-mode).toolbar-more-open #toolbar { flex-wrap: wrap; }
+    body:not(.edit-mode).toolbar-more-open #mobile-more-btn {
+      background: var(--ui-active);
+      color: #ffffff;
+    }
     #metabar { padding-inline: 12px; }
     #sheet { padding-inline: 12px; }
     body:not(.edit-mode) .section-pair {
@@ -776,10 +871,13 @@ document.addEventListener('DOMContentLoaded',function(){
     body:not(.edit-mode) .section-pair > .section { margin: 0; }
     body:not(.edit-mode) .section-pair .note-type-sec .sec-note-wrap { padding-top: 0; }
     .lyric-placeholder { display: none; }
-    body:not(.edit-mode) .section-tag { padding-right: var(--space-2); }
+    body:not(.edit-mode) .section-tag {
+      min-height: 32px;
+      padding: 8px var(--space-2);
+    }
     body:not(.edit-mode) .section-tag .section-name {
       display: block;
-      padding-right: 56px;
+      padding-right: 64px;
     }
     body:not(.edit-mode) .section-tag .section-detail {
       display: block;
@@ -888,6 +986,9 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="tb-group prototype-edit-only" aria-label="Save">
     <button class="tb-btn primary" onclick="saveToFile()" title="Save current sheet as HTML">save html</button>
     <span class="save-state" id="save-state" aria-live="polite">checking...</span>
+  </div>
+  <div class="tb-group mobile-more-toggle" aria-label="More">
+    <button class="tb-btn" id="mobile-more-btn" onclick="toggleToolbarMore()" aria-expanded="false" title="More display controls">•••</button>
   </div>
   <span class="tb-flex-spacer"></span>
   <span class="prototype-badge">80/20 · luminous system</span>
@@ -2701,6 +2802,130 @@ window.addEventListener('beforeunload',function(e){
   SETTINGS.chordFont = CONTENT_FONT;
   document.documentElement.style.setProperty('--chord-font', CONTENT_FONT);
   document.body.classList.remove('notes-hidden');
+  var FOCUS_KEY = 'bandsheet-focus:' + window.location.pathname;
+  var FOCUS_ANCHOR = null;
+  try { FOCUS_ANCHOR = JSON.parse(sessionStorage.getItem(FOCUS_KEY) || 'null'); }
+  catch (error) { FOCUS_ANCHOR = null; }
+
+  function sameFocus(a, b) {
+    return !!a && !!b && a.type === b.type && Number(a.si) === Number(b.si) &&
+      (a.type !== 'bar' || Number(a.bi) === Number(b.bi));
+  }
+
+  function saveFocusAnchor() {
+    try {
+      if (FOCUS_ANCHOR) sessionStorage.setItem(FOCUS_KEY, JSON.stringify(FOCUS_ANCHOR));
+      else sessionStorage.removeItem(FOCUS_KEY);
+    } catch (error) {}
+  }
+
+  function focusLabel(anchor) {
+    var section = SECTIONS[Number(anchor.si)] || {};
+    var label = String(section.label || 'Section');
+    if (anchor.type === 'bar') {
+      var bar = (section.bars || [])[Number(anchor.bi)] || {};
+      var chord = String(bar.c || '').trim();
+      return label + (chord ? ' · ' + chord : '');
+    }
+    return label;
+  }
+
+  function focusElement(anchor) {
+    if (!anchor) return null;
+    var section = document.querySelector('.section[data-si="' + Number(anchor.si) + '"]');
+    if (!section) return null;
+    if (anchor.type === 'bar') {
+      return section.querySelector('.bar-cell[data-bi="' + Number(anchor.bi) + '"]');
+    }
+    return section.querySelector('.section-tag');
+  }
+
+  function ensureFocusReturn() {
+    var button = document.getElementById('focus-return');
+    if (button) return button;
+    button = document.createElement('button');
+    button.id = 'focus-return';
+    button.className = 'focus-return';
+    button.type = 'button';
+    button.onclick = function () { window.returnToFocus(); };
+    document.body.appendChild(button);
+    return button;
+  }
+
+  function renderFocusAnchor() {
+    document.querySelectorAll('.focus-anchor-section').forEach(function (el) { el.classList.remove('focus-anchor-section'); });
+    document.querySelectorAll('.contains-focus-anchor').forEach(function (el) { el.classList.remove('contains-focus-anchor'); });
+    document.querySelectorAll('.focus-anchor-target').forEach(function (el) { el.classList.remove('focus-anchor-target'); });
+    var button = ensureFocusReturn();
+    var target = focusElement(FOCUS_ANCHOR);
+    if (!FOCUS_ANCHOR || !target) {
+      FOCUS_ANCHOR = null;
+      saveFocusAnchor();
+      document.body.classList.remove('has-focus-anchor');
+      button.textContent = '';
+      return;
+    }
+    var section = target.closest('.section');
+    if (FOCUS_ANCHOR.type === 'bar') {
+      target.classList.add('focus-anchor-target');
+      if (section) section.classList.add('contains-focus-anchor');
+    } else if (section) {
+      section.classList.add('focus-anchor-section');
+    }
+    button.textContent = '↩ ' + focusLabel(FOCUS_ANCHOR);
+    button.title = 'Return to focused position';
+    document.body.classList.add('has-focus-anchor');
+  }
+
+  function setFocusAnchor(next) {
+    FOCUS_ANCHOR = sameFocus(FOCUS_ANCHOR, next) ? null : next;
+    saveFocusAnchor();
+    renderFocusAnchor();
+  }
+
+  function bindFocusAnchors() {
+    ensureFocusReturn();
+    document.querySelectorAll('.section[data-si]').forEach(function (section) {
+      var si = Number(section.dataset.si);
+      var source = SECTIONS[si];
+      if (!source || source.type === 'note') return;
+      var tag = section.querySelector('.section-tag');
+      if (tag && !tag.dataset.focusBound) {
+        tag.dataset.focusBound = '1';
+        tag.addEventListener('click', function (event) {
+          if (EDIT_MODE) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          setFocusAnchor({ type: 'section', si: si });
+        }, true);
+      }
+      section.querySelectorAll('.bar-cell[data-bi]').forEach(function (cell) {
+        if (cell.dataset.focusBound) return;
+        cell.dataset.focusBound = '1';
+        cell.title = 'Tap to focus this bar';
+        cell.addEventListener('click', function (event) {
+          if (EDIT_MODE) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          setFocusAnchor({ type: 'bar', si: si, bi: Number(cell.dataset.bi) });
+        }, true);
+      });
+    });
+    renderFocusAnchor();
+  }
+
+  window.returnToFocus = function () {
+    var target = focusElement(FOCUS_ANCHOR);
+    if (!target) return renderFocusAnchor();
+    var section = target.closest('.section');
+    if (FOCUS_ANCHOR.type === 'bar' && section && document.body.classList.contains('mobile-lyric')) {
+      closeChordPeeks(section);
+      section.classList.add('chords-open');
+      var peek = section.querySelector('.chord-peek-btn');
+      if (peek) peek.textContent = 'hide chord';
+    }
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+  };
 
   function headingColor(source) {
     var original = source || LUMINOUS_PRESETS[0];
@@ -2745,10 +2970,10 @@ window.addEventListener('beforeunload',function(e){
         cell.style.setProperty('--bar-num-color', '#a5b1c1');
         cell.style.setProperty('--bar-accent', '#d8e1ed');
         if (cell.classList.contains('highlighted')) {
-          cell.style.background = '#eaf0ff';
-          cell.style.borderColor = '#8ea8ff';
-          cell.style.outlineColor = '#8ea8ff';
-          cell.style.boxShadow = 'inset 3px 0 0 #275dff';
+          cell.style.background = '#f8fafd';
+          cell.style.borderColor = '#275dff';
+          cell.style.outlineColor = '#275dff';
+          cell.style.boxShadow = 'inset 0 0 0 1px #275dff';
         } else {
           cell.style.background = '#f8fafd';
           cell.style.borderColor = '#d8e1ed';
@@ -2779,10 +3004,21 @@ window.addEventListener('beforeunload',function(e){
     button.textContent = 'show chord';
     button.onclick = function (event) {
       event.stopPropagation();
-      var open = sectionEl.classList.toggle('chords-open');
-      button.textContent = open ? 'hide chord' : 'show chord';
+      var willOpen = !sectionEl.classList.contains('chords-open');
+      closeChordPeeks(sectionEl);
+      sectionEl.classList.toggle('chords-open', willOpen);
+      button.textContent = willOpen ? 'hide chord' : 'show chord';
     };
     head.appendChild(button);
+  }
+
+  function closeChordPeeks(except) {
+    document.querySelectorAll('.section.chords-open').forEach(function (section) {
+      if (section === except) return;
+      section.classList.remove('chords-open');
+      var button = section.querySelector('.chord-peek-btn');
+      if (button) button.textContent = 'show chord';
+    });
   }
 
   function makeBandLyricCue(lyric) {
@@ -2853,13 +3089,21 @@ window.addEventListener('beforeunload',function(e){
 
   var MOBILE_VIEW = 'lyric';
   window.setMobileView = function (mode) {
-    MOBILE_VIEW = mode === 'lyric' ? 'lyric' : 'band';
+    var nextView = mode === 'lyric' ? 'lyric' : 'band';
+    if (nextView !== MOBILE_VIEW) closeChordPeeks();
+    MOBILE_VIEW = nextView;
     document.body.classList.toggle('mobile-band', MOBILE_VIEW === 'band');
     document.body.classList.toggle('mobile-lyric', MOBILE_VIEW === 'lyric');
     var band = document.getElementById('band-view-btn');
     var lyric = document.getElementById('lyric-view-btn');
     if (band) band.classList.toggle('active', MOBILE_VIEW === 'band');
     if (lyric) lyric.classList.toggle('active', MOBILE_VIEW === 'lyric');
+  };
+
+  window.toggleToolbarMore = function () {
+    var open = document.body.classList.toggle('toolbar-more-open');
+    var button = document.getElementById('mobile-more-btn');
+    if (button) button.setAttribute('aria-expanded', open ? 'true' : 'false');
   };
 
   function pruneLeanControls() {
@@ -2896,16 +3140,19 @@ window.addEventListener('beforeunload',function(e){
   var renderCore = window.render;
   window.render = function () {
     renderCore();
+    if (EDIT_MODE) document.body.classList.remove('toolbar-more-open');
     pruneLeanControls();
     applyPrototypeTheme();
     pairChordAndLyrics();
     window.setMobileView(MOBILE_VIEW);
+    bindFocusAnchors();
   };
 
   pruneLeanControls();
   applyPrototypeTheme();
   pairChordAndLyrics();
   window.setMobileView(MOBILE_VIEW);
+  bindFocusAnchors();
   window.addEventListener('resize', syncPairOffsets, { passive: true });
   var chordSizeValue = document.getElementById('chord-size-val');
   var noteSizeValue = document.getElementById('note-size-val');
