@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+<html lang="th" style="--cell-w: 127px; --chord-font: 'Roboto Condensed';"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Resistance · Muse · 80/20 Prototype</title>
+<style>
+:root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--text-faint:#b7c3d1;--accent:#334155;--ui-ink:#5f6f83;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d;--cell-w:164px;--cell-h:64px;--gap:6px;--radius:5px;--chord-font:'Roboto Condensed';--note-font:'IBM Plex Sans Thai Looped',sans-serif;--ui-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'IBM Plex Sans Thai',sans-serif;color:var(--text);min-height:100vh;padding:0 0 80px}
+/* ── Toolbar ── */
+#toolbar{position:sticky;top:0;z-index:100;transition:transform .18s ease;background:rgba(255,255,255,0.97);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--ui-line);padding:4px 14px;display:flex;align-items:center;flex-wrap:wrap;gap:0;row-gap:3px;font-family:var(--ui-font);will-change:transform}
+.tb-group{display:flex;align-items:center;gap:3px;padding:1px 0;flex-shrink:0}
+.tb-group+.tb-group{border-left:1px solid var(--ui-line);margin-left:6px;padding-left:8px}
+.tb-group-export{padding-left:8px}
+.save-state{font-family:var(--ui-font);font-size:10px;color:var(--ui-muted);white-space:nowrap;margin-left:4px}
+.save-state.dirty{color:#b45309;font-weight:600}
+.save-state.saved{color:#2f855a}
+.tb-flex-spacer{flex:1 1 auto;min-width:28px}
+.tb-sep{display:none}
+.tb-group-label{font-size:12px;font-weight:300;color:var(--ui-muted);letter-spacing:.012em;padding:0 5px 0 3px;user-select:none;white-space:nowrap;flex-shrink:0}
+.tb-btn{font-size:12px;font-weight:400;padding:4px 8px;border:none;border-radius:6px;background:transparent;color:var(--ui-ink);cursor:pointer;transition:background .1s,color .1s;font-family:inherit;white-space:nowrap;height:27px;display:inline-flex;align-items:center;gap:4px;letter-spacing:.012em;flex-shrink:0;text-transform:lowercase}
+.tb-btn:hover{background:var(--ui-hover);color:var(--ui-ink)}
+.tb-btn:active{background:var(--ui-line)}
+.tb-btn.active{background:var(--ui-active);color:#f8fbff;font-weight:400}
+.tb-btn.active:hover{background:#526a82}
+.tb-btn.home-btn{font-size:15px;width:26px;justify-content:center;padding:4px 0;color:var(--ui-muted)}
+.tb-btn.home-btn:hover{color:var(--ui-ink)}
+.tb-btn.primary{background:var(--ui-active);color:#f8fbff;font-weight:400}
+.tb-btn.primary:hover{background:#526a82}
+.tb-btn.ghost{color:var(--ui-muted)}
+.tb-btn.ghost:hover{background:var(--ui-hover);color:var(--ui-ink)}
+.seg-ctrl{display:flex;align-items:center;background:var(--ui-soft);border-radius:6px;overflow:hidden;height:26px;flex-shrink:0}
+.seg-btn{font-size:12px;font-weight:400;padding:0 7px;background:transparent;border:none;color:var(--ui-muted);cursor:pointer;font-family:inherit;height:100%;transition:background .1s,color .1s;letter-spacing:.012em;line-height:1}
+.seg-btn:hover{background:var(--ui-hover);color:var(--ui-ink)}
+.seg-val{font-size:12px;font-family:inherit;font-weight:300;color:var(--ui-muted);padding:0 7px;min-width:29px;text-align:center;user-select:none;border-left:1px solid var(--ui-line);border-right:1px solid var(--ui-line);letter-spacing:.012em}
+.seg-val.clickable{cursor:pointer;transition:color .1s}
+.seg-val.clickable:hover{color:var(--ui-ink)}
+.seg-val.transposed{color:var(--ui-ink);font-weight:400}
+.duration-input{font-family:inherit;font-size:12px;font-weight:300;color:var(--ui-muted);border:none;background:var(--ui-soft);outline:none;width:42px;height:26px;padding:0 7px;border-radius:6px;letter-spacing:.012em}
+.duration-input:hover,.duration-input:focus{background:var(--ui-hover);color:var(--ui-ink)}
+
+/* ── Metabar ── */
+#metabar{background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;transition:transform .18s ease,opacity .18s ease;will-change:transform,opacity}
+.meta-label{font-size:12px;color:var(--ui-muted);font-family:var(--ui-font);font-weight:300;letter-spacing:.012em;text-transform:none;margin-right:2px}
+.tb-filename,.tb-artist,.meta-input{font-family:var(--ui-font);font-size:12px;font-weight:700;color:var(--ui-ink);border:none;background:var(--ui-soft);outline:none;padding:3px 8px;border-radius:4px;transition:background .12s,color .12s;min-width:20px;letter-spacing:.012em}
+.tb-filename::placeholder,.tb-artist::placeholder,.meta-input::placeholder{color:var(--ui-muted);opacity:1;font-weight:700}
+.tb-filename{width:170px}
+.tb-artist{width:170px}
+.meta-input{max-width:90px}
+.tb-filename:hover,.tb-artist:hover,.meta-input:hover{background:var(--ui-hover);color:var(--ui-ink)}
+.tb-filename:focus,.tb-artist:focus,.meta-input:focus{background:var(--ui-hover);color:var(--ui-ink);box-shadow:none}
+.top-brand{font-size:12px;font-weight:400;font-family:inherit;color:var(--ui-muted);text-decoration:none;white-space:nowrap;transition:opacity .12s;flex-shrink:0;display:inline-flex;align-items:baseline;gap:6px;letter-spacing:.012em}
+.top-brand:hover{opacity:.75}
+.brand-version{font-size:12px;font-weight:300;color:var(--ui-muted)}
+.meta-sep{color:var(--border-strong);font-size:12px;margin:0 4px}
+body.bars-hidden #toolbar{transform:translateY(calc(-1 * var(--toolbar-hide-y,56px)))}
+body.bars-hidden #metabar{transform:translateY(calc(-1 * (var(--toolbar-hide-y,56px) + var(--metabar-hide-y,36px))));opacity:0;pointer-events:none}
+body.autoscroll-on #toolbar,body.autoscroll-on #metabar{display:none!important}
+body.autoscroll-on #footer-section{display:none!important}
+.scroll-hud{position:fixed;right:14px;bottom:14px;z-index:120;display:none;align-items:center;gap:6px;padding:6px 7px;border:1px solid var(--ui-line);border-radius:8px;background:rgba(255,255,255,.96);box-shadow:0 4px 18px rgba(23,32,51,.12);font-family:var(--ui-font)}
+body.autoscroll-on .scroll-hud{display:flex}
+.scroll-hud .tb-btn{height:24px;padding:3px 8px}
+.scroll-hud .jump-btn{width:24px;justify-content:center;padding:3px 0}
+.scroll-hud .seg-ctrl{height:24px}
+.scroll-hud .seg-btn{padding:0 8px}
+.scroll-hud-text{font-size:12px;font-weight:300;color:var(--ui-muted);min-width:40px;text-align:center}
+/* ── Sheet ── */
+#sheet{padding:8px 24px 24px;overflow-x:auto}
+.section{width:var(--note-content-w,auto);max-width:100%;margin:0 auto 18px}
+body.edit-mode .section{width:100%}
+/* Section head */
+.section-head{display:flex;align-items:center;gap:7px;width:100%;max-width:100%;margin:0 0 6px;padding:0 2px;flex-wrap:wrap}
+body.edit-mode .section-head{display:grid;grid-template-columns:32px var(--note-content-w,100%) 72px;column-gap:7px;justify-content:center;align-items:center;padding:0 2px}
+body.edit-mode .section-head-main{display:flex;align-items:center;gap:7px;min-width:0}
+.section-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;transition:opacity .12s;border:1px solid transparent;white-space:nowrap}
+.section-tag:hover{opacity:.8}
+.note-type-sec .section-tag{display:none!important}
+.section-label-inp{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;background:transparent;color:inherit;border-radius:3px;padding:2px 7px;outline:none;font-family:inherit;min-width:40px;max-width:140px}
+.note-toggle{font-size:10px;color:var(--text-faint);background:none;border:1px dashed transparent;border-radius:3px;padding:2px 6px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0}
+.note-toggle:hover{color:var(--text-muted);border-color:var(--border)}
+.note-toggle.note-on{color:var(--text-muted);border-style:solid;border-color:var(--border-strong)}
+.section-note{font-size:11px;color:var(--text-muted);font-family:var(--ui-font);border:none;background:transparent;outline:none;cursor:text;flex:1;min-width:40px}
+.section-note:focus{background:var(--bg);border-radius:2px;padding:0 3px;color:var(--text)}
+.section-actions{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+body.edit-mode .section-actions{margin-left:0;justify-self:start}
+.sheet-add-actions{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.sec-btn{font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:3px;padding:2px 8px;cursor:pointer;transition:all .12s;font-family:inherit;white-space:nowrap}
+.sec-btn:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
+.sec-btn-danger{color:#dc2626!important}
+.sec-btn-danger:hover{border-color:#dc2626!important;background:#fff1f1!important}
+.sec-btn-warn{color:#d97706!important}
+.sec-btn-warn:hover{border-color:#d97706!important;background:#fffbeb!important}
+.sec-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
+/* ── Note section ── */
+.sec-note-wrap{padding:0 2px 10px 2px}
+body.edit-mode .sec-note-wrap{display:grid;grid-template-columns:32px var(--note-content-w,100%) 72px;column-gap:7px;align-items:start;justify-content:center;padding-left:2px}
+body.edit-mode .note-type-sec .sec-order-inp{margin-top:0}
+.sec-note-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:var(--note-content-w,100%);max-width:100%;margin:0 auto}
+body.edit-mode .sec-note-cols{width:var(--note-content-w,100%);margin:0}
+.sec-note-cols.note-cols-single{grid-template-columns:minmax(0,1fr)}
+.sec-note-col{display:flex;flex-direction:column;gap:4px;min-width:0}
+.rte-toolbar{display:none!important}
+body:not(.edit-mode) .rte-toolbar{display:none!important}
+.rte-btn{font-size:10px;font-family:var(--ui-font);font-weight:600;padding:2px 7px;border:1px solid var(--border-strong);border-radius:3px;background:var(--surface);cursor:pointer;color:var(--text-muted);transition:all .12s;line-height:1.5}
+.rte-btn:hover{background:var(--bg);color:var(--text);border-color:var(--accent)}
+.rte-btn.rte-sep{border:none;color:var(--border-strong);padding:0 2px;cursor:default}
+.rte-editor{min-height:60px;border-left:2px solid transparent;padding:8px 2px 8px 10px;font-family:var(--note-font);font-size:20px;font-weight:400;color:var(--text);background:var(--surface);line-height:1.65;border-radius:0 var(--radius) var(--radius) 0;outline:none;overflow:auto;min-width:0;overflow-wrap:anywhere}
+.rte-editor:focus{background:var(--bg)}
+.rte-editor:empty::before{content:''}
+.rte-editor a{color:#2563eb;text-decoration:underline}
+.rte-editor img{max-width:100%;border-radius:4px;margin:4px 0;display:block}
+@media(max-width:768px){.sec-note-cols{grid-template-columns:1fr}}
+/* ── Bar rows ── */
+.bar-row{display:flex;flex-wrap:nowrap;align-items:flex-end;justify-content:flex-start;gap:var(--gap);min-height:calc(var(--cell-h) + 4px);padding:3px 2px;border-radius:4px;transition:background .1s}
+body.edit-mode .bar-row{display:grid;grid-template-columns:32px var(--note-content-w,100%) 72px;column-gap:7px;align-items:end;justify-content:center;width:100%;padding:2px 2px}
+.bar-row.drag-over{background:rgba(59,130,246,.07);outline:2px dashed #3b82f6;outline-offset:-2px}
+.row-ctrl{display:flex;align-items:flex-start;justify-content:center;flex-shrink:0;width:28px;align-self:start;padding-top:10px}
+.bar-row-main{display:flex;flex-wrap:nowrap;align-items:flex-end;justify-content:flex-start;gap:var(--gap);min-width:0;flex:0 0 auto}
+body.edit-mode .bar-row-main{width:var(--note-content-w,100%)}
+.row-repeat-ctrl{display:flex;align-items:flex-end;justify-content:flex-end;gap:3px;min-width:0}
+body:not(.edit-mode) .row-repeat-ctrl:empty{display:none}
+/* rail-text: quiet editor rail labels, matching the top menu "view" text. */
+.rail-text,.sec-order-inp{font-family:var(--ui-font);font-size:12px;font-weight:300;letter-spacing:.012em;color:var(--ui-muted);line-height:1}
+/* row-size-text: smaller bar-count controls in the row rail. */
+.row-size-text,.row-cols-inp,.bar-count-inp,.bar-count-btn{font-family:var(--ui-font);font-size:9px;font-weight:300;letter-spacing:.012em;color:var(--ui-muted);line-height:1}
+.row-cols-inp{width:22px;text-align:center;border:none;border-radius:0;padding:2px 1px;background:transparent;outline:none;cursor:ns-resize;-moz-appearance:textfield}
+.row-cols-inp::-webkit-outer-spin-button,.row-cols-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.row-cols-inp:hover{background:transparent;color:var(--ui-ink)}
+.row-cols-inp:focus{background:transparent;color:var(--ui-ink);cursor:text}
+/* ── Bar cells ── */
+.bar-cell{width:var(--cell-w);min-height:var(--cell-h);border-radius:var(--radius);border:1px solid var(--border);padding:12px 8px 24px;display:flex;flex-direction:column;gap:2px;cursor:grab;user-select:none;transition:box-shadow .12s,transform .1s,opacity .1s;position:relative;background:var(--surface)}
+.bar-cell:active{cursor:grabbing}
+.bar-cell.dragging{opacity:.12;transform:scale(.93);pointer-events:none;transition:none}
+.bar-cell.drag-over-left{box-shadow:none}
+.bar-cell.drag-over-left::before{content:'';position:absolute;left:-4px;top:4px;bottom:4px;width:3px;border-radius:3px;background:#3b82f6;z-index:10}
+.bar-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.09);z-index:2}
+/* Bar number — top left, accent colour set inline */
+.bar-num{font-family:var(--ui-font);font-size:10px;font-weight:600;line-height:1;position:absolute;top:4px;left:6px;opacity:.7}
+/* Bar special note — top right, section lbl colour */
+.bar-snote{position:absolute;top:4px;left:calc(6px + 20px + 4px);right:6px;font-family:var(--ui-font);font-size:10px;font-weight:700;line-height:1;background:transparent;border:none;outline:none;text-align:right;cursor:text;white-space:nowrap;padding:0;min-width:0}
+.bar-snote::placeholder{color:transparent}
+body.edit-mode .bar-snote::placeholder{color:transparent}
+body.view-mini .bar-snote{font-size:9px;top:3px}
+.bar-chord{font-family:var(--chord-font),sans-serif;font-size:14.5px;font-weight:700;color:var(--text);line-height:1.12;cursor:text;outline:none;width:100%;padding:0;word-break:normal;overflow-wrap:normal;white-space:pre-wrap;flex:1}
+.bar-chord:focus{background:rgba(0,0,0,.04);border-radius:2px;padding:0 2px;margin:0 -2px}
+.bar-chord-split{display:grid;width:100%;min-height:1.25em;align-self:center;flex:1;border:none;border-radius:0;overflow:hidden;background:transparent}
+.bar-chord-part{font-family:var(--chord-font),sans-serif;font-size:14.5px;font-weight:700;line-height:1.12;color:var(--text);cursor:text;outline:none;min-width:0;padding:0 2px;white-space:pre-wrap;overflow-wrap:anywhere;display:flex;align-items:center;justify-content:flex-start;border-left:none}
+.bar-chord-part:focus{background:rgba(0,0,0,.035);border-radius:2px}
+body.view-mini .bar-chord-split{min-height:22px}
+body.view-mini .bar-chord-part{font-weight:700;line-height:1.05;padding:0 1px;align-items:center}
+.bar-ann{font-size:10px;color:var(--text-muted);cursor:text;border:none;background:transparent;outline:none;width:100%;padding:0;font-family:inherit;line-height:1.2}
+.bar-ann:focus{background:rgba(0,0,0,.03);border-radius:2px;padding:0 2px}
+.bar-ann::placeholder{color:transparent}
+body.view-mini .bar-ann-empty{height:0;min-height:0;line-height:0;opacity:0;pointer-events:none}
+.del-btn{position:absolute;right:3px;bottom:3px;width:14px;height:14px;border-radius:50%;background:none;border:none;color:var(--text-faint);font-size:11px;line-height:14px;text-align:center;cursor:pointer;display:none;padding:0}
+.bar-cell:hover .del-btn{display:block}
+.del-btn:hover{background:#fee2e2;color:#dc2626}
+.add-bar-cell{display:none!important}
+/* Highlight */
+.bar-cell.highlighted{outline-offset:-1px;z-index:3}
+.bar-cell.highlighted,.bar-cell.highlighted .bar-num,.bar-cell.highlighted .bar-snote,.bar-cell.highlighted .bar-chord,.bar-cell.highlighted .bar-chord-part,.bar-cell.highlighted .bar-ann{color:#fff!important}
+.bar-cell.highlighted .bar-snote::placeholder,.bar-cell.highlighted .bar-ann::placeholder{color:transparent!important}
+.bar-cell.highlighted .bar-chord:focus,.bar-cell.highlighted .bar-chord-part:focus,.bar-cell.highlighted .bar-ann:focus,.bar-cell.highlighted .bar-snote:focus{background:rgba(255,255,255,.12)}
+/* Highlight btn — bottom LEFT */
+.bar-bottom{position:absolute;bottom:4px;left:4px;display:flex;gap:4px;align-items:center;opacity:0;pointer-events:none;transition:opacity .12s}
+.highlight-btn,.rhythm-bar-btn,.count-bypass-btn{width:13px;height:13px;background:transparent;border:0;color:rgba(0,0,0,.13);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:2px 0 0;line-height:1;text-align:center;opacity:.62;font:700 9px/1 var(--ui-font);transition:opacity .15s,background .15s,color .15s}
+.highlight-btn{border-radius:1px}
+.rhythm-bar-btn{border-radius:1px;flex-shrink:0}
+body.edit-mode .bar-cell:hover .bar-bottom,body.edit-mode .bar-cell:focus-within .bar-bottom{opacity:.9;pointer-events:auto}
+.highlight-btn:hover,.rhythm-bar-btn:hover,.count-bypass-btn:hover{opacity:1;background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.18);color:rgba(0,0,0,.42)}
+.bar-cell.highlighted .highlight-btn{color:rgba(0,0,0,.10)}
+.bar-cell.highlighted .bar-bottom button:hover{background:rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.45)}
+/* ── Edit mode ── */
+body:not(.edit-mode) .del-btn{display:none!important}
+body:not(.edit-mode) .bar-bottom{display:none!important}
+body:not(.edit-mode) .add-bar-cell{display:none!important}
+body:not(.edit-mode) .section-actions{display:none!important}
+body:not(.edit-mode) .sheet-add-actions{display:none!important}
+body:not(.edit-mode) .row-ctrl{display:none!important}
+.sec-order-inp{width:32px;text-align:center;border:none;border-radius:0;padding:2px 1px;background:transparent;outline:none;-moz-appearance:textfield;flex-shrink:0}
+.sec-order-inp::-webkit-outer-spin-button,.sec-order-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.sec-order-inp:hover{background:transparent;color:var(--ui-ink)}
+.sec-order-inp:focus{background:transparent;color:var(--ui-ink)}
+body:not(.edit-mode) .sec-order-inp{display:none!important}
+.note-edit-rail{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:0;position:relative;overflow:visible}
+.note-edit-rail .sec-order-inp{margin-top:0!important}
+.note-col-btn{font-family:var(--ui-font);font-size:9px;font-weight:300;letter-spacing:.012em;color:var(--ui-muted);background:rgba(148,168,186,.13);border:none;border-radius:3px;padding:3px 5px;cursor:pointer;white-space:nowrap;line-height:1}
+.note-col-btn:hover{background:rgba(148,168,186,.18);color:var(--ui-ink)}
+.note-col-btn.note-del-btn{color:#dc2626;background:transparent;font-size:11px;padding:2px 4px}
+.note-col-btn.note-del-btn:hover{background:#fff1f1;color:#dc2626}
+.bar-count-inp{width:20px;text-align:center;border:none;border-radius:3px;padding:3px 1px;margin-left:12px;margin-right:-2px;background:rgba(148,168,186,.13);outline:none;-moz-appearance:textfield;flex-shrink:0}
+.bar-count-inp::-webkit-outer-spin-button,.bar-count-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.bar-count-inp:hover,.bar-count-inp:focus{background:rgba(148,168,186,.18);color:var(--ui-ink)}
+.bar-count-btn{padding-left:6px;padding-right:6px}
+/* ── Color picker ── */
+.color-popup{position:fixed;z-index:500;background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;padding:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);min-width:220px;display:none}
+.color-popup.open{display:block}
+.color-popup-title{font-family:var(--ui-font);font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.color-swatches{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.swatch-row-label{font-family:var(--ui-font);font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px}
+.swatch{width:24px;height:24px;border-radius:4px;cursor:pointer;border:2px solid rgba(255,255,255,.95);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);transition:transform .1s,border-color .1s,box-shadow .1s;flex-shrink:0}
+.swatch:hover{transform:scale(1.12);box-shadow:inset 0 0 0 1px rgba(0,0,0,.10),0 0 0 2px var(--ui-line)}
+.swatch.active{border-color:var(--surface);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 0 0 2px var(--ui-ink)}
+.color-popup-row{display:flex;align-items:center;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:8px}
+.color-popup-row label{font-size:10px;color:var(--text-muted);font-family:var(--ui-font);white-space:nowrap}
+.hex-input{font-family:var(--ui-font);font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 7px;outline:none;width:90px}
+.hex-input:focus{border-color:var(--border-strong)}
+.color-preview{width:20px;height:20px;border-radius:3px;border:1px solid var(--border);flex-shrink:0}
+.popup-close{margin-left:auto;font-size:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;font-family:inherit}
+.popup-close:hover{color:var(--text)}
+.note-size-ctrl{display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:4px;overflow:hidden}
+.note-size-ctrl .nsc-btn{font-size:10px;font-weight:700;padding:5px 8px;background:var(--surface);border:none;color:var(--text-muted);cursor:pointer;font-family:var(--ui-font);transition:background .12s;line-height:1}
+.note-size-ctrl .nsc-btn:first-child{border-right:1px solid var(--border-strong)}
+.note-size-ctrl .nsc-btn:last-child{border-left:1px solid var(--border-strong)}
+.note-size-ctrl .nsc-btn:hover{background:var(--bg);color:var(--text)}
+.note-size-ctrl .nsc-val{font-size:10px;font-family:var(--ui-font);color:var(--text-muted);padding:0 6px;min-width:26px;text-align:center;user-select:none}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;font-family:var(--ui-font);white-space:nowrap;z-index:999}
+#toast.show{opacity:1}
+/* ── Footer ── */
+#footer-section{margin-top:8px;padding-top:16px;border-top:1px solid var(--border)}
+.footer-head{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;font-family:var(--ui-font)}
+.footer-sub{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+/* ↑ ↓ × shared controls */
+.fic-btn{width:22px;height:22px;border:1px dashed var(--border-strong);border-radius:3px;background:none;cursor:pointer;font-size:11px;color:var(--text-muted);padding:0;line-height:22px;text-align:center;transition:all .12s;font-family:var(--ui-font);flex-shrink:0}
+.fic-btn:hover{background:var(--bg);border-color:var(--accent);border-style:solid;color:var(--text)}
+.fic-btn:disabled{opacity:.2;cursor:default;pointer-events:none}
+.fic-del{border-color:#fca5a5;color:#ef4444}
+.fic-del:hover{background:#fee2e2!important;border-color:#dc2626!important;border-style:solid!important;color:#dc2626!important}
+/* Note cards */
+.footer-notes-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.footer-note-card{display:flex;align-items:flex-start;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:7px 8px;transition:box-shadow .12s,border-color .12s}
+.footer-note-card:hover{border-color:var(--border-strong);box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.footer-note-ta{flex:1;min-height:42px;border:none;background:transparent;outline:none;font-family:var(--note-font);font-size:20px;font-weight:400;color:var(--text);resize:vertical;line-height:1.65;padding:2px 0}
+.footer-note-ta::placeholder{color:var(--text-faint);font-style:italic}
+.fn-ctrl{display:none;flex-direction:column;gap:3px;flex-shrink:0;padding-top:1px}
+body.edit-mode .fn-ctrl{display:flex}
+.footer-add-note{font-size:10px;color:var(--text-muted);background:none;border:1px dashed var(--border-strong);border-radius:3px;padding:4px 12px;cursor:pointer;font-family:inherit;transition:all .12s}
+.footer-add-note:hover{color:var(--text);border-color:var(--accent);background:var(--bg)}
+body:not(.edit-mode) .footer-add-note{display:none}
+/* ── MINI VIEW ── */
+body.view-mini{--cell-h:48px;--gap:3px}
+body.view-mini .bar-ann{display:none!important}
+body.view-mini .bar-cell{display:flex;flex-direction:row;align-items:flex-start;padding:14px 6px 20px 8px}
+body.view-mini .bar-num{font-size:8px;top:3px;left:4px;opacity:.75}
+body.view-mini .bar-chord{font-weight:700;flex:1;min-width:0;padding:0}
+body.view-mini .bar-bottom{bottom:3px;left:3px}
+body.view-mini .highlight-btn,body.view-mini .rhythm-bar-btn,body.view-mini .count-bypass-btn{width:11px;height:11px}
+body.view-mini .highlight-btn{font-size:8px}
+body.view-mini .section-note{display:none!important}
+body.view-mini .note-toggle{display:none!important}
+body.notes-hidden .section-note{display:none!important}
+body.notes-hidden .note-toggle{display:none!important}
+body.notes-hidden .note-type-sec .rte-toolbar{display:none!important}
+body.notes-hidden .note-type-sec .sec-note-wrap{padding-bottom:3px}
+body.notes-hidden .note-type-sec .rte-editor{min-height:0;max-height:calc(1.65em + 16px);overflow:hidden}
+body.notes-hidden .note-type-sec .rte-editor p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.notes-hidden .note-type-sec .rte-editor br{display:none}
+/* ── Rhythm strip ── */
+:root{--rhythm-h:38px}
+body:not(.edit-mode) .add-rhythm-hint{display:none!important}
+.bar-col{display:flex;flex-direction:column;gap:0;flex:0 0 var(--cell-w);width:var(--cell-w)}
+.bar-row.has-visible-rhythm .bar-col:not(.has-rhythm){padding-top:var(--rhythm-h)}
+.bar-col .bar-cell{width:100%}
+.rhythm-strip{width:100%;height:var(--rhythm-h);background:var(--surface);border:1px solid var(--border);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:background .1s}
+.rhythm-strip:hover{filter:brightness(0.97)}
+.rhythm-strip-hidden{display:none!important}
+.beat-slots{display:flex;align-items:center;justify-content:center;gap:1px;width:100%;height:100%;padding:3px 5px}
+.beat-slot{flex:1;height:100%;display:flex;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;transition:background .1s;min-width:0}
+.beat-slot:hover{background:rgba(0,0,0,0.06)}
+.add-rhythm-hint{font-size:9px;color:var(--text-faint);font-family:var(--ui-font);letter-spacing:.04em;pointer-events:none}
+.note-icon{height:28px;width:auto;display:block;flex-shrink:0}
+.note-icon-sm{height:26px;width:auto;display:block;flex-shrink:0}
+/* bar-cell when rhythm strip is above it */
+.bar-col.has-rhythm .bar-cell{border-radius:0 0 var(--radius) var(--radius);border-top:none}
+.rhythm-bar-btn.forced-show{background:transparent;border-color:rgba(0,0,0,.07);color:rgba(0,0,0,.10);opacity:.58}
+.rhythm-bar-btn.on{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.18);color:rgba(0,0,0,.42)}
+/* Rhythm pickers */
+#rhythmPicker{position:fixed;z-index:1000;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08);padding:10px;width:380px;display:none;flex-direction:column;gap:7px;font-family:var(--ui-font);max-height:82vh;overflow-y:auto}
+#rhythmPicker.open{display:flex}
+.picker-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:0 2px}
+.picker-group-label{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:0 2px;margin-top:2px}
+.picker-sep{height:1px;background:var(--border);margin:2px 0}
+.picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.picker-item{height:58px;border-radius:6px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;gap:1px;cursor:pointer;transition:all .12s;padding:5px 3px;flex-direction:column}
+.picker-item:hover{background:#f0ede8;border-color:var(--border-strong);transform:scale(1.04)}
+.picker-item.selected{border-color:#1c1c1e;background:#1c1c1e;color:#fff}
+.picker-item.selected .note-icon,.picker-item.selected .note-icon-sm{filter:invert(1)}
+.picker-item-label{font-size:7px;font-family:var(--ui-font);color:var(--text-faint);line-height:1.05;text-align:center;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.picker-item.selected .picker-item-label{color:rgba(255,255,255,.5)}
+.picker-clear{font-size:11px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-family:inherit;width:100%;text-align:center;transition:all .12s;margin-top:2px}
+.picker-clear:hover{border-color:#dc2626;color:#dc2626;background:#fff1f1}
+#beatPicker{position:fixed;z-index:1001;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.15);padding:8px;display:none;flex-direction:column;gap:6px;width:380px;max-height:82vh;overflow-y:auto;font-family:var(--ui-font)}
+#beatPicker.open{display:flex}
+.beat-picker-notes{display:flex;flex-wrap:wrap;gap:3px}
+.beat-picker-item{width:42px;height:44px;border-radius:5px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .1s;padding:4px 3px;flex-shrink:0}
+.beat-picker-item:hover{background:#f0ede8;border-color:var(--border-strong)}
+.beat-picker-item.selected{border-color:#1c1c1e;background:#1c1c1e}
+.beat-picker-item.selected .note-icon-sm{filter:invert(1)}
+.beat-picker-actions{display:flex;gap:4px}
+.bp-action-btn{flex:1;height:32px;border-radius:6px;border:1px solid var(--border);background:var(--bg);font-size:12px;font-family:var(--ui-font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .12s}
+.bp-action-btn:hover{border-color:var(--border-strong);background:#f0ede8}
+.bp-add-btn{color:#059669}
+.bp-add-btn:hover{border-color:#059669!important;background:#eafaf4!important;color:#059669}
+.bp-del-btn{color:#dc2626}
+.bp-del-btn:hover{border-color:#dc2626!important;background:#fff1f1!important;color:#dc2626}
+.bp-clear-btn{color:#7d8ca0}
+.bp-clear-btn:hover{border-color:#7d8ca0!important;background:#f3f7fb!important;color:#5f6f83}
+#rhythmOverlay{position:fixed;inset:0;z-index:999;display:none}
+#rhythmOverlay.open{display:block}
+/* ── Session 1 Option F: joined bars / count bypass ── */
+#sheet{width:min(100%,1120px);margin:0 auto}
+body.view-mini{--cell-h:44px;--gap:0px}
+body.view-mini .section{margin-bottom:13px}
+body.view-mini .section-head{margin-bottom:4px}
+body.edit-mode.view-mini .section-actions{display:grid;grid-template-columns:repeat(2,max-content);gap:4px;width:max-content;max-width:112px}
+body.edit-mode.view-mini .section-actions .sec-btn{padding:2px 6px;min-width:20px}
+body.view-mini .bar-row{min-height:calc(var(--cell-h) + 1px);padding:1px 0;margin-bottom:4px}
+body.view-mini .bar-row.repeat-break-after,body.edit-mode .bar-row.repeat-break-after{margin-bottom:18px}
+body.view-mini .bar-cell{padding:12px 3px 0 6px;height:var(--cell-h);min-height:var(--cell-h);border:none;border-radius:1px;overflow:hidden;box-shadow:inset 2px 0 0 var(--bar-accent,#3b82f6);flex-direction:column;align-items:flex-start;justify-content:center}
+body.view-mini .bar-cell:hover{box-shadow:inset 2px 0 0 var(--bar-accent,#3b82f6)}
+body.view-mini .bar-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:12px;background:var(--bar-strip,#d8e6f7);border-radius:1px 1px 0 0;opacity:.72}
+body.view-mini .bar-num{font-size:8px;top:2px;left:6px;opacity:1;z-index:1;color:var(--bar-num-color,#1e40af)!important;line-height:8px}
+body.view-mini .bar-chord{font-weight:700;line-height:1.05;align-self:flex-start;flex:0 0 auto;max-height:2.1em;overflow:hidden}
+body.view-mini .bar-chord:focus{padding:0;margin:0;background:rgba(0,0,0,.04)}
+body.view-mini .bar-chord-split{flex:0 0 auto;align-self:stretch}
+body.view-mini .bar-snote{font-size:7px;top:2px;right:6px;z-index:1;line-height:8px}
+body.view-mini .bar-bottom{bottom:2px;left:3px}
+body.view-mini .bar-cell.highlighted::before{background:rgba(255,255,255,.22)}
+body.view-mini .rhythm-strip{border:none;border-radius:1px 1px 0 0}
+body.view-mini .bar-col.has-rhythm .bar-cell{border-radius:0 0 1px 1px}
+body.view-mini .bar-cell.skip-count .bar-num{opacity:.18}
+body.view-mini .bar-cell.skip-count,body.view-mini .bar-cell.skip-count:hover{box-shadow:none}
+body.view-mini .count-bypass-btn{border:none;border-radius:1px;font-size:9px;font-weight:700;font-family:var(--ui-font)}
+body.edit-mode.view-mini .bar-cell{justify-content:center;padding-bottom:0}
+body.edit-mode.view-mini .bar-chord{flex:0 0 1.05em;max-height:1.05em;white-space:nowrap}
+body.edit-mode.view-mini .bar-chord-split{flex:0 0 18px;max-height:18px}
+body.edit-mode.view-mini .highlight-btn,body.edit-mode.view-mini .rhythm-bar-btn,body.edit-mode.view-mini .count-bypass-btn{width:12px;height:12px;font-size:8px}
+body.view-mini .bar-cell.skip-count .count-bypass-btn{color:rgba(0,0,0,.58);background:rgba(0,0,0,.08)}
+.row-repeat-badge{align-self:flex-end;height:var(--cell-h);min-width:28px;flex:0 0 28px;padding:0 6px;border-radius:1px;display:flex;align-items:center;justify-content:center;font-family:var(--ui-font);font-size:13px;font-weight:600;line-height:1;letter-spacing:0}
+.row-repeat-inp{align-self:flex-end;height:var(--cell-h);width:28px;border:none;border-radius:1px;background:var(--surface);color:var(--text);font-family:var(--ui-font);font-size:11px;font-weight:700;text-align:center;outline:1px dashed var(--border-strong);outline-offset:-1px;text-transform:uppercase}
+.repeat-group-inp{width:38px;background:#fff7ed;color:#9a3412;outline-color:#fdba74}
+.repeat-count-inp{width:28px;background:#f8fafc;color:#172033;outline-color:#cbd5e1}
+.row-repeat-inp::placeholder{color:var(--text-faint);font-weight:500;text-transform:none}
+.row-repeat-inp:focus{outline-color:var(--ui-active);background:#fff}
+body.chords-hidden .bar-cell{height:12px;min-height:12px;padding:0;box-shadow:none;background:transparent!important}
+body.chords-hidden .bar-cell:hover{box-shadow:none}
+body.chords-hidden .bar-cell::before{height:12px;border-radius:1px;opacity:.72}
+body.chords-hidden .bar-chord,body.chords-hidden .bar-chord-split,body.chords-hidden .bar-ann,body.chords-hidden .bar-bottom{display:none!important}
+body.chords-hidden .bar-num{display:block!important;top:2px;left:6px;font-size:8px;line-height:8px;opacity:1;z-index:2;color:var(--bar-num-color,#1e40af)!important}
+body.chords-hidden .bar-snote{display:block!important;top:2px;right:6px;font-size:8px;line-height:8px;opacity:1;z-index:2;color:var(--bar-num-color,#1e40af)!important}
+body.chords-hidden .bar-row{min-height:13px;padding-top:0;padding-bottom:0;margin-bottom:2px}
+body.chords-hidden .bar-row-main{align-items:flex-start}
+body.chords-hidden .row-repeat-badge{height:12px;min-width:26px;flex-basis:26px;font-size:11px}
+body.chords-hidden .rhythm-strip{display:none!important}
+body.chords-hidden .bar-row.has-visible-rhythm .bar-col:not(.has-rhythm){padding-top:0}
+@media(max-width:900px){#sheet{max-width:none}}
+@media(max-width:768px){#sheet{width:100%;margin:0}}
+
+/* ── PRINT ── */
+@media print{
+  #toolbar,#metabar,.sec-btn,.section-actions,.add-bar-cell,.del-btn,.color-popup,.bar-bottom,.note-toggle,.row-ctrl,.footer-add-note,.fn-ctrl,.rte-toolbar{display:none!important}
+  .rhythm-bar-btn,#rhythmPicker,#beatPicker,#rhythmOverlay{display:none!important}
+  body{padding:0;background:#fff}
+  #sheet{padding:12px}
+  .bar-cell{break-inside:avoid}
+  .footer-note{border:none;resize:none}
+}
+/* ── Mobile ── */
+@media(max-width:768px){
+  :root{--cell-h:58px}
+  #toolbar{padding:3px 10px;row-gap:3px}
+  #sheet{padding:4px 12px 16px}
+  #metabar{padding:4px 12px}
+  .section.note-type-sec,.note-type-sec .sec-note-wrap,.note-type-sec .sec-note-cols{width:100%;max-width:100%}
+  .sec-note-wrap{padding-left:0;padding-right:0}
+  .rte-editor{font-size:20px;line-height:1.55;padding:7px 2px 7px 8px;overflow-wrap:anywhere;word-break:break-word}
+}
+</style>
+<script>
+// ── Auto-hide toolbar + metabar on scroll (rehearsal mode) ──
+document.addEventListener('DOMContentLoaded',function(){
+  var lastY=window.scrollY,ticking=false,hidden=false;
+  var tb=document.getElementById('toolbar');
+  var mb=document.getElementById('metabar');
+  function clampScrollY(){
+    var doc=document.documentElement;
+    var max=Math.max(0,doc.scrollHeight-window.innerHeight);
+    return Math.max(0,Math.min(window.scrollY||0,max));
+  }
+  function updateHideMetrics(){
+    if(tb)document.documentElement.style.setProperty('--toolbar-hide-y',(tb.offsetHeight+2)+'px');
+    if(mb)document.documentElement.style.setProperty('--metabar-hide-y',(mb.offsetHeight+2)+'px');
+  }
+  function setBarsHidden(next){
+    if(hidden===next)return;
+    hidden=next;
+    document.body.classList.toggle('bars-hidden',hidden);
+  }
+  updateHideMetrics();
+  window.addEventListener('resize',updateHideMetrics,{passive:true});
+  window.addEventListener('scroll',function(){
+    if(ticking)return;ticking=true;
+    requestAnimationFrame(function(){
+      var y=clampScrollY(),delta=y-lastY;
+      if(Math.abs(delta)<4){ticking=false;return;}
+      if(delta>0&&y>60)setBarsHidden(true);
+      else if(delta<0)setBarsHidden(false);
+      lastY=y;ticking=false;
+    });
+  },{passive:true});
+});
+</script>
+<!-- Generated from songs/resistance.html for local interface review. -->
+
+<style id="lean-prototype-style">
+  /* Prototype scope: reduce the surface first; preserve source-song data. */
+  :root {
+    --bg: #f3f6fc;
+    --surface: #ffffff;
+    --border: #d8e1ed;
+    --border-strong: #b9c5d5;
+    --text: #172033;
+    --text-muted: #46566d;
+    --text-faint: #a5b1c1;
+    --accent: #275dff;
+    --ui-ink: #46566d;
+    --ui-muted: #75849a;
+    --ui-line: #d8e1ed;
+    --ui-soft: #edf2fa;
+    --ui-hover: #e6edfa;
+    --ui-active: #275dff;
+    --grid-line: #d8e1ed;
+    --bar-surface: #f8fafd;
+    --bar-number: #a5b1c1;
+    --bar-number-strong: #75849a;
+    --highlight-bg: #eaf0ff;
+    --highlight-line: #8ea8ff;
+    --highlight-ink: #172033;
+    --four-bar-w: calc((var(--cell-w) * 4) + (var(--gap) * 3));
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --content-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Noto Sans Thai", Thonburi, sans-serif;
+  }
+  .lean-toolbar { padding-block: 5px; }
+  .prototype-badge {
+    border: 1px solid var(--ui-line);
+    border-radius: 999px;
+    padding: 3px 7px;
+    color: var(--ui-muted);
+    background: var(--ui-soft);
+    font: 600 9px/1 var(--ui-font);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  body:not(.edit-mode) .prototype-edit-only { display: none !important; }
+  body:not(.edit-mode) #metabar input {
+    pointer-events: none;
+    background: transparent;
+    padding-inline: 2px;
+  }
+  body.edit-mode #metabar input { background: var(--ui-soft); }
+  .mobile-view-switch { display: none; }
+  .mobile-view-switch .seg-btn.active {
+    background: var(--ui-active);
+    color: #ffffff;
+  }
+
+  body.view-mini { --four-bar-w: calc((var(--cell-w) * 4) - 3px); }
+
+  /* Colour belongs to section identity; chart cells stay neutral. */
+  body.view-mini .bar-cell::before {
+    display: none;
+  }
+
+  .section-tag {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 22px;
+    border-width: 1px 1px 1px 5px !important;
+    border-radius: 2px;
+    padding: var(--space-1) var(--space-2);
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+    letter-spacing: .04em;
+    line-height: 12px;
+    font-kerning: normal;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  .section-tag .section-name { font-weight: 600; }
+  .section-tag .section-detail {
+    margin-left: 6px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 14px;
+    text-transform: none;
+    opacity: .82;
+  }
+  body.edit-mode .section-label-inp {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  body:not(.edit-mode) .section-head {
+    width: min(100%, var(--four-bar-w));
+    position: relative;
+    padding: 0;
+  }
+  body:not(.edit-mode) .section-head-main { width: 100%; }
+  /* 80/20: performance cues live in the section label itself
+     (for example "VERSE 1 — Riff A ×2"), not in a second note field. */
+  .note-toggle,
+  .section-note { display: none !important; }
+
+  .bar-chord,
+  .bar-chord-part,
+  .rte-editor,
+  .band-lyric-cue {
+    font-family: var(--content-font) !important;
+    font-kerning: normal;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  .bar-chord,
+  .bar-chord-part { font-weight: 600 !important; }
+
+  .rte-editor {
+    border-left-color: var(--grid-line) !important;
+    background: var(--surface);
+    padding: var(--space-2) 2px var(--space-2) var(--space-2) !important;
+    font-weight: 450;
+    color: #2f3d52;
+    line-height: 1.5 !important;
+    letter-spacing: 0;
+  }
+  .rte-editor b,
+  .rte-editor strong {
+    font-weight: 550;
+    color: #2f3d52;
+  }
+
+  .row-repeat-badge {
+    box-sizing: border-box;
+    background: var(--ui-soft) !important;
+    color: #526177 !important;
+    border: 1px solid var(--grid-line);
+    box-shadow: none;
+  }
+
+  /* One-pixel joined grid: no doubled vertical edges. */
+  body.view-mini .bar-row-main { gap: 0; }
+  body.view-mini .bar-col + .bar-col { margin-left: -1px; }
+  body.view-mini .bar-cell,
+  body.view-mini .bar-cell:hover {
+    box-sizing: border-box;
+    border: 1px solid var(--grid-line) !important;
+    border-radius: 0 !important;
+    background: var(--bar-surface);
+    box-shadow: none !important;
+  }
+  body.view-mini .bar-cell.highlighted {
+    background: var(--highlight-bg) !important;
+    border-color: var(--highlight-line) !important;
+    box-shadow: inset 3px 0 0 var(--accent) !important;
+  }
+  body.view-mini .bar-cell.highlighted .bar-chord,
+  body.view-mini .bar-cell.highlighted .bar-chord-part,
+  body.view-mini .bar-cell.highlighted .bar-ann,
+  body.view-mini .bar-cell.highlighted .bar-snote {
+    color: var(--highlight-ink) !important;
+  }
+  body.view-mini .bar-num {
+    color: var(--bar-number) !important;
+    font-weight: 450 !important;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+  body.view-mini .bar-row-main .bar-col:first-child .bar-num {
+    color: var(--bar-number-strong) !important;
+    font-weight: 500 !important;
+  }
+  body.view-mini .bar-row-main .bar-col .bar-cell.highlighted .bar-num {
+    color: #5873a5 !important;
+    font-weight: 500 !important;
+  }
+
+  /* Desktop: chord chart and its adjacent lyric are one section row. */
+  body:not(.edit-mode) .section-pair {
+    display: grid;
+    grid-template-columns: minmax(520px, 3fr) minmax(360px, 2fr);
+    gap: var(--space-6);
+    align-items: start;
+    margin: 0 0 var(--space-4);
+  }
+  body:not(.edit-mode) .section-pair > .section {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  body:not(.edit-mode) .section-pair .note-type-sec .sec-note-wrap {
+    padding-top: var(--pair-head-offset, 26px);
+  }
+  body:not(.edit-mode) .section-pair .rte-editor {
+    min-height: 60px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .band-lyric-cue { display: none; }
+  .lyric-placeholder { min-height: 1px; }
+  .chord-peek-btn {
+    display: none;
+    position: absolute;
+    right: 4px;
+    top: 3px;
+    height: 16px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 3px;
+    background: rgba(255,255,255,.76);
+    color: #526177;
+    font: 600 9px/16px var(--ui-font);
+    cursor: pointer;
+  }
+
+  /* Remove low-value authoring decisions from the prototype surface. */
+  #rhythmPicker,
+  #beatPicker,
+  #rhythmOverlay,
+  .scroll-hud,
+  .rhythm-strip,
+  .rhythm-bar-btn,
+  .count-bypass-btn,
+  .bar-ann,
+  .sec-order-inp,
+  .row-repeat-ctrl,
+  #footer-section {
+    display: none !important;
+  }
+
+  /* Colour editing is retained, but it changes only the section heading. */
+  .color-popup { min-width: 204px; }
+  #swatches-light,
+  .color-popup-title + .swatch-row-label { display: none; }
+  .color-popup-row { margin-top: 8px; }
+
+  /* Rhythm data can remain in the legacy payload without changing layout. */
+  .bar-row.has-visible-rhythm .bar-col:not(.has-rhythm) { padding-top: 0 !important; }
+  .bar-col.has-rhythm .bar-cell,
+  body.view-mini .bar-col.has-rhythm .bar-cell { border-radius: 1px !important; }
+
+  /* One edit alignment system: header, controls, bars and lyrics share a rail. */
+  body.edit-mode {
+    --edit-rail: 32px;
+    --edit-gap: 7px;
+  }
+  body.edit-mode .section-head {
+    display: grid;
+    grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%));
+    column-gap: var(--edit-gap);
+    row-gap: var(--space-1);
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    padding: 0;
+  }
+  body.edit-mode .section-head-main {
+    grid-column: 2;
+    display: contents;
+    min-width: 0;
+    width: 100%;
+  }
+  body.edit-mode .section-tag,
+  body.edit-mode .section-label-inp {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  body.edit-mode .sheet-add-actions {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    width: auto;
+  }
+  body.edit-mode .sheet-add-actions,
+  body.edit-mode .section-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+    max-width: 100%;
+  }
+  body.edit-mode.view-mini .section-actions {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    display: flex;
+    grid-template-columns: none;
+    width: auto;
+    max-width: none;
+  }
+  body.edit-mode .sec-btn,
+  body.edit-mode .bar-count-inp,
+  body.edit-mode .note-col-btn {
+    box-sizing: border-box;
+    height: 24px;
+    border: 1px solid var(--ui-line);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ui-muted);
+    line-height: 22px;
+  }
+  body.edit-mode .sec-btn { padding: 0 var(--space-2); }
+  body.edit-mode .bar-count-inp {
+    width: 32px;
+    padding: 0 4px;
+    text-align: center;
+  }
+  body.edit-mode .bar-row {
+    grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%));
+    column-gap: var(--edit-gap);
+    justify-content: start;
+    width: 100%;
+    padding-inline: 0;
+  }
+  body.edit-mode .bar-row-main { grid-column: 2; }
+  body.edit-mode .sec-note-wrap {
+    display: grid;
+    grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%));
+    column-gap: var(--edit-gap);
+    row-gap: var(--space-1);
+    justify-content: start;
+    width: 100%;
+    padding: 0 0 var(--space-3);
+  }
+  body.edit-mode .note-edit-rail {
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    margin: 0;
+  }
+  body.edit-mode .sec-note-cols {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+  }
+  .section-tag { cursor: text; }
+
+  @media (max-width: 760px) {
+    body.edit-mode {
+      --edit-rail: 24px;
+      --edit-gap: 5px;
+      --cell-w: calc((100vw - 57px) / 4);
+    }
+    body.edit-mode #sheet {
+      --note-content-w: calc((var(--cell-w) * 4) - 3px) !important;
+    }
+    .lean-toolbar { padding-inline: 8px; }
+    .prototype-badge, .top-brand { display: none; }
+    .tb-group + .tb-group { margin-left: 4px; padding-left: 5px; }
+    body:not(.edit-mode) .mobile-view-switch { display: flex; }
+    body.edit-mode .mobile-view-switch { display: none; }
+    #metabar { padding-inline: 12px; }
+    #sheet { padding-inline: 12px; }
+    body:not(.edit-mode) .section-pair {
+      display: block;
+      margin-bottom: var(--space-4);
+    }
+    body:not(.edit-mode) .section-pair > .section { margin: 0; }
+    body:not(.edit-mode) .section-pair .note-type-sec .sec-note-wrap { padding-top: 0; }
+    .lyric-placeholder { display: none; }
+    body:not(.edit-mode) .section-tag { padding-right: var(--space-2); }
+    body:not(.edit-mode) .section-tag .section-name {
+      display: block;
+      padding-right: 56px;
+    }
+    body:not(.edit-mode) .section-tag .section-detail {
+      display: block;
+      margin: 2px 0 0;
+      padding-right: 0;
+    }
+
+    body.mobile-band .section-pair .note-type-sec .sec-note-wrap { display: none; }
+    body.mobile-band .band-lyric-cue {
+      display: block;
+      width: min(100%, var(--four-bar-w));
+      box-sizing: border-box;
+      padding: 7px 9px 8px;
+      border: 1px solid var(--grid-line);
+      border-top: 0;
+      background: var(--surface);
+      color: #334258;
+      font: 500 13px/1.45 var(--note-font);
+    }
+    .band-lyric-cue .cue-last {
+      display: block;
+      margin-top: 3px;
+      color: #758398;
+      font-size: 11px;
+    }
+
+    body.mobile-lyric:not(.edit-mode) .section .bar-row { display: none; }
+    body.mobile-lyric:not(.edit-mode) .section.chords-open .bar-row { display: flex; }
+    body.mobile-lyric:not(.edit-mode) .chord-peek-btn { display: block; }
+    body.mobile-lyric:not(.edit-mode) .band-lyric-cue { display: none; }
+    body.mobile-lyric:not(.edit-mode) .note-type-sec .sec-note-wrap { display: block; }
+    body.mobile-lyric:not(.edit-mode) .rte-editor {
+      min-height: 60px !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    body.edit-mode .section-head {
+      display: grid;
+      grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w));
+      column-gap: var(--edit-gap);
+      row-gap: var(--space-1);
+      align-items: start;
+    }
+    body.edit-mode .section-head-main {
+      display: contents;
+      width: 100%;
+    }
+    body.edit-mode .sheet-add-actions {
+      width: auto;
+      flex-wrap: wrap;
+    }
+    body.edit-mode .bar-row {
+      grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w));
+      column-gap: var(--edit-gap);
+    }
+    body.edit-mode .row-ctrl { width: var(--edit-rail); }
+    body.edit-mode .sec-note-wrap {
+      grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w));
+      column-gap: var(--edit-gap);
+    }
+  }
+  @media (max-width: 520px) {
+    body.edit-mode.view-mini .section-actions {
+      grid-row: 3;
+      justify-self: start;
+    }
+  }
+</style>
+</head>
+<body class="view-mini notes-hidden" spellcheck="false">
+<div id="toolbar" class="lean-toolbar">
+  <div class="tb-group" aria-label="Mode">
+    <button class="tb-btn home-btn" onclick="goHome()" title="Back to index">&lt;</button>
+    <button class="tb-btn" id="edit-btn" onclick="toggleEditMode()" title="Edit this sheet">edit</button>
+    <button class="tb-btn" id="display-btn" onclick="setDisplayMode()" title="Read-only performance view">display</button>
+  </div>
+  <div class="tb-group" aria-label="Visibility">
+    <button class="tb-btn active" id="notes-btn" onclick="toggleNotesView()" title="Hide / show lyrics and notes">notes</button>
+  </div>
+  <div class="tb-group mobile-view-switch" aria-label="Mobile view">
+    <div class="seg-ctrl">
+      <button class="seg-btn active" id="band-view-btn" onclick="setMobileView('band')">band</button>
+      <button class="seg-btn" id="lyric-view-btn" onclick="setMobileView('lyric')">lyric</button>
+    </div>
+  </div>
+  <div class="tb-group" aria-label="Readability">
+    <div class="seg-ctrl" title="Chord size">
+      <button class="seg-btn" onclick="changeChordSize(-1)">a−</button>
+      <span class="seg-val" id="chord-size-val">15</span>
+      <button class="seg-btn" onclick="changeChordSize(1)">a+</button>
+    </div>
+    <div class="seg-ctrl" title="Lyric and note size">
+      <button class="seg-btn" onclick="changeNoteSize(-1)">n−</button>
+      <span class="seg-val" id="note-size-val">16</span>
+      <button class="seg-btn" onclick="changeNoteSize(1)">n+</button>
+    </div>
+  </div>
+  <div class="tb-group" aria-label="Key">
+    <div class="seg-ctrl" title="Transpose · click value to reset">
+      <button class="seg-btn" onclick="transposeKey(-1)">♭</button>
+      <span class="seg-val" id="key-val">±0</span>
+      <button class="seg-btn" onclick="transposeKey(1)">♯</button>
+    </div>
+    <button class="tb-btn" id="spell-btn" onclick="toggleSpelling()" title="Toggle ♯/♭ spelling">♯/♭</button>
+  </div>
+  <div class="tb-group prototype-edit-only" aria-label="Save">
+    <button class="tb-btn primary" onclick="saveToFile()" title="Save current sheet as HTML">save html</button>
+    <span class="save-state" id="save-state" aria-live="polite">checking...</span>
+  </div>
+  <span class="tb-flex-spacer"></span>
+  <span class="prototype-badge">80/20 · luminous system</span>
+  <span class="top-brand">Resistance · Muse</span>
+</div>
+<div id="metabar">
+  <input class="tb-filename" id="tb-filename" value="Resistance" oninput="updateTitle()">
+  <input class="tb-artist" id="tb-artist" value="— Muse" oninput="updateTitle()">
+  <span class="meta-sep">·</span>
+  <span class="meta-label">key</span>
+  <input class="meta-input" id="meta-key" value="Am" style="width:60px" oninput="saveMeta()">
+  <span class="meta-sep">·</span>
+  <span class="meta-label">bpm</span>
+  <input class="meta-input" id="meta-bpm" value="135" style="width:60px" oninput="saveMeta()">
+  <span class="meta-sep">·</span>
+  <span class="meta-label">time</span>
+  <input class="meta-input" id="meta-time" value="4/4" style="width:36px" oninput="saveMeta()">
+  <span class="meta-sep">·</span>
+  <span class="meta-label">vocalist</span>
+  <input class="meta-input" id="meta-vocalist" value="TI" style="width:90px" oninput="saveMeta()">
+</div>
+<div id="sheet"></div>
+<div class="color-popup" id="colorPopup">
+  <div class="color-popup-title">section colour</div>
+  <div class="swatch-row-label">light</div>
+  <div class="color-swatches" id="swatches-light"></div>
+  <div class="swatch-row-label">base</div>
+  <div class="color-swatches" id="swatches"></div>
+  <div class="color-popup-row">
+    <label>hex</label>
+    <input class="hex-input" id="hexInput" maxlength="7">
+    <div class="color-preview" id="hexPreview"></div>
+    <button class="popup-close" onclick="closeColorPicker()">close</button>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="rhythmOverlay" onclick="closeAllRhythmPopups()"></div>
+<div id="rhythmPicker"></div>
+<div id="beatPicker">
+  <div class="beat-picker-notes" id="bpNotes"></div>
+  <div class="beat-picker-actions">
+    <button class="bp-action-btn bp-add-btn" onclick="addBeatAfter()">＋ add after</button>
+    <button class="bp-action-btn bp-del-btn" onclick="deleteBeat()">× remove</button>
+    <button class="bp-action-btn bp-clear-btn" onclick="clearBeatBar()">clear bar</button>
+  </div>
+</div>
+<div class="scroll-hud" id="scrollHud">
+  <button class="tb-btn jump-btn" onclick="jumpAutoScrollSection(-1)" title="Previous section">‹</button>
+  <button class="tb-btn primary jump-btn" onclick="pauseAutoScroll()" title="Stop auto-scroll">x</button>
+  <button class="tb-btn jump-btn" onclick="jumpAutoScrollSection(1)" title="Next section">›</button>
+  <div class="seg-ctrl" title="Auto-scroll speed">
+    <button class="seg-btn" onclick="changeAutoScrollSpeed(-5)">−</button>
+    <span class="scroll-hud-text" id="scroll-hud-speed">100%</span>
+    <button class="seg-btn" onclick="changeAutoScrollSpeed(5)">+</button>
+  </div>
+</div>
+<script>
+var PRESETS=[{bar:"#ff3b30",bg:"#fff1f0",lbl:"#b00008"},{bar:"#ff9500",bg:"#fff8ec",lbl:"#8a4e00"},{bar:"#ffcc00",bg:"#fffbe6",lbl:"#7a5e00"},{bar:"#34c759",bg:"#edfaf2",lbl:"#1a6e35"},{bar:"#007aff",bg:"#eef5ff",lbl:"#004ab0"},{bar:"#af52de",bg:"#f8f0fd",lbl:"#6a2a90"},{bar:"#ff2d55",bg:"#fff0f3",lbl:"#a0002e"},{bar:"#64748b",bg:"#f1f5f9",lbl:"#334155"},{bar:"#1f2937",bg:"#e5e7eb",lbl:"#111827"}];
+var LIGHT_PRESETS=[{bar:"#ffb3af",bg:"#fff5f4",lbl:"#c0392b"},{bar:"#ffd49e",bg:"#fff8ee",lbl:"#7a4400"},{bar:"#ffe880",bg:"#fffde8",lbl:"#6b5200"},{bar:"#86e89d",bg:"#f0fdf4",lbl:"#1a5c33"},{bar:"#80bdff",bg:"#eff6ff",lbl:"#1a4fa0"},{bar:"#d4a0ef",bg:"#faf0ff",lbl:"#6a2a90"},{bar:"#ff99ae",bg:"#fff0f4",lbl:"#9a0030"},{bar:"#cbd5e1",bg:"#f8fafc",lbl:"#475569"},{bar:"#94a3b8",bg:"#f1f5f9",lbl:"#1f2937"}];
+var SECTIONS = [{"id": "intro", "label": "Intro", "color": {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"}, "note": "", "noteHidden": true, "lyric": "", "bars": [{"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}], "rowSizes": [4, 4, 2, 4, 4]}, {"id": "section", "label": "Keyboard pre-Verse 1", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#ff2d55", "bg": "#fff0f3", "lbl": "#a0002e"}, "rowSizes": [4, 4], "bars": [{"c": "Am", "a": "", "h": false, "rhythmOn": false, "rhythmOff": true}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}], "rowRepeatGroups": {"0": "A", "1": "A"}, "repeatCounts": {"A": 2}}, {"id": "section", "label": "Verse 1", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#ffcc00", "bg": "#fffbe6", "lbl": "#7a5e00"}, "rowSizes": [4, 4, 4, 2], "bars": [{"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}]}, {"id": "note-sec", "type": "note", "label": "Verse 1", "cols": ["Is our secret safe tonight?<div>And are we out of sight?</div><div>Or will our world come tumbling down?</div><div><br></div><div>Will they find our hiding place?</div><div>Is this our last embrace?</div><div>Or will the walls start caving in?</div>"], "colCount": 1, "color": {"bar": "#ffcc00", "bg": "#fffbe6", "lbl": "#7a5e00"}}, {"id": "section", "label": "Pre-chorus 1", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#af52de", "bg": "#f8f0fd", "lbl": "#6a2a90"}, "rowSizes": [4, 4], "bars": [{"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}], "rowRepeatGroups": {"0": "B", "1": "B"}, "repeatCounts": {"B": 2}}, {"id": "note-sec", "type": "note", "label": "Pre-chorus 1", "cols": ["(It could be wrong, could be wrong)<div><b>But it should have been right</b><div><b>To let our hearts ignite</b><div><b>Are we digging a hole?</b></div><div><b>This is out of control</b></div><div><b>It can never last</b></div><div><b>Must erase it fast</b></div><div><b>But it could have been right</b></div><div>(It could be wrong, could be—)</div></div></div>"], "colCount": 1, "color": {"bar": "#af52de", "bg": "#f8f0fd", "lbl": "#6a2a90"}}, {"id": "section", "label": "Chorus 1", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#34c759", "bg": "#edfaf2", "lbl": "#1a6e35"}, "rowSizes": [4, 4, 4, 4], "bars": [{"c": "C", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false, "rhythmOn": false, "rhythmOff": true, "r": ["1q-rssr"]}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false, "skipCount": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}]}, {"id": "note-sec", "type": "note", "label": "Chorus 1", "cols": ["Love is our resistance<div>They'll keep us apart and they won't stop breaking us down</div><div>Hold me</div><div>Our lips must always be sealed</div>"], "colCount": 1, "color": {"bar": "#34c759", "bg": "#edfaf2", "lbl": "#1a6e35"}}, {"id": "section", "label": "Keyboard pre-chorus 2", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#ff2d55", "bg": "#fff0f3", "lbl": "#a0002e"}, "rowSizes": [4, 4], "bars": [{"c": "Am", "a": "", "h": false, "rhythmOn": false, "rhythmOff": true}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}], "rowRepeatGroups": {}, "repeatCounts": {"A": 2}}, {"id": "section", "label": "Verse 2", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#ffcc00", "bg": "#fffbe6", "lbl": "#7a5e00"}, "rowSizes": [4, 4, 4, 2], "bars": [{"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}]}, {"id": "note-sec", "type": "note", "label": "Verse 2", "cols": ["If we live a life in fear<div>I'll wait a thousand years</div><div>Just to see you smile again</div><div>Kill your prayers for love and peace</div><div>You'll wake the Thought Police</div><div>We can't hide the truth inside</div>"], "colCount": 1, "color": {"bar": "#ffcc00", "bg": "#fffbe6", "lbl": "#7a5e00"}}, {"id": "section", "label": "Pre-chorus 2", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#af52de", "bg": "#f8f0fd", "lbl": "#6a2a90"}, "rowSizes": [4, 4], "bars": [{"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}], "rowRepeatGroups": {"0": "B", "1": "B"}, "repeatCounts": {"B": 2}}, {"id": "note-sec", "type": "note", "label": "Pre-chorus 2", "cols": ["(It could be wrong, could be wrong)<div><b>But it should have been right</b></div><div><b>To let our hearts ignite</b></div><div><b>Are we digging a hole?</b></div><div><b>This is out of control</b></div><div><b>It can never last</b></div><div><b>Must erase it fast</b></div><div><b>But it could have been right</b></div><div>(It could be wrong, could be—)</div>"], "colCount": 1, "color": {"bar": "#af52de", "bg": "#f8f0fd", "lbl": "#6a2a90"}}, {"id": "section", "label": "Chorus 2", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#34c759", "bg": "#edfaf2", "lbl": "#1a6e35"}, "rowSizes": [4, 4, 4, 2, 4], "bars": [{"c": "C", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false, "rhythmOn": false, "rhythmOff": true, "r": ["1q-rssr"]}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false, "skipCount": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": true}, {"c": "Em", "a": "", "h": true}, {"c": "Em", "a": "", "h": true}, {"c": "Em", "a": "", "h": true}]}, {"id": "note-sec", "type": "note", "label": "Chorus 2", "cols": ["Love is our resistance<div>They'll keep us apart and they won't stop breaking us down</div><div>Hold me</div><div>Our lips must always be sealed<br><br>The night has reached its end</div><div>We can't pretend</div>"], "colCount": 1, "color": {"bar": "#34c759", "bg": "#edfaf2", "lbl": "#1a6e35"}}, {"id": "section", "label": "Interlude", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#ff3b30", "bg": "#fff1f0", "lbl": "#b00008"}, "rowSizes": [4, 3, 3], "bars": [{"c": "F", "a": "", "h": false, "rhythmOn": false, "rhythmOff": true}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "Em", "a": "", "h": false, "rhythmOn": false, "rhythmOff": true, "skipCount": false}, {"c": "F", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}], "rowRepeatGroups": {"0": "C"}, "repeatCounts": {"C": 2, "A": 2}}, {"id": "note-sec", "type": "note", "label": "Interlude", "cols": ["We must run<div>We must run</div><div>It's time to run</div>"], "colCount": 1, "color": {"bar": "#ff3b30", "bg": "#fff1f0", "lbl": "#b00008"}}, {"id": "section", "label": "Bridge", "note": "", "noteHidden": true, "lyric": "", "color": {"bar": "#af52de", "bg": "#f8f0fd", "lbl": "#6a2a90"}, "rowSizes": [4, 4], "bars": [{"c": "Dm", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Dm", "a": "", "h": false}, {"c": "C", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "A", "a": "", "h": false}, {"c": "Bm | C", "a": "", "h": false}, {"c": "Dm | F", "a": "", "h": false}]}, {"id": "note-sec", "type": "note", "label": "Bridge", "cols": ["Take us away from here<div>Protect us from further harm</div><div>Resistance</div>"], "colCount": 1, "color": {"bar": "#af52de", "bg": "#f8f0fd", "lbl": "#6a2a90"}}, {"id": "intro", "label": "Outro", "color": {"bar": "#ff2d55", "bg": "#fff0f3", "lbl": "#a0002e"}, "note": "", "noteHidden": true, "lyric": "", "bars": [{"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "Am", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "G", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "F", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}, {"c": "Em", "a": "", "h": false}], "rowSizes": [4, 4, 2, 4, 4]}];
+// ── END DATA ──
+var FOOTER = {"notes": []};
+// ── END FOOTER ──
+var SETTINGS = {"chordSize": 14.5, "chordFont": "Roboto Condensed", "transpose": 0, "noteSize": 20, "autoScrollDuration": "", "autoScrollSpeed": 1};
+// ── END SETTINGS ──
+var SHEET_META = {"templateVersion":"v6.19", "sheetRevision": 3, "contentUpdated": "2026-08-19", "contentSource": "browser-edit"};
+// ── END SHEET META ──
+
+var NOTE_SVGS = {};
+var NOTE_META = {"1q-de-s":{"label":"1q-de-s","beats":1},"1q-e-re":{"label":"1q-e-re","beats":1},"1q-e-s-s":{"label":"1q-e-s-s","beats":1},"1q-re-e":{"label":"1q-re-e","beats":1},"1q-rrrr":{"label":"1q-rrrr","beats":1},"1q-rrrs":{"label":"1q-rrrs","beats":1},"1q-rrsr":{"label":"1q-rrsr","beats":1},"1q-rrss":{"label":"1q-rrss","beats":1},"1q-rsrr":{"label":"1q-rsrr","beats":1},"1q-rsrs":{"label":"1q-rsrs","beats":1},"1q-rssr":{"label":"1q-rssr","beats":1},"1q-rsss":{"label":"1q-rsss","beats":1},"1q-s-de":{"label":"1q-s-de","beats":1},"1q-s-e-s":{"label":"1q-s-e-s","beats":1},"1q-s-s-e":{"label":"1q-s-s-e","beats":1},"1q-srrr":{"label":"1q-srrr","beats":1},"1q-srrs":{"label":"1q-srrs","beats":1},"1q-srsr":{"label":"1q-srsr","beats":1},"1q-srss":{"label":"1q-srss","beats":1},"1q-ssrr":{"label":"1q-ssrr","beats":1},"1q-ssrs":{"label":"1q-ssrs","beats":1},"1q-sssr":{"label":"1q-sssr","beats":1},"1q-ssss":{"label":"1q-ssss","beats":1},"2q-de-de-e":{"label":"2q-de-de-e","beats":2},"2q-de-e-de":{"label":"2q-de-e-de","beats":2},"2q-e-de-de":{"label":"2q-e-de-de","beats":2},"de":{"label":"dotted eighth","beats":0.75},"dh":{"label":"dotted half","beats":3},"dq":{"label":"dotted quarter","beats":1.5},"ds":{"label":"dotted 16th","beats":0.375},"e":{"label":"eighth","beats":0.5},"ee":{"label":"2 eighths","beats":1},"h":{"label":"half","beats":2},"q":{"label":"quarter","beats":1},"re":{"label":"eighth rest","beats":0.5},"rh":{"label":"half rest","beats":2},"rq":{"label":"quarter rest","beats":1},"rs":{"label":"16th rest","beats":0.25},"rw":{"label":"whole rest","beats":4},"s":{"label":"sixteenth","beats":0.25},"ss":{"label":"2 sixteenths","beats":0.5},"ssss":{"label":"4 sixteenths","beats":1},"te":{"label":"triplet","beats":1},"w":{"label":"whole","beats":4}};
+
+var PICKER_GROUPS = [{"label":"1q core","ids":["q","rq","ee","ssss","te","1q-de-s","1q-s-de","1q-e-s-s","1q-s-s-e","1q-s-e-s","1q-e-re","1q-re-e"]},{"label":"1q grid16 hit/rest","ids":["1q-ssss","1q-sssr","1q-ssrs","1q-srss","1q-rsss","1q-ssrr","1q-srsr","1q-srrs","1q-rssr","1q-rsrs","1q-rrss","1q-srrr","1q-rsrr","1q-rrsr","1q-rrrs","1q-rrrr"]},{"label":"2q","ids":["h","rh","2q-e-de-de","2q-de-de-e","2q-de-e-de"]},{"label":"Long / dotted","ids":["w","rw","dh","dq"]},{"label":"Short basics","ids":["de","e","re","ss","ds","s","rs"]}];
+var BEAT_KEYS = ["q","rq","ee","ssss","te","1q-de-s","1q-s-de","1q-e-s-s","1q-s-s-e","1q-s-e-s","1q-e-re","1q-re-e","1q-ssss","1q-sssr","1q-ssrs","1q-srss","1q-rsss","1q-ssrr","1q-srsr","1q-srrs","1q-rssr","1q-rsrs","1q-rrss","1q-srrr","1q-rsrr","1q-rrsr","1q-rrrs","1q-rrrr","h","rh","2q-e-de-de","2q-de-de-e","2q-de-e-de","w","rw","dh","dq","de","e","re","ss","ds","s","rs"];
+var dragSrc=null,COLS=8,DEFAULT_ROW_SIZE=4,BAR_CHANGE_DEFAULT=1,VIEW='mini',EDIT_MODE=false,CHORD_SIZE=SETTINGS.chordSize||14.5,pickerSi=null;
+var CHORD_FONT='Roboto Condensed';
+SETTINGS.chordFont=CHORD_FONT;
+var TRANSPOSE=SETTINGS.transpose||0,ORIG_SECTIONS=null,ORIG_KEY=null;
+var NOTE_SIZE=SETTINGS.noteSize||20;
+var SPELL='sharp'; // 'sharp' | 'flat'
+var SAVED_SIGNATURE=null;
+
+function sheetInputValue(id){var el=document.getElementById(id);return el?el.value:''}
+function currentSheetSignature(){
+  return JSON.stringify({
+    title:sheetInputValue('tb-filename'),artist:sheetInputValue('tb-artist'),key:sheetInputValue('meta-key'),
+    bpm:sheetInputValue('meta-bpm'),time:sheetInputValue('meta-time'),vocalist:sheetInputValue('meta-vocalist'),
+    sections:SECTIONS,footer:FOOTER,settings:SETTINGS
+  });
+}
+function hasUnsavedChanges(){return SAVED_SIGNATURE!==null&&SAVED_SIGNATURE!==currentSheetSignature()}
+function updateSaveState(){
+  var el=document.getElementById('save-state');if(!el)return;
+  var dirty=hasUnsavedChanges();el.textContent=dirty?'unsaved changes':'saved';
+  el.classList.toggle('dirty',dirty);el.classList.toggle('saved',!dirty);
+}
+function markSheetSaved(){SAVED_SIGNATURE=currentSheetSignature();updateSaveState()}
+
+function hexToRgb(h){return{r:parseInt(h.slice(1,3),16),g:parseInt(h.slice(3,5),16),b:parseInt(h.slice(5,7),16)}}
+function toHex(r,g,b){return'#'+[r,g,b].map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
+function lighten(h,a){var c=hexToRgb(h);return toHex(Math.min(255,c.r+Math.round((255-c.r)*a)),Math.min(255,c.g+Math.round((255-c.g)*a)),Math.min(255,c.b+Math.round((255-c.b)*a)))}
+function darken(h,a){var c=hexToRgb(h);return toHex(Math.max(0,Math.round(c.r*(1-a))),Math.max(0,Math.round(c.g*(1-a))),Math.max(0,Math.round(c.b*(1-a))))}
+function isHex(h){return/^#[0-9a-fA-F]{6}$/.test(h)}
+function colorFromBar(bar){return{bar:bar,bg:lighten(bar,.88),lbl:darken(bar,.35)}}
+
+function currentVisualCap(){
+  var w=window.innerWidth||document.documentElement.clientWidth||1024;
+  return w<=900?4:8;
+}
+function visualColsFor(baseCols){
+  var cap=currentVisualCap();
+  return Math.max(1,Math.min(baseCols,cap));
+}
+function noteColHasContent(html){
+  var tmp=document.createElement('div');
+  tmp.innerHTML=html||'';
+  if(tmp.querySelector('img,video,audio,iframe,svg,table,hr'))return true;
+  return (tmp.textContent||'').replace(/\u00a0/g,' ').trim().length>0;
+}
+function noteVisibleColCount(sec){
+  var cols=sec&&sec.cols?sec.cols:[];
+  var contentCount=0;
+  cols.forEach(function(html,idx){if(noteColHasContent(html))contentCount=idx+1});
+  return Math.max(1,Math.min(2,sec&&sec.colCount?sec.colCount:contentCount||1));
+}
+function addNoteColumn(si){
+  var sec=SECTIONS[si];if(!sec||sec.type!=='note')return;
+  if(!sec.cols)sec.cols=[''];
+  while(sec.cols.length<2)sec.cols.push('');
+  sec.colCount=Math.min(2,Math.max(noteVisibleColCount(sec)+1,2));
+  render();toast('เพิ่ม lyrics column แล้ว');
+}
+function removeNoteColumn(si){
+  var sec=SECTIONS[si];if(!sec||sec.type!=='note')return;
+  if(noteVisibleColCount(sec)<=1)return;
+  if(sec.cols&&noteColHasContent(sec.cols[1])&&!confirm('ลบ lyrics column 2 ?'))return;
+  sec.cols=[(sec.cols&&sec.cols[0])||''];
+  sec.colCount=1;
+  render();toast('ลดเป็น 1 column แล้ว');
+}
+function plainTextPaste(e){
+  var data=(e.clipboardData||window.clipboardData);
+  if(!data)return;
+  var text=data.getData('text/plain');
+  if(!text)return;
+  e.preventDefault();
+  document.execCommand('insertText',false,text);
+  e.target.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function richTextShortcut(e){
+  if(!(e.metaKey||e.ctrlKey)||e.altKey)return;
+  var map={b:'bold',i:'italic',u:'underline'};
+  var cmd=map[(e.key||'').toLowerCase()];
+  if(!cmd)return;
+  e.preventDefault();
+  document.execCommand(cmd,false,null);
+  e.currentTarget.dispatchEvent(new Event('input',{bubbles:true}));
+}
+
+function baseRowsFor(sec){
+  var rows=[],pos=0,ri=0,bars=sec.bars||[];
+  while(pos<bars.length){
+    var size=Math.max(1,Math.min(parseInt((sec.rowSizes&&sec.rowSizes[ri])||DEFAULT_ROW_SIZE,10)||DEFAULT_ROW_SIZE,COLS));
+    var end=Math.min(pos+size,bars.length);
+    rows.push({start:pos,end:end});
+    pos=end;ri++;
+  }
+  return rows;
+}
+function blankBar(){return{c:'—',a:'',h:false}}
+function ensureRowSizes(sec,rowIndex){
+  if(!sec.rowSizes)sec.rowSizes=[];
+  while(sec.rowSizes.length<=rowIndex)sec.rowSizes.push(DEFAULT_ROW_SIZE);
+}
+function resizeRow(si,rowIndex,newSize){
+  var sec=SECTIONS[si];if(!sec||!sec.bars)return;
+  newSize=Math.max(1,Math.min(parseInt(newSize,10)||DEFAULT_ROW_SIZE,COLS));
+  var rows=baseRowsFor(sec),row=rows[rowIndex];if(!row)return;
+  var entries=rows.map(function(r,idx){
+    return{size:r.end-r.start,group:sec.rowRepeatGroups&&sec.rowRepeatGroups[idx]};
+  });
+  var oldSize=entries[rowIndex].size;
+  newSize=Math.min(newSize,sec.bars.length-row.start);
+  if(newSize<oldSize){
+    var splitGroup=entries[rowIndex].group;
+    entries.splice(rowIndex,1,{size:newSize,group:splitGroup},{size:oldSize-newSize,group:splitGroup});
+  }else if(newSize>oldSize){
+    var extra=newSize-oldSize,next=rowIndex+1;
+    entries[rowIndex].size=newSize;
+    while(extra>0&&next<entries.length){
+      if(entries[next].size>extra){
+        entries[next].size-=extra;
+        extra=0;
+      }else{
+        extra-=entries[next].size;
+        entries.splice(next,1);
+      }
+    }
+    if(extra>0)entries[rowIndex].size-=extra;
+  }
+  sec.rowSizes=entries.map(function(e){return e.size}).filter(function(n){return n>0});
+  if(sec.rowRepeatGroups){
+    var groups={};
+    entries.forEach(function(e,idx){if(e.group)groups[idx]=e.group});
+    sec.rowRepeatGroups=Object.keys(groups).length?groups:{};
+  }
+  render();
+}
+function normalizeTrailingRows(sec){
+  if(!sec||!sec.bars)return;
+  var sizes=(sec.rowSizes||[]).slice(),total=0,out=[];
+  for(var i=0;i<sizes.length&&total<sec.bars.length;i++){
+    var size=Math.max(1,Math.min(parseInt(sizes[i],10)||DEFAULT_ROW_SIZE,COLS));
+    if(total+size>sec.bars.length)size=sec.bars.length-total;
+    out.push(size);total+=size;
+  }
+  while(total<sec.bars.length){
+    var add=Math.min(DEFAULT_ROW_SIZE,sec.bars.length-total);
+    out.push(add);total+=add;
+  }
+  sec.rowSizes=out;
+}
+function appendBarsToRowSizes(sec,count){
+  if(!sec||!sec.bars)return;
+  var rows=baseRowsFor(sec);
+  var entries=rows.map(function(r,idx){
+    return{size:r.end-r.start,group:sec.rowRepeatGroups&&sec.rowRepeatGroups[idx]};
+  });
+  if(!entries.length)entries.push({size:0,group:''});
+  var remaining=count,last=entries[entries.length-1];
+  if(last&&!last.group&&last.size<DEFAULT_ROW_SIZE){
+    var grow=Math.min(DEFAULT_ROW_SIZE-last.size,remaining);
+    last.size+=grow;remaining-=grow;
+  }
+  while(remaining>0){
+    var add=Math.min(DEFAULT_ROW_SIZE,remaining);
+    entries.push({size:add,group:''});remaining-=add;
+  }
+  sec.rowSizes=entries.map(function(e){return e.size}).filter(function(n){return n>0});
+  if(sec.rowRepeatGroups){
+    var groups={};
+    entries.forEach(function(e,idx){if(e.group)groups[idx]=e.group});
+    sec.rowRepeatGroups=Object.keys(groups).length?groups:{};
+  }
+}
+function barCountValue(inp){
+  var v=parseInt(inp&&inp.value,10);
+  if(isNaN(v)||v<1)v=BAR_CHANGE_DEFAULT;
+  return Math.max(1,Math.min(v,32));
+}
+function changeSectionBars(si,count,dir){
+  var sec=SECTIONS[si];if(!sec||!sec.bars)return;
+  count=barCountValue({value:count});
+  if(dir>0){
+    appendBarsToRowSizes(sec,count);
+    for(var i=0;i<count;i++)sec.bars.push(blankBar());
+    render();toast('เพิ่ม '+count+' ห้องแล้ว');return;
+  }
+  var removable=Math.max(0,sec.bars.length-1);
+  var remove=Math.min(count,removable);
+  if(remove<=0){toast('ต้องมีอย่างน้อย 1 ห้อง');return;}
+  sec.bars.splice(sec.bars.length-remove,remove);
+  normalizeTrailingRows(sec);render();toast('ลบ '+remove+' ห้องแล้ว');
+}
+function countedBarsInRow(sec,row){
+  var count=0,bars=sec.bars||[];
+  for(var i=row.start;i<row.end;i++)if(!(bars[i]&&bars[i].skipCount))count++;
+  return count;
+}
+function repeatCountForGroup(sec,group){
+  if(!group)return 0;
+  var repeat=parseInt(sec.repeatCounts&&sec.repeatCounts[group],10);
+  return repeat&&repeat>1?repeat:2;
+}
+function repeatExtraForRow(sec,rowIndex){
+  var groups=sec.rowRepeatGroups||{};
+  var group=groups[rowIndex];
+  var repeat=repeatCountForGroup(sec,group);
+  if(!group||!repeat||repeat<=1||groups[rowIndex+1]===group)return 0;
+  var start=rowIndex;
+  while(start>0&&groups[start-1]===group)start--;
+  var rows=baseRowsFor(sec),played=0;
+  for(var ri=start;ri<=rowIndex;ri++)if(rows[ri])played+=countedBarsInRow(sec,rows[ri]);
+  return played*(repeat-1);
+}
+
+function updateCellWidth(){
+  var sheet=document.getElementById('sheet');
+  var sheetStyle=sheet?getComputedStyle(sheet):null;
+  var sheetW=sheet?sheet.clientWidth:document.documentElement.clientWidth;
+  var pad=(sheetStyle?parseFloat(sheetStyle.paddingLeft)+parseFloat(sheetStyle.paddingRight):48)||0;
+  var gap=parseFloat(getComputedStyle(document.body).getPropertyValue('--gap'))||(VIEW==='mini'?3:6);
+  var rowPad=4;
+  var ctrlW=EDIT_MODE?(32+72+14):0;
+  var cols=EDIT_MODE?8:visualColsFor(8);
+  var gaps=(cols-1)*gap;
+  var narrow=(window.innerWidth||document.documentElement.clientWidth||1024)<=520;
+  var repeatReserve=(!EDIT_MODE&&cols<=4)?30:0;
+  var avail=sheetW-pad-rowPad-ctrlW-gaps-repeatReserve-2;
+  var minW=narrow&&cols<=4?72:(cols<=2?150:(cols<=4?118:96));
+  var maxW=narrow&&cols<=4?96:(cols<=2?224:(cols<=4?170:138));
+  var w=Math.max(minW,Math.min(maxW,Math.floor(avail/cols)));
+  document.documentElement.style.setProperty('--cell-w',w+'px');
+  syncNoteWidths();
+}
+function measureRowContentWidth(row){
+  var left=Infinity,right=-Infinity;
+  function addRect(el){
+    var st=getComputedStyle(el);
+    if(st.display==='none'||st.visibility==='hidden')return;
+    var r=el.getBoundingClientRect();
+    if(r.width<=0||r.height<=0)return;
+    left=Math.min(left,r.left);right=Math.max(right,r.right);
+  }
+  Array.prototype.forEach.call(row.children,function(child){
+    if(child.classList&&(
+      child.classList.contains('row-ctrl')||
+      child.classList.contains('row-repeat-ctrl')||
+      child.classList.contains('add-bar-cell')
+    ))return;
+    if(child.classList&&child.classList.contains('bar-row-main')){
+      Array.prototype.forEach.call(child.children,addRect);
+      return;
+    }
+    addRect(child);
+  });
+  return isFinite(left)?Math.ceil(right-left):0;
+}
+function syncNoteWidths(){
+  var sheet=document.getElementById('sheet');if(!sheet)return;
+  var globalMax=0,lastSectionW=0;
+  sheet.querySelectorAll('.section').forEach(function(secEl){
+    var sectionMax=0;
+    secEl.querySelectorAll('.bar-row').forEach(function(row){sectionMax=Math.max(sectionMax,measureRowContentWidth(row))});
+    if(sectionMax){
+      lastSectionW=sectionMax;
+      globalMax=Math.max(globalMax,sectionMax);
+    }else if(secEl.classList.contains('note-type-sec')&&lastSectionW){
+      sectionMax=lastSectionW;
+    }
+    if(sectionMax)secEl.style.setProperty('--section-content-w',Math.min(sectionMax,sheet.clientWidth)+'px');
+    else secEl.style.removeProperty('--section-content-w');
+  });
+  if(!globalMax)globalMax=sheet.clientWidth;
+  sheet.style.setProperty('--note-content-w',Math.min(globalMax,sheet.clientWidth)+'px');
+}
+var LAST_VISUAL_CAP=currentVisualCap();
+window.addEventListener('resize',function(){
+  var cap=currentVisualCap();
+  if(!EDIT_MODE&&cap!==LAST_VISUAL_CAP){LAST_VISUAL_CAP=cap;render();return;}
+  updateCellWidth();
+});
+
+function render(){
+  var keepY=window.scrollY||window.pageYOffset||0;
+  var sheet=document.getElementById('sheet');sheet.innerHTML='';var n=1;
+  SECTIONS.forEach(function(sec,si){
+    var col=sec.color||PRESETS[si%PRESETS.length];
+    if(sec.type==='note'&&!EDIT_MODE){
+      if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];
+      if(!sec.cols.some(noteColHasContent))return;
+    }
+    var div=document.createElement('div');div.className='section'+(sec.type==='note'?' note-type-sec':'');div.dataset.si=si;
+    // Head
+    var head=document.createElement('div');head.className='section-head';
+    var headMain=document.createElement('div');headMain.className='section-head-main';
+    var tag=document.createElement('span');tag.className='section-tag';tag.textContent=sec.label;
+    tag.style.background=col.bg;tag.style.color=col.lbl;tag.style.borderColor=col.bar+'44';
+    tag.title='Click to change colour · Double-click to rename';
+    tag.onclick=(function(idx,el){return function(e){openColorPicker(idx,el,e)}})(si,tag);
+    tag.ondblclick=(function(idx,el){return function(e){
+      e.stopPropagation();closeColorPicker();
+      var inp=document.createElement('input');inp.className='section-label-inp';inp.value=SECTIONS[idx].label;
+      inp.style.background=(SECTIONS[idx].color||{}).bg||'#eef';inp.style.color=(SECTIONS[idx].color||{}).lbl||'#333';inp.style.borderColor=(SECTIONS[idx].color||{}).bar||'#888';
+      el.parentNode.replaceChild(inp,el);inp.focus();inp.select();
+      function done(){var v=inp.value.trim();if(v)SECTIONS[idx].label=v;render();}
+      inp.onblur=done;inp.onkeydown=function(ev){if(ev.key==='Enter')inp.blur();if(ev.key==='Escape')render();};
+    }})(si,tag);
+    var isNoteHidden=(sec.noteHidden!==false);
+    var noteToggle=document.createElement('button');
+    noteToggle.className='note-toggle'+(isNoteHidden?'':' note-on');
+    noteToggle.textContent='≡'+(sec.note&&sec.note.trim()?' ·':'');
+    noteToggle.title=(isNoteHidden?'Show':'Hide')+' section note';
+    noteToggle.onclick=(function(idx){return function(e){
+      e.stopPropagation();SECTIONS[idx].noteHidden=(SECTIONS[idx].noteHidden!==false)?false:true;render();
+    }})(si);
+    var noteEl=document.createElement('input');noteEl.className='section-note';noteEl.value=sec.note||'';
+    noteEl.style.display=isNoteHidden?'none':'';
+    noteEl.oninput=(function(idx){return function(){SECTIONS[idx].note=this.value}})(si);
+    var orderInp=document.createElement('input');orderInp.className='sec-order-inp';orderInp.type='number';orderInp.min='1';orderInp.max=SECTIONS.length;orderInp.value=si+1;orderInp.title='Section order (Enter to move)';
+    orderInp.onmousedown=orderInp.onclick=function(e){e.stopPropagation()};
+    orderInp.onkeydown=function(e){if(e.key==='Enter')this.blur();if(e.key==='Escape'){this.value=si+1;this.blur();}};
+    orderInp.onblur=(function(idx){return function(){
+      var v=parseInt(this.value);if(isNaN(v)){this.value=idx+1;return;}
+      v=Math.max(1,Math.min(SECTIONS.length,v))-1;if(v===idx){this.value=idx+1;return;}
+      var s=SECTIONS.splice(idx,1)[0];SECTIONS.splice(v,0,s);render();
+    }})(si);
+    var acts=document.createElement('div');acts.className='section-actions';
+    var barCountInp=document.createElement('input');barCountInp.className='bar-count-inp';barCountInp.type='number';barCountInp.min='1';barCountInp.max='32';barCountInp.value=BAR_CHANGE_DEFAULT;barCountInp.title='bars to add or remove';
+    barCountInp.onmousedown=barCountInp.onclick=function(e){e.stopPropagation()};
+    barCountInp.onkeydown=function(e){if(e.key==='Enter')this.blur();if(e.key==='Escape'){this.value=BAR_CHANGE_DEFAULT;this.blur();}};
+    var addRowBtn=document.createElement('button');addRowBtn.className='sec-btn bar-count-btn';addRowBtn.textContent='+ bar';
+    addRowBtn.title='add bars at end of section';
+    addRowBtn.onclick=(function(idx,countEl){return function(e){e.stopPropagation();changeSectionBars(idx,barCountValue(countEl),1)}})(si,barCountInp);
+    var removeRowBtn=document.createElement('button');removeRowBtn.className='sec-btn bar-count-btn';removeRowBtn.textContent='- bar';
+    removeRowBtn.title='remove bars from end of section';
+    removeRowBtn.onclick=(function(idx,countEl){return function(e){e.stopPropagation();changeSectionBars(idx,barCountValue(countEl),-1)}})(si,barCountInp);
+    var dupBtn=document.createElement('button');dupBtn.className='sec-btn';dupBtn.textContent='⊕ dup';
+    dupBtn.onclick=(function(idx){return function(){duplicateSection(idx)}})(si);
+    var renumBtn=document.createElement('button');renumBtn.className='sec-btn';renumBtn.textContent='renumber';
+    renumBtn.title='Renumber all bars';
+    renumBtn.onclick=function(e){e.stopPropagation();renumberAll();};
+    var upBtn=document.createElement('button');upBtn.className='sec-btn';upBtn.textContent='↑';
+    upBtn.onclick=(function(idx){return function(){moveSectionUp(idx)}})(si);if(si===0)upBtn.disabled=true;
+    var dnBtn=document.createElement('button');dnBtn.className='sec-btn';dnBtn.textContent='↓';
+    dnBtn.onclick=(function(idx){return function(){moveSectionDown(idx)}})(si);if(si===SECTIONS.length-1)dnBtn.disabled=true;
+    var delSecBtn=document.createElement('button');delSecBtn.className='sec-btn sec-btn-danger';delSecBtn.textContent='✕';
+    delSecBtn.onclick=(function(idx){return function(){deleteSection(idx)}})(si);
+    var rstSecBtn=document.createElement('button');rstSecBtn.className='sec-btn sec-btn-warn';rstSecBtn.textContent='↺ reset';rstSecBtn.title='reset all bars to blank';
+    rstSecBtn.onclick=(function(idx){return function(){resetSection(idx)}})(si);
+    var addActs=document.createElement('div');addActs.className='sheet-add-actions';
+    var addSecBtn=document.createElement('button');addSecBtn.className='sec-btn';addSecBtn.textContent='+ section';
+    addSecBtn.title='Add section after this section';
+    addSecBtn.onclick=(function(idx){return function(e){e.stopPropagation();addSection(idx+1);};})(si);
+    var addNoteBtn=document.createElement('button');addNoteBtn.className='sec-btn';addNoteBtn.textContent='+ lyrics';
+    addNoteBtn.title='Add note section after this section';
+    addNoteBtn.onclick=(function(idx){return function(e){e.stopPropagation();addNoteSection(idx+1,idx);};})(si);
+	    addActs.appendChild(addSecBtn);addActs.appendChild(addNoteBtn);
+	    if(sec.type!=='note'){addActs.appendChild(barCountInp);addActs.appendChild(addRowBtn);addActs.appendChild(removeRowBtn);acts.appendChild(dupBtn);}
+    addActs.appendChild(delSecBtn);
+    acts.appendChild(renumBtn);
+    acts.appendChild(upBtn);acts.appendChild(dnBtn);acts.appendChild(rstSecBtn);
+    if(sec.type==='note'){
+      // migrate old single-text data
+      if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];
+      var snWrap=document.createElement('div');snWrap.className='sec-note-wrap';
+      var noteRail=document.createElement('div');noteRail.className='note-edit-rail';
+      noteRail.appendChild(orderInp);
+      var activeColCount=noteVisibleColCount(sec);
+      if(EDIT_MODE&&activeColCount<2){
+        var addColBtn=document.createElement('button');
+        addColBtn.className='note-col-btn';addColBtn.textContent='+ col';addColBtn.title='add lyrics column';
+        addColBtn.onclick=(function(idx){return function(e){e.stopPropagation();addNoteColumn(idx)}})(si);
+        noteRail.appendChild(addColBtn);
+      }else if(EDIT_MODE){
+        var removeColBtn=document.createElement('button');
+        removeColBtn.className='note-col-btn';removeColBtn.textContent='- col';removeColBtn.title='remove lyrics column';
+        removeColBtn.onclick=(function(idx){return function(e){e.stopPropagation();removeNoteColumn(idx)}})(si);
+        noteRail.appendChild(removeColBtn);
+      }
+      if(EDIT_MODE){
+        var delNoteBtn=document.createElement('button');
+        delNoteBtn.className='note-col-btn note-del-btn';delNoteBtn.textContent='×';delNoteBtn.title='delete lyrics section';
+        delNoteBtn.onclick=(function(idx){return function(e){e.stopPropagation();deleteSection(idx)}})(si);
+        noteRail.appendChild(delNoteBtn);
+      }
+      snWrap.appendChild(noteRail);
+      var colsDiv=document.createElement('div');colsDiv.className='sec-note-cols';
+      if(activeColCount===1)colsDiv.classList.add('note-cols-single');
+      var visibleCols=sec.cols.map(function(colHtml,ci){return{html:colHtml,idx:ci}}).filter(function(item){
+        return EDIT_MODE?item.idx<activeColCount:noteColHasContent(item.html);
+      });
+      if(!EDIT_MODE&&visibleCols.length===1)colsDiv.classList.add('note-cols-single');
+      visibleCols.forEach(function(item){
+        var colHtml=item.html,dataCi=item.idx;
+        var colWrap=document.createElement('div');colWrap.className='sec-note-col';
+        // editor
+        var ed=document.createElement('div');ed.className='rte-editor';ed.contentEditable=EDIT_MODE?'true':'false';
+        ed.innerHTML=colHtml||'';
+        ed.style.borderLeftColor=col.bar;
+        ed.oninput=ed.onblur=(function(s,c){return function(){SECTIONS[s].cols[c]=this.innerHTML}})(si,dataCi);
+        ed.onpaste=plainTextPaste;
+        ed.addEventListener('keydown',richTextShortcut);
+        ed.onmousedown=ed.onclick=function(e){e.stopPropagation()};
+        colWrap.appendChild(ed);
+        colsDiv.appendChild(colWrap);
+      });
+      snWrap.appendChild(colsDiv);div.appendChild(snWrap);
+    } else {
+      headMain.appendChild(tag);headMain.appendChild(noteToggle);headMain.appendChild(noteEl);headMain.appendChild(addActs);
+      head.appendChild(orderInp);head.appendChild(headMain);head.appendChild(acts);
+      div.appendChild(head);
+      // Bar rows
+      if(!sec.rowSizes)sec.rowSizes=[];
+      var pos=0,ri=0,baseEnd=0,baseRowSize=DEFAULT_ROW_SIZE,baseRi=0;
+      while(pos<sec.bars.length){
+        if(pos>=baseEnd){
+          baseRi=ri;
+          baseRowSize=Math.max(1,Math.min(parseInt(sec.rowSizes[ri]||DEFAULT_ROW_SIZE,10)||DEFAULT_ROW_SIZE,COLS));
+          baseEnd=Math.min(pos+baseRowSize,sec.bars.length);
+          ri++;
+        }
+        var remainingInBase=baseEnd-pos;
+        var rowSize=EDIT_MODE?remainingInBase:visualColsFor(remainingInBase);
+        var row=document.createElement('div');row.className='bar-row';row.dataset.si=si;
+        var rCtrl=document.createElement('div');rCtrl.className='row-ctrl';
+        var rInp=document.createElement('input');rInp.className='row-cols-inp';rInp.type='number';rInp.min='1';rInp.max=COLS;rInp.value=baseRowSize;rInp.title='display bars in row, max '+COLS;
+        rInp.onkeydown=function(e){if(e.key==='Enter')this.blur();if(e.key==='Escape')render();};
+        rInp.onchange=rInp.onblur=(function(s,ridx){return function(){resizeRow(s,ridx,this.value);};})(si,baseRi);
+        rInp.onmousedown=rInp.onclick=function(e){e.stopPropagation()};
+        rCtrl.appendChild(rInp);row.appendChild(rCtrl);
+        var rowMain=document.createElement('div');rowMain.className='bar-row-main';
+        var repeatCtrl=document.createElement('div');repeatCtrl.className='row-repeat-ctrl';
+        var end=Math.min(pos+rowSize,sec.bars.length);
+        var rowHasRhythm=sec.bars.slice(pos,end).some(function(b){return barHasVisibleRhythm(sec,b)});
+        if(rowHasRhythm)row.classList.add('has-visible-rhythm');
+        for(var i=pos;i<end;i++){
+          var b=sec.bars[i]||{};
+          var displayNum=b.skipCount?'':n;
+          rowMain.appendChild(makeBarCol(b,si,i,displayNum,col));
+          if(!b.skipCount)n++;
+        }
+        var atBaseRowEnd=end===baseEnd;
+        var repeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[baseRi];
+        var repeatVal=repeatCountForGroup(sec,repeatGroup);
+        var nextRepeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[baseRi+1];
+        if(atBaseRowEnd&&repeatGroup&&repeatVal&&repeatVal>1&&nextRepeatGroup!==repeatGroup)row.classList.add('repeat-break-after');
+        var displayRepeatBadge=null;
+        if(atBaseRowEnd&&!EDIT_MODE&&repeatGroup&&repeatVal&&repeatVal>1&&nextRepeatGroup!==repeatGroup){
+          displayRepeatBadge=document.createElement('div');displayRepeatBadge.className='row-repeat-badge';displayRepeatBadge.textContent='×'+repeatVal;
+          displayRepeatBadge.style.background=col.bg;displayRepeatBadge.style.color=col.lbl;
+        }
+        if(atBaseRowEnd)n+=repeatExtraForRow(sec,baseRi);
+        if(atBaseRowEnd&&EDIT_MODE){
+          var groupInp=document.createElement('input');groupInp.className='row-repeat-inp repeat-group-inp';groupInp.maxLength=1;groupInp.value=repeatGroup||'';groupInp.title='repeat group';
+          groupInp.onmousedown=groupInp.onclick=function(e){e.stopPropagation()};
+          groupInp.oninput=(function(s,ridx){return function(){
+            var g=(this.value||'').trim().toUpperCase().slice(0,1);this.value=g;
+            if(!g){if(SECTIONS[s].rowRepeatGroups)delete SECTIONS[s].rowRepeatGroups[ridx];return;}
+            if(!SECTIONS[s].rowRepeatGroups)SECTIONS[s].rowRepeatGroups={};
+            if(!SECTIONS[s].repeatCounts)SECTIONS[s].repeatCounts={};
+            SECTIONS[s].rowRepeatGroups[ridx]=g;if(!SECTIONS[s].repeatCounts[g])SECTIONS[s].repeatCounts[g]=2;
+          }})(si,baseRi);
+          groupInp.onblur=function(){render()};
+          var countInp=document.createElement('input');countInp.className='row-repeat-inp repeat-count-inp';countInp.inputMode='numeric';countInp.maxLength=1;countInp.value=repeatGroup&&nextRepeatGroup!==repeatGroup&&repeatVal?repeatVal:'';countInp.title='Repeat count on last row of group';
+          countInp.onmousedown=countInp.onclick=function(e){e.stopPropagation()};
+          countInp.oninput=(function(s,ridx){return function(){
+            var g=SECTIONS[s].rowRepeatGroups&&SECTIONS[s].rowRepeatGroups[ridx];if(!g)return;
+            var v=parseInt(this.value,10);
+            if(!SECTIONS[s].repeatCounts)SECTIONS[s].repeatCounts={};
+            if(isNaN(v)||v<=1)delete SECTIONS[s].repeatCounts[g];else SECTIONS[s].repeatCounts[g]=Math.min(v,9);
+          }})(si,baseRi);
+          countInp.onblur=function(){render()};
+          repeatCtrl.appendChild(groupInp);repeatCtrl.appendChild(countInp);
+        }
+        row.appendChild(rowMain);
+        if(displayRepeatBadge)row.appendChild(displayRepeatBadge);
+        if(EDIT_MODE)row.appendChild(repeatCtrl);
+        setupDrop(row);div.appendChild(row);
+        pos=end;
+      }
+    }
+    sheet.appendChild(div);
+  });
+  updateCellWidth();
+  renderFooter();
+  updateSaveState();
+  if(keepY>0)requestAnimationFrame(function(){window.scrollTo(0,keepY)});
+}
+
+// ── Rhythm Strip ──
+var rhythmActiveBarRef=null,rhythmActiveBeatRef=null;
+
+function svgEl(id,cls){
+  var s=NOTE_SVGS[id];if(!s)return null;
+  var d=document.createElement('div');
+  d.innerHTML=s;
+  var svg=d.firstElementChild;
+  if(svg&&svg.classList){
+    svg.classList.add(cls||'note-icon');
+    svg.dataset.rhythmToken=id;
+    svg.setAttribute('aria-label',(NOTE_META[id]&&NOTE_META[id].label)||id);
+  }
+  return svg;
+}
+
+function barHasVisibleRhythm(sec,bar){
+  if(!bar||bar.rhythmOff)return false;
+  return !!bar.rhythmOn||!!(sec&&sec.rhythmOn&&bar.r&&bar.r.length);
+}
+
+function chordSplitParts(chord){
+  if(typeof chord!=='string'||chord.indexOf('|')<0)return null;
+  return chord.split('|').map(function(part){return part.replace(/\s+$/,'').replace(/^\s+/,'')});
+}
+function chordSplitSegments(parts){
+  var segments=[];
+  if(!parts||parts.length<2)return segments;
+  for(var i=0;i<parts.length;i++){
+    var text=(parts[i]||'').trim();
+    if(!text)continue;
+    var span=1;
+    while(i+span<parts.length&&!(parts[i+span]||'').trim())span++;
+    segments.push({text:text,start:i,span:span});
+  }
+  if(!segments.length)segments.push({text:'—',start:0,span:parts.length});
+  return segments;
+}
+function setSplitPart(secIdx,barIdx,slot,text){
+  var current=(SECTIONS[secIdx]&&SECTIONS[secIdx].bars&&SECTIONS[secIdx].bars[barIdx]&&SECTIONS[secIdx].bars[barIdx].c)||'';
+  var next=chordSplitParts(current)||[''];
+  while(next.length<=slot)next.push('');
+  next[slot]=(text||'').replace(/[\n\r|]/g,'').trim();
+  SECTIONS[secIdx].bars[barIdx].c=next.join('|');
+}
+function openRawSplitEditor(wrap,bar,si,bi){
+  var raw=document.createElement('div');
+  raw.className='bar-chord';
+  raw.contentEditable='true';
+  raw.spellcheck=false;
+  raw.textContent=(SECTIONS[si]&&SECTIONS[si].bars&&SECTIONS[si].bars[bi]&&SECTIONS[si].bars[bi].c)||bar.c||'';
+  raw.style.fontSize=CHORD_SIZE+'px';
+  if(bar.h)raw.style.color='#fff';
+  raw.oninput=function(){SECTIONS[si].bars[bi].c=this.textContent.replace(/[\n\r]/g,'')};
+  raw.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();this.blur()}};
+  raw.onblur=function(){render()};
+  raw.onmousedown=raw.onclick=function(e){e.stopPropagation()};
+  wrap.replaceWith(raw);
+  raw.focus();
+  var range=document.createRange();
+  range.selectNodeContents(raw);
+  var sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+function makeChordSplitEl(bar,si,bi){
+  var parts=chordSplitParts(bar.c);
+  if(!parts)return null;
+  var wrap=document.createElement('div');
+  wrap.className='bar-chord-split';
+  wrap.title=EDIT_MODE?'double click to edit raw split syntax':'';
+  wrap.style.gridTemplateColumns='repeat('+parts.length+',minmax(0,1fr))';
+  if(EDIT_MODE)wrap.ondblclick=function(e){e.stopPropagation();openRawSplitEditor(wrap,bar,si,bi)};
+  chordSplitSegments(parts).forEach(function(seg){
+    var part=document.createElement('div');
+    part.className='bar-chord-part';
+    part.textContent=seg.text;
+    part.style.gridColumn=(seg.start+1)+' / span '+seg.span;
+    part.style.fontSize=CHORD_SIZE+'px';
+    if(bar.h)part.style.color='#fff';
+    part.contentEditable=EDIT_MODE?'true':'false';
+    part.spellcheck=false;
+    if(EDIT_MODE){
+      part.oninput=function(){setSplitPart(si,bi,seg.start,this.textContent)};
+      part.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();this.blur()}};
+    }
+    part.onmousedown=part.onclick=function(e){e.stopPropagation()};
+    wrap.appendChild(part);
+  });
+  return wrap;
+}
+
+function makeBarCol(bar,si,bi,num,col){
+  var showRhythm=barHasVisibleRhythm(SECTIONS[si],bar);
+  var barCol=document.createElement('div');
+  barCol.className='bar-col'+(showRhythm?' has-rhythm':'');
+
+  // Rhythm strip
+  var strip=document.createElement('div');
+  strip.className='rhythm-strip'+(showRhythm?'':' rhythm-strip-hidden');
+  strip.style.background=col.bg;strip.style.color=col.lbl;
+  strip.style.borderColor='transparent';
+  var slots=(bar.r&&bar.r.length)?bar.r:[];
+  if(!slots.length){
+    var hint=document.createElement('span');hint.className='add-rhythm-hint';
+    hint.textContent=EDIT_MODE?'+ add rhythm':'';strip.appendChild(hint);
+    if(EDIT_MODE)strip.onclick=(function(s,b,el){return function(e){e.stopPropagation();openRhythmPicker(s,b,el)}})(si,bi,strip);
+  } else {
+    var sw=document.createElement('div');sw.className='beat-slots';
+    slots.forEach(function(noteId,slotIdx){
+      var slot=document.createElement('div');slot.className='beat-slot';
+      var icon=svgEl(noteId,slots.length>5?'note-icon-sm':'note-icon');
+      if(icon){icon.style.color=col.lbl;slot.appendChild(icon);}
+      if(EDIT_MODE)slot.onclick=(function(s,b,idx,el){return function(e){e.stopPropagation();openBeatPicker(s,b,idx,el)}})(si,bi,slotIdx,slot);
+      sw.appendChild(slot);
+    });
+    strip.appendChild(sw);
+    if(EDIT_MODE)strip.ondblclick=(function(s,b,el){return function(e){e.stopPropagation();openRhythmPicker(s,b,el)}})(si,bi,strip);
+  }
+  barCol.appendChild(strip);
+
+  // Chord cell (existing makeCell logic, adapted)
+  var cell=document.createElement('div');
+  cell.className='bar-cell'+(bar.h?' highlighted':'')+(bar.skipCount?' skip-count':'');
+  cell.style.setProperty('--bar-strip',col.bar+'4a');
+  cell.style.setProperty('--bar-num-color',col.lbl);
+  cell.style.setProperty('--bar-accent',col.bar);
+  if(bar.h){
+    var hlBg=darken(col.bar,0.28);
+    cell.style.background=hlBg;
+    cell.style.borderColor=darken(col.bar,0.12);
+    cell.style.outline='1px solid '+darken(col.bar,0.10);
+  } else {
+    cell.style.border='none';
+    cell.style.background=col.bg;
+  }
+  // When rhythm strip is NOT shown, restore full border-radius on cell
+  if(!showRhythm){
+    cell.style.borderRadius='';
+    cell.style.borderTop='none';
+  }
+	  cell.draggable=EDIT_MODE;cell.dataset.si=si;cell.dataset.bi=bi;
+  var numEl=document.createElement('span');numEl.className='bar-num';numEl.textContent=num;
+  numEl.style.color=bar.h?'rgba(255,255,255,0.75)':col.lbl;
+  var snoteEl=document.createElement('input');snoteEl.type='text';snoteEl.className='bar-snote';
+  snoteEl.spellcheck=false;snoteEl.autocomplete='off';snoteEl.autocapitalize='off';
+	  snoteEl.value=bar.sn||'';
+	  snoteEl.readOnly=!EDIT_MODE;
+  snoteEl.style.color=bar.h?'rgba(255,255,255,0.85)':col.lbl;
+  snoteEl.oninput=(function(s,b){return function(){SECTIONS[s].bars[b].sn=this.value}})(si,bi);
+  snoteEl.onmousedown=snoteEl.onclick=function(e){e.stopPropagation()};
+  var chordEl=makeChordSplitEl(bar,si,bi);
+  if(!chordEl){
+	    chordEl=document.createElement('div');chordEl.className='bar-chord';chordEl.contentEditable=EDIT_MODE?'true':'false';
+    chordEl.spellcheck=false;chordEl.setAttribute('autocomplete','off');chordEl.setAttribute('autocapitalize','off');chordEl.setAttribute('autocorrect','off');
+    chordEl.textContent=bar.c;chordEl.style.fontSize=CHORD_SIZE+'px';
+    if(bar.h)chordEl.style.color='#fff';
+    chordEl.oninput=(function(s,b){return function(){SECTIONS[s].bars[b].c=this.textContent.replace(/[\n\r]/g,'')}})(si,bi);
+    chordEl.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();this.blur()}};
+    chordEl.onblur=(function(s,b){return function(){if((SECTIONS[s].bars[b].c||'').indexOf('|')>=0)render()}})(si,bi);
+    chordEl.onmousedown=chordEl.onclick=function(e){e.stopPropagation()};
+  }
+	  var annEl=document.createElement('input');annEl.className='bar-ann'+(bar.a?'':' bar-ann-empty');annEl.value=bar.a||'';
+	  annEl.readOnly=!EDIT_MODE;
+  annEl.spellcheck=false;annEl.autocomplete='off';annEl.autocapitalize='off';
+  annEl.oninput=(function(s,b){return function(){SECTIONS[s].bars[b].a=this.value}})(si,bi);
+  annEl.onmousedown=annEl.onclick=function(e){e.stopPropagation()};
+  var delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.textContent='×';
+  delBtn.onclick=(function(s,b){return function(e){e.stopPropagation();deleteBar(s,b)}})(si,bi);
+  var hlBtn=document.createElement('button');hlBtn.className='highlight-btn';hlBtn.textContent='@';hlBtn.title='Toggle highlight';
+  hlBtn.onclick=(function(s,b){return function(e){e.stopPropagation();SECTIONS[s].bars[b].h=!SECTIONS[s].bars[b].h;render()}})(si,bi);
+  var skipBtn=document.createElement('button');skipBtn.className='count-bypass-btn';skipBtn.textContent='#';skipBtn.title='Bypass bar number count';
+  skipBtn.onclick=(function(s,b){return function(e){e.stopPropagation();SECTIONS[s].bars[b].skipCount=!SECTIONS[s].bars[b].skipCount;render()}})(si,bi);
+  var rbarBtn=document.createElement('button');
+  rbarBtn.className='rhythm-bar-btn'+(showRhythm?' on':'')+(bar.rhythmOff?' forced-show':'');
+  rbarBtn.textContent='%';
+  rbarBtn.title=showRhythm?'Hide rhythm for this bar':'Add rhythm to this bar';
+  rbarBtn.onclick=(function(s,b){return function(e){
+    e.stopPropagation();
+    var bar=SECTIONS[s].bars[b];
+    var visible=barHasVisibleRhythm(SECTIONS[s],bar);
+    if(visible){bar.rhythmOn=false;bar.rhythmOff=true;}
+    else{bar.rhythmOn=true;bar.rhythmOff=false;}
+    render();
+  }})(si,bi);
+  var barBottom=document.createElement('div');barBottom.className='bar-bottom';
+  barBottom.appendChild(hlBtn);barBottom.appendChild(skipBtn);barBottom.appendChild(rbarBtn);
+  cell.appendChild(numEl);cell.appendChild(snoteEl);cell.appendChild(chordEl);cell.appendChild(annEl);
+  cell.appendChild(delBtn);cell.appendChild(barBottom);
+  cell.addEventListener('dragstart',function(e){
+    dragSrc=cell;cell.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',si+','+bi);
+    var ghost=cell.cloneNode(true);
+    ghost.style.cssText='position:fixed;left:-9999px;top:-9999px;width:'+cell.offsetWidth+'px;opacity:.95;transform:rotate(2deg);box-shadow:0 10px 30px rgba(0,0,0,.22);pointer-events:none;border-radius:var(--radius)';
+    document.body.appendChild(ghost);e.dataTransfer.setDragImage(ghost,cell.offsetWidth/2,cell.offsetHeight/2);
+    setTimeout(function(){if(ghost.parentNode)ghost.parentNode.removeChild(ghost)},0);
+  });
+  cell.addEventListener('dragend',function(){cell.classList.remove('dragging');document.querySelectorAll('.drag-over-left').forEach(function(el){el.classList.remove('drag-over-left')});dragSrc=null});
+  barCol.appendChild(cell);
+  return barCol;
+}
+
+// ── Rhythm picker: full pattern ──
+function buildRhythmPicker(){
+  var p=document.getElementById('rhythmPicker');p.innerHTML='';
+  function addTitle(t){var d=document.createElement('div');d.className='picker-title';d.textContent=t;p.appendChild(d)}
+  function addLabel(t){var d=document.createElement('div');d.className='picker-group-label';d.textContent=t;p.appendChild(d)}
+  function addSep(){var d=document.createElement('div');d.className='picker-sep';p.appendChild(d)}
+  function addGrid(items){var g=document.createElement('div');g.className='picker-grid';items.forEach(function(i){g.appendChild(i)});p.appendChild(g)}
+  function mkItem(id,label,onclick){
+    var el=document.createElement('div');el.className='picker-item';
+    var row=document.createElement('div');row.style.cssText='display:flex;align-items:center;justify-content:center;gap:2px;flex:1';
+    var ic=svgEl(id,'note-icon-sm');if(ic)row.appendChild(ic);
+    el.appendChild(row);
+    if(label){var lb=document.createElement('div');lb.className='picker-item-label';lb.textContent=label;el.appendChild(lb)}
+    el.onclick=function(e){e.stopPropagation();onclick()};return el;
+  }
+  addTitle('Rhythm Pattern');
+  PICKER_GROUPS.forEach(function(group,idx){
+    if(idx)addSep();
+    addLabel(group.label);
+    addGrid(group.ids.map(function(id){
+      return mkItem(id,(NOTE_META[id]&&NOTE_META[id].label)||id,function(){applyRhythmPattern([id])});
+    }));
+  });
+  var clr=document.createElement('button');clr.className='picker-clear';clr.textContent='✕  clear rhythm';
+  clr.onclick=function(){clearRhythmBar()};p.appendChild(clr);
+}
+
+function openRhythmPicker(si,bi,anchor){
+  if(!EDIT_MODE)return;
+  rhythmActiveBarRef={si:si,bi:bi};
+  var picker=document.getElementById('rhythmPicker');
+  var rect=anchor.getBoundingClientRect();
+  var left=Math.min(rect.left,window.innerWidth-390);
+  var top=rect.bottom+6;
+  if(top+520>window.innerHeight)top=rect.top-530;
+  picker.style.left=left+'px';picker.style.top=Math.max(8,top)+'px';
+  picker.classList.add('open');
+  document.getElementById('rhythmOverlay').classList.add('open');
+}
+function applyRhythmPattern(ids){
+  if(!rhythmActiveBarRef)return;
+  var bar=SECTIONS[rhythmActiveBarRef.si].bars[rhythmActiveBarRef.bi];
+  bar.r=ids.slice();bar.rhythmOn=true;bar.rhythmOff=false;
+  closeAllRhythmPopups();render();
+}
+function clearRhythmBar(){
+  if(!rhythmActiveBarRef)return;
+  var bar=SECTIONS[rhythmActiveBarRef.si].bars[rhythmActiveBarRef.bi];
+  bar.r=[];bar.rhythmOn=false;bar.rhythmOff=false;
+  closeAllRhythmPopups();render();
+}
+
+// ── Beat picker: per-slot ──
+function buildBeatPicker(){
+  var notes=document.getElementById('bpNotes');notes.innerHTML='';
+  BEAT_KEYS.forEach(function(id){
+    var item=document.createElement('div');item.className='beat-picker-item';
+    var icon=svgEl(id,'note-icon-sm');if(icon)item.appendChild(icon);
+    item.dataset.id=id;
+    item.onclick=function(e){e.stopPropagation();applyBeat(id)};
+    notes.appendChild(item);
+  });
+}
+function openBeatPicker(si,bi,slotIdx,anchor){
+  if(!EDIT_MODE)return;
+  rhythmActiveBeatRef={si:si,bi:bi,slotIdx:slotIdx};
+  var bp=document.getElementById('beatPicker');
+  var curId=SECTIONS[si].bars[bi].r[slotIdx];
+  bp.querySelectorAll('.beat-picker-item').forEach(function(el){
+    el.classList.toggle('selected',el.dataset.id===curId);
+  });
+  var rect=anchor.getBoundingClientRect();
+  var left=Math.min(rect.left,window.innerWidth-390);
+  var top=rect.bottom+4;
+  if(top+200>window.innerHeight)top=rect.top-210;
+  bp.style.left=left+'px';bp.style.top=Math.max(8,top)+'px';
+  bp.classList.add('open');
+  document.getElementById('rhythmOverlay').classList.add('open');
+}
+function applyBeat(id){
+  if(!rhythmActiveBeatRef)return;
+  var bar=SECTIONS[rhythmActiveBeatRef.si].bars[rhythmActiveBeatRef.bi];
+  bar.r[rhythmActiveBeatRef.slotIdx]=id;bar.rhythmOn=true;bar.rhythmOff=false;
+  closeAllRhythmPopups();render();
+}
+function addBeatAfter(){
+  if(!rhythmActiveBeatRef)return;
+  var bar=SECTIONS[rhythmActiveBeatRef.si].bars[rhythmActiveBeatRef.bi];
+  var r=bar.r;
+  r.splice(rhythmActiveBeatRef.slotIdx+1,0,'q');
+  bar.rhythmOn=true;bar.rhythmOff=false;
+  closeAllRhythmPopups();render();
+}
+function deleteBeat(){
+  if(!rhythmActiveBeatRef)return;
+  var bar=SECTIONS[rhythmActiveBeatRef.si].bars[rhythmActiveBeatRef.bi];
+  var r=bar.r;
+  r.splice(rhythmActiveBeatRef.slotIdx,1);
+  if(!r.length){bar.rhythmOn=false;bar.rhythmOff=false;}
+  closeAllRhythmPopups();render();
+}
+function clearBeatBar(){
+  if(!rhythmActiveBeatRef)return;
+  var bar=SECTIONS[rhythmActiveBeatRef.si].bars[rhythmActiveBeatRef.bi];
+  bar.r=[];bar.rhythmOn=false;bar.rhythmOff=false;
+  closeAllRhythmPopups();render();
+}
+function closeAllRhythmPopups(){
+  document.getElementById('rhythmPicker').classList.remove('open');
+  document.getElementById('beatPicker').classList.remove('open');
+  document.getElementById('rhythmOverlay').classList.remove('open');
+  rhythmActiveBarRef=null;rhythmActiveBeatRef=null;
+}
+
+var AI_START_PROMPT = [
+  'You are helping convert a user-provided chord chart into Bandsheet JSON.',
+  '',
+  'Rules:',
+  '- Return JSON only. Do not return Markdown.',
+  '- Do not edit HTML, CSS, or JavaScript.',
+  '- Do not invent chords. Use only the chord chart I paste or upload.',
+  '- You may look up metadata only for key, BPM, time signature, and song structure.',
+  '- Put lyric/note blocks immediately under their related chord section.',
+  '',
+  'Output shape:',
+  '{',
+  '  "title": "Song Title",',
+  '  "artist": "Artist",',
+  '  "key": "F major",',
+  '  "bpm": "96",',
+  '  "time": "4/4",',
+  '  "vocalist": "",',
+  '  "sections": []',
+  '}',
+  '',
+  'Chord section example:',
+  '{"id":"verse1","label":"Verse 1","note":"","noteHidden":true,"lyric":"","color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"bars":[{"c":"Gm","a":"","h":false,"r":[]}],"rowSizes":[4,4]}',
+  '',
+  'Note section example:',
+  '{"id":"lyric-verse1","type":"note","label":"Lyric — Verse 1","cols":["<p>line 1<br>line 2</p>",""],"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"}}',
+  '',
+  'After you return JSON, I will validate it with: python3 bandsheet_import.py song.json --check'
+].join('\n');
+
+function copyAiPrompt(btn){
+  function done(){if(btn){btn.textContent='copied';setTimeout(function(){btn.textContent='ai prompt'},1400)}toast('AI prompt copied ✓')}
+  function fallbackCopy(){
+    var tmp=document.createElement('textarea');
+    tmp.value=AI_START_PROMPT;tmp.setAttribute('readonly','');
+    tmp.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(tmp);tmp.select();document.execCommand('copy');document.body.removeChild(tmp);done();
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(AI_START_PROMPT).then(done).catch(fallbackCopy);
+  }else{
+    fallbackCopy();
+  }
+}
+
+function makeFooterCtrl(arr,idx,renderFn,vertical){
+  var wrap=document.createElement('div');wrap.className=vertical?'fn-ctrl':'fl-ctrl';
+  var up=document.createElement('button');up.className='fic-btn';up.textContent='↑';up.title='Move up';
+  up.disabled=(idx===0);
+  up.onclick=function(e){e.stopPropagation();var a=arr.splice(idx,1)[0];arr.splice(idx-1,0,a);renderFn()};
+  var dn=document.createElement('button');dn.className='fic-btn';dn.textContent='↓';dn.title='Move down';
+  dn.disabled=(idx===arr.length-1);
+  dn.onclick=function(e){e.stopPropagation();var a=arr.splice(idx,1)[0];arr.splice(idx+1,0,a);renderFn()};
+  var dl=document.createElement('button');dl.className='fic-btn fic-del';dl.textContent='×';dl.title='Delete';
+  dl.onclick=function(e){e.stopPropagation();arr.splice(idx,1);renderFn()};
+  wrap.appendChild(up);wrap.appendChild(dn);wrap.appendChild(dl);
+  return wrap;
+}
+function makeNoteCard(text,ni){
+  var card=document.createElement('div');card.className='footer-note-card';
+  var ta=document.createElement('textarea');ta.className='footer-note-ta';ta.value=text||'';
+  ta.oninput=(function(i){return function(){FOOTER.notes[i]=this.value}})(ni);
+  ta.onpaste=function(e){
+    var data=(e.clipboardData||window.clipboardData);if(!data)return;
+    var text=data.getData('text/plain');if(!text)return;
+    e.preventDefault();this.setRangeText(text,this.selectionStart,this.selectionEnd,'end');this.dispatchEvent(new Event('input',{bubbles:true}));
+  };
+  ta.onmousedown=ta.onclick=function(e){e.stopPropagation()};
+  card.appendChild(ta);
+  card.appendChild(makeFooterCtrl(FOOTER.notes,ni,renderFooter,true));
+  return card;
+}
+function renderFooter(){
+  var existing=document.getElementById('footer-section');if(existing)existing.remove();
+  var sheet=document.getElementById('sheet');
+  var footer=document.createElement('div');footer.id='footer-section';
+  // Notes section
+  var notesHead=document.createElement('div');notesHead.className='footer-head';notesHead.textContent='notes';
+  footer.appendChild(notesHead);
+  if(!FOOTER.notes)FOOTER.notes=[];
+  var list=document.createElement('div');list.className='footer-notes-list';
+  FOOTER.notes.forEach(function(n,ni){list.appendChild(makeNoteCard(n,ni,list))});
+  footer.appendChild(list);
+  var addNoteBtn=document.createElement('button');addNoteBtn.className='footer-add-note';addNoteBtn.textContent='+ add note';
+  addNoteBtn.onclick=function(){FOOTER.notes.push('');renderFooter()};
+  footer.appendChild(addNoteBtn);
+  sheet.appendChild(footer);
+}
+
+function setupDrop(row){
+  row.addEventListener('dragover',function(e){e.preventDefault();row.classList.add('drag-over');var after=getAfter(row,e.clientX);document.querySelectorAll('.drag-over-left').forEach(function(el){el.classList.remove('drag-over-left')});if(after)after.classList.add('drag-over-left')});
+  row.addEventListener('dragleave',function(e){if(!row.contains(e.relatedTarget)){row.classList.remove('drag-over');document.querySelectorAll('.drag-over-left').forEach(function(el){el.classList.remove('drag-over-left')})}});
+  row.addEventListener('drop',function(e){
+    e.preventDefault();row.classList.remove('drag-over');document.querySelectorAll('.drag-over-left').forEach(function(el){el.classList.remove('drag-over-left')});
+    if(!dragSrc)return;
+    var parts=e.dataTransfer.getData('text/plain').split(',');var fromSi=parseInt(parts[0]),fromBi=parseInt(parts[1]);var toSi=parseInt(row.dataset.si);
+    var after=getAfter(row,e.clientX);var toBi=after?parseInt(after.dataset.bi):SECTIONS[toSi].bars.length;
+    var moved=SECTIONS[fromSi].bars.splice(fromBi,1)[0];if(fromSi===toSi&&toBi>fromBi)toBi--;
+    SECTIONS[toSi].bars.splice(toBi,0,moved);render();toast('สลับห้องแล้ว ✓');
+  });
+}
+function getAfter(row,x){var cells=Array.from(row.querySelectorAll('.bar-cell:not(.dragging)'));var res=null,best=-Infinity;cells.forEach(function(c){var box=c.getBoundingClientRect();var offset=x-box.left-box.width/2;if(offset<0&&offset>best){best=offset;res=c}});return res}
+
+function openColorPicker(si,tagEl,e){
+  e.stopPropagation();pickerSi=si;
+  var popup=document.getElementById('colorPopup');var col=SECTIONS[si].color||PRESETS[0];
+  function buildSwatches(containerId, presets, label){
+    var sw=document.getElementById(containerId);sw.innerHTML='';
+    presets.forEach(function(p){var s=document.createElement('div');s.className='swatch'+(p.bar===col.bar?' active':'');s.style.background=p.bar;s.title=label+' '+p.bar;s.onclick=function(){applyColor(si,p);closeColorPicker()};sw.appendChild(s)});
+  }
+  buildSwatches('swatches-light', LIGHT_PRESETS, 'Light');
+  buildSwatches('swatches', PRESETS, 'Base');
+  var hexInput=document.getElementById('hexInput');var hexPreview=document.getElementById('hexPreview');
+  hexInput.value=col.bar;hexPreview.style.background=col.bar;
+  hexInput.oninput=function(){var v=this.value;if(!v.startsWith('#'))v='#'+v;hexPreview.style.background=isHex(v)?v:'#ccc';if(isHex(v))applyColor(si,colorFromBar(v))};
+  hexInput.onkeydown=function(e){if(e.key==='Enter')closeColorPicker()};
+  var rect=tagEl.getBoundingClientRect();popup.style.top=(rect.bottom+6)+'px';popup.style.left=rect.left+'px';
+  popup.classList.add('open');var pr=popup.getBoundingClientRect();if(pr.right>window.innerWidth-8)popup.style.left=(window.innerWidth-pr.width-8)+'px';
+}
+function applyColor(si,col){SECTIONS[si].color=col;render()}
+function closeColorPicker(){document.getElementById('colorPopup').classList.remove('open');pickerSi=null}
+document.addEventListener('click',function(e){var popup=document.getElementById('colorPopup');if(popup.classList.contains('open')&&!popup.contains(e.target))closeColorPicker()});
+
+function deleteBar(si,bi){if(SECTIONS[si].bars.length<=1)return toast('ต้องมีอย่างน้อย 1 ห้อง');SECTIONS[si].bars.splice(bi,1);render()}
+function addRow(si){changeSectionBars(si,DEFAULT_ROW_SIZE,1)}
+function renumberAll(){render();toast('renumber เรียบร้อย')}
+function nextSectionLabel(){
+  var base='section',n=1,used={};
+  SECTIONS.forEach(function(sec){used[(sec.label||'').trim().toLowerCase()]=true});
+  while(used[n===1?base:base+' '+n])n++;
+  return n===1?base:base+' '+n;
+}
+function addSection(at){var col=PRESETS[SECTIONS.length%PRESETS.length];var bars=[];for(var i=0;i<DEFAULT_ROW_SIZE;i++)bars.push(blankBar());var sec={id:'section',label:nextSectionLabel(),note:'',noteHidden:true,lyric:'',color:col,rowSizes:[],bars:bars};var idx=Number.isInteger(at)?at:SECTIONS.length;SECTIONS.splice(Math.max(0,Math.min(idx,SECTIONS.length)),0,sec);render();toast('เพิ่ม section แล้ว')}
+function cloneColor(col){return col?{bar:col.bar,bg:col.bg,lbl:col.lbl}:null}
+function addNoteSection(at,sourceIdx){var source=Number.isInteger(sourceIdx)?SECTIONS[sourceIdx]:null;var col=cloneColor(source&&source.color)||PRESETS[SECTIONS.length%PRESETS.length];var label=(source&&source.label)||'note';var sec={id:'note-sec',type:'note',label:label,cols:[''],colCount:1,color:col};var idx=Number.isInteger(at)?at:SECTIONS.length;SECTIONS.splice(Math.max(0,Math.min(idx,SECTIONS.length)),0,sec);render();toast('เพิ่ม note section แล้ว')}
+function moveSectionUp(si){if(si===0)return;var t=SECTIONS[si-1];SECTIONS[si-1]=SECTIONS[si];SECTIONS[si]=t;render();toast('ย้าย section ขึ้น ✓')}
+function moveSectionDown(si){if(si>=SECTIONS.length-1)return;var t=SECTIONS[si+1];SECTIONS[si+1]=SECTIONS[si];SECTIONS[si]=t;render();toast('ย้าย section ลง ✓')}
+function deleteSection(si){if(SECTIONS.length<=1)return toast('ต้องมีอย่างน้อย 1 section');if(!confirm('ลบ section "'+SECTIONS[si].label+'" ?'))return;SECTIONS.splice(si,1);render();toast('ลบ section แล้ว ✓')}
+function resetSection(si){if(!confirm('reset bars in "'+SECTIONS[si].label+'" to blank?'))return;var cols=SECTIONS[si].rowSizes&&SECTIONS[si].rowSizes.length?SECTIONS[si].rowSizes[0]:DEFAULT_ROW_SIZE;var blank=[];for(var i=0;i<cols;i++)blank.push(blankBar());SECTIONS[si].bars=blank;SECTIONS[si].rowSizes=[];render();toast('reset section แล้ว ✓')}
+function duplicateSection(si){var copy=JSON.parse(JSON.stringify(SECTIONS[si]));copy.label=copy.label+' (copy)';SECTIONS.splice(si+1,0,copy);render();toast('duplicate section แล้ว ✓')}
+
+function toggleNotesView(){
+  var hide=document.body.classList.toggle('notes-hidden');
+  var btn=document.getElementById('notes-btn');
+  if(btn)btn.classList.toggle('active',hide);
+}
+function updateModeButtons(){
+  var editBtn=document.getElementById('edit-btn');
+  var displayBtn=document.getElementById('display-btn');
+  if(editBtn){editBtn.classList.toggle('active',EDIT_MODE);editBtn.classList.toggle('primary',EDIT_MODE);editBtn.textContent='edit';}
+  if(displayBtn){displayBtn.classList.toggle('active',!EDIT_MODE);displayBtn.classList.toggle('primary',!EDIT_MODE);}
+}
+function setDisplayMode(){
+  if(!EDIT_MODE){updateModeButtons();return;}
+  EDIT_MODE=false;
+  document.body.classList.remove('edit-mode');
+  updateModeButtons();
+  render();
+}
+function toggleEditMode(){
+  if(AUTO_SCROLL_PLAYING)pauseAutoScroll();
+  EDIT_MODE=!EDIT_MODE;
+  document.body.classList.toggle('edit-mode',EDIT_MODE);
+  updateModeButtons();
+  render();
+}
+var AUTO_SCROLL_PLAYING=false,AUTO_SCROLL_RAF=0,AUTO_SCROLL_START=0,AUTO_SCROLL_FROM=0,AUTO_SCROLL_TO=0,AUTO_SCROLL_DURATION=0,AUTO_SCROLL_IGNORE_UNTIL=0;
+function parseDurationSeconds(v){
+  v=String(v||'').trim();
+  if(!v)return 0;
+  if(/^\d+(\.\d+)?$/.test(v))return Math.max(0,parseFloat(v));
+  var p=v.split(':').map(function(x){return parseFloat(x)||0});
+  if(p.length===2)return p[0]*60+p[1];
+  if(p.length===3)return p[0]*3600+p[1]*60+p[2];
+  return 0;
+}
+function autoScrollSeconds(){
+  return parseDurationSeconds(SETTINGS.autoScrollDuration)||180;
+}
+function updateAutoScrollControls(){
+  var dur=document.getElementById('scroll-duration');
+  if(dur)dur.value=SETTINGS.autoScrollDuration||'';
+  var sv=document.getElementById('scroll-speed-val');
+  if(sv)sv.textContent=Math.round((SETTINGS.autoScrollSpeed||1)*100)+'%';
+  var hsv=document.getElementById('scroll-hud-speed');
+  if(hsv)hsv.textContent=Math.round((SETTINGS.autoScrollSpeed||1)*100)+'%';
+  var btn=document.getElementById('play-btn');
+  if(btn){btn.textContent=AUTO_SCROLL_PLAYING?'pause':'play';btn.classList.toggle('active',AUTO_SCROLL_PLAYING);btn.classList.toggle('primary',AUTO_SCROLL_PLAYING);}
+}
+function setAutoScrollDuration(v){
+  SETTINGS.autoScrollDuration=v;
+  updateAutoScrollControls();
+}
+function changeAutoScrollSpeed(delta){
+  var pct=Math.round(((SETTINGS.autoScrollSpeed||1)*100)+delta);
+  pct=Math.max(50,Math.min(160,pct));
+  SETTINGS.autoScrollSpeed=pct/100;
+  if(AUTO_SCROLL_PLAYING)resetAutoScrollTiming();
+  updateAutoScrollControls();
+}
+function resetAutoScrollTiming(){
+  var now=performance.now();
+  AUTO_SCROLL_FROM=window.scrollY||window.pageYOffset||0;
+  if(AUTO_SCROLL_TO<=AUTO_SCROLL_FROM+1)return;
+  var total=Math.max(1,AUTO_SCROLL_TO-AUTO_SCROLL_FROM);
+  var remaining=total/(AUTO_SCROLL_TO||total);
+  AUTO_SCROLL_DURATION=autoScrollSeconds()*remaining/Math.max(.5,SETTINGS.autoScrollSpeed||1);
+  AUTO_SCROLL_START=now;
+}
+function pauseAutoScroll(){
+  AUTO_SCROLL_PLAYING=false;
+  if(AUTO_SCROLL_RAF)cancelAnimationFrame(AUTO_SCROLL_RAF);
+  AUTO_SCROLL_RAF=0;
+  document.body.classList.remove('autoscroll-on');
+  updateAutoScrollControls();
+}
+function jumpAutoScrollSection(dir){
+  var sections=[].slice.call(document.querySelectorAll('.section:not(.note-type-sec)'));
+  if(!sections.length)return;
+  var y=window.scrollY||window.pageYOffset||0;
+  var target=null;
+  if(dir>0){
+    for(var i=0;i<sections.length;i++){
+      var top=sections[i].getBoundingClientRect().top+y;
+      if(top>y+8){target=sections[i];break;}
+    }
+  }else{
+    for(var j=sections.length-1;j>=0;j--){
+      var ptop=sections[j].getBoundingClientRect().top+y;
+      if(ptop<y-8){target=sections[j];break;}
+    }
+  }
+  if(!target)return toast(dir>0?'ไม่มี section ถัดไป':'ไม่มี section ก่อนหน้า');
+  AUTO_SCROLL_IGNORE_UNTIL=Date.now()+180;
+  window.scrollTo(0,Math.max(0,target.getBoundingClientRect().top+y));
+  if(AUTO_SCROLL_PLAYING)resetAutoScrollTiming();
+}
+function startAutoScroll(){
+  if(EDIT_MODE)setDisplayMode();
+  document.body.classList.add('autoscroll-on');
+  var doc=document.documentElement;
+  AUTO_SCROLL_FROM=window.scrollY||window.pageYOffset||0;
+  AUTO_SCROLL_TO=Math.max(0,doc.scrollHeight-window.innerHeight);
+  if(AUTO_SCROLL_TO<=AUTO_SCROLL_FROM+2){document.body.classList.remove('autoscroll-on');return toast('ถึงท้ายหน้าแล้ว');}
+  if(!parseDurationSeconds(SETTINGS.autoScrollDuration))toast('ใส่ duration เพื่อความแม่นยำ');
+  var total=Math.max(1,AUTO_SCROLL_TO-AUTO_SCROLL_FROM);
+  var remaining=total/(AUTO_SCROLL_TO||total);
+  AUTO_SCROLL_DURATION=autoScrollSeconds()*remaining/Math.max(.5,SETTINGS.autoScrollSpeed||1);
+  AUTO_SCROLL_START=performance.now();
+  AUTO_SCROLL_PLAYING=true;
+  updateAutoScrollControls();
+  function step(now){
+    if(!AUTO_SCROLL_PLAYING)return;
+    var t=Math.min(1,(now-AUTO_SCROLL_START)/(AUTO_SCROLL_DURATION*1000));
+    var y=AUTO_SCROLL_FROM+(AUTO_SCROLL_TO-AUTO_SCROLL_FROM)*t;
+    AUTO_SCROLL_IGNORE_UNTIL=Date.now()+120;
+    window.scrollTo(0,y);
+    if(t>=1){pauseAutoScroll();toast('จบเพลงแล้ว ✓');return;}
+    AUTO_SCROLL_RAF=requestAnimationFrame(step);
+  }
+  AUTO_SCROLL_RAF=requestAnimationFrame(step);
+}
+function toggleAutoScroll(){
+  if(AUTO_SCROLL_PLAYING)pauseAutoScroll();
+  else startAutoScroll();
+}
+function stopAutoScrollFromUser(){
+  if(!AUTO_SCROLL_PLAYING||Date.now()<AUTO_SCROLL_IGNORE_UNTIL)return;
+  pauseAutoScroll();
+}
+var CHORDS_HIDDEN=false;
+function toggleAllChords(){
+  CHORDS_HIDDEN=!CHORDS_HIDDEN;
+  document.body.classList.toggle('chords-hidden',CHORDS_HIDDEN);
+  syncNoteWidths();
+  var btn=document.getElementById('chords-toggle-btn');
+  if(btn)btn.classList.toggle('active',CHORDS_HIDDEN);
+}
+function changeChordSize(delta){
+  CHORD_SIZE=Math.max(10,Math.min(22,CHORD_SIZE+delta));
+  SETTINGS.chordSize=CHORD_SIZE;
+  document.querySelectorAll('.bar-chord,.bar-chord-part').forEach(function(el){el.style.fontSize=CHORD_SIZE+'px'});
+  var v=document.getElementById('chord-size-val');if(v)v.textContent=CHORD_SIZE;
+}
+function changeNoteSize(delta){
+  NOTE_SIZE=Math.max(9,Math.min(22,NOTE_SIZE+delta));
+  SETTINGS.noteSize=NOTE_SIZE;
+  document.querySelectorAll('.rte-editor,.footer-note-ta').forEach(function(el){el.style.fontSize=NOTE_SIZE+'px'});
+  var v=document.getElementById('note-size-val');if(v)v.textContent=NOTE_SIZE;
+}
+
+// ── Key Change ──
+var NOTE_IDX={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'Fb':4,'F':5,'E#':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11,'B#':0};
+var FLAT_SCALE=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+var SHARP_SCALE=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var PREF_FLAT=[false,true,false,true,false,true,false,false,true,false,true,false];
+function noteFromSemitone(s,flats){return(flats?FLAT_SCALE:SHARP_SCALE)[((s%12)+12)%12]}
+function transposeToken(t,steps,flats){
+  if(!t||t==='—')return t;
+  var root,rest;
+  if(t.length>=2&&(t[1]==='#'||t[1]==='b')&&NOTE_IDX.hasOwnProperty(t.slice(0,2))){root=t.slice(0,2);rest=t.slice(2)}
+  else if(NOTE_IDX.hasOwnProperty(t[0])){root=t[0];rest=t.slice(1)}
+  else return t;
+  var bassIdx=rest.lastIndexOf('/');
+  if(bassIdx>=0){
+    var quality=rest.slice(0,bassIdx),bass=rest.slice(bassIdx+1);
+    var bm=bass.match(/^([A-G][#b]?)(.*)$/);
+    if(bm&&NOTE_IDX.hasOwnProperty(bm[1])){
+      var bassNote=noteFromSemitone(((NOTE_IDX[bm[1]]+steps)%12+12)%12,flats)+bm[2];
+      return noteFromSemitone(((NOTE_IDX[root]+steps)%12+12)%12,flats)+quality+'/'+bassNote;
+    }
+  }
+  return noteFromSemitone(((NOTE_IDX[root]+steps)%12+12)%12,flats)+rest;
+}
+function transposeStr(str,steps,flats){
+  if(!str||str==='—')return str;
+  return str.replace(/[A-G][#b]?[^|\-\s]*/g,function(m){return transposeToken(m,steps,flats)});
+}
+function transposeKey(steps){
+  if(!ORIG_SECTIONS){ORIG_SECTIONS=JSON.parse(JSON.stringify(SECTIONS));var ke=document.getElementById('meta-key');ORIG_KEY=ke?ke.value:'';}
+  TRANSPOSE+=steps;
+  var ke=document.getElementById('meta-key');
+  var kv=ke?ke.value:'';
+  var km=kv.match(/^([A-G][#b]?)/);
+  var curSemi=km?NOTE_IDX[km[1]]:3;
+  var newSemi=((curSemi+steps)%12+12)%12;
+  var flats=PREF_FLAT[newSemi];
+  SECTIONS.forEach(function(sec){
+    if(sec.type==='note')return;
+    (sec.bars||[]).forEach(function(bar){bar.c=transposeStr(bar.c,steps,flats)});
+  });
+  if(ke&&km){ke.value=noteFromSemitone(newSemi,flats)+kv.slice(km[1].length);saveMeta();}
+  var v=document.getElementById('key-val');
+  if(v){v.textContent=TRANSPOSE===0?'±0':(TRANSPOSE>0?'+'+TRANSPOSE:''+TRANSPOSE);v.classList.toggle('transposed',TRANSPOSE!==0);}
+  SETTINGS.transpose=TRANSPOSE;
+  render();
+  toast('Key '+(steps>0?'▲ +':'▼ ')+Math.abs(steps)+' st');
+}
+// ── Enharmonic Spelling Toggle ──
+function respellNote(note,toFlat){
+  var m=toFlat?{'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'}:{'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};
+  return m[note]||note;
+}
+function respellToken(tok,toFlat){
+  tok=(tok||'').trim();if(!tok||tok==='—')return tok;
+  var m=tok.match(/^([A-G][#b]?)(.*)/);if(!m)return tok;
+  var root=respellNote(m[1],toFlat),rest=m[2];
+  var si=rest.lastIndexOf('/');
+  if(si>=0){
+    var q=rest.slice(0,si),b=rest.slice(si+1);
+    var bm=b.match(/^([A-G][#b]?)(.*)/);
+    return root+q+'/'+(bm?respellNote(bm[1],toFlat)+bm[2]:b);
+  }
+  return root+rest;
+}
+function respellStr(str,toFlat){
+  if(!str||str==='—')return str;
+  if(str.indexOf('|')>=0)return str.split('|').map(function(p){return respellToken(p,toFlat);}).join(' | ');
+  var dm=str.match(/^([A-G][#b]?[^\-]*)-([A-G][#b]?.*)$/);
+  if(dm)return respellToken(dm[1],toFlat)+'-'+respellToken(dm[2],toFlat);
+  return respellToken(str,toFlat);
+}
+function toggleSpelling(){
+  var toFlat=(SPELL!=='flat');SPELL=toFlat?'flat':'sharp';
+  SECTIONS.forEach(function(sec){
+    if(!sec.bars)return;
+    sec.bars.forEach(function(bar){bar.c=respellStr(bar.c,toFlat);});
+  });
+  render();
+  var btn=document.getElementById('spell-btn');
+  if(btn){btn.textContent='♯/♭';btn.classList.toggle('primary',SPELL==='flat');}
+}
+function goHome(){
+  var inNestedLibrary=/\/(songs|ti-muse|the-maewjons|parkhaus108|90alter|parkhaus-studio)\//.test(location.pathname);
+  window.location.href=inNestedLibrary?'../index.html':'index.html';
+}
+
+
+function injectData(html){
+  function swap(marker,decl,json){
+    var i=html.indexOf(marker);if(i<0)return;
+    var s=html.lastIndexOf(decl,i);if(s<0)return;
+    html=html.slice(0,s)+decl+json+';\n'+html.slice(i);
+  }
+  swap('// ── END DATA ──','var SECTIONS = ',JSON.stringify(SECTIONS));
+  swap('// ── END FOOTER ──','var FOOTER = ',JSON.stringify(FOOTER));
+  swap('// ── END SETTINGS ──','var SETTINGS = ',JSON.stringify(SETTINGS));
+  swap('// ── END SHEET META ──','var SHEET_META = ',JSON.stringify(SHEET_META));
+  return html;
+}
+function cleanRuntimeHtml(html){
+  html=html.replace(/<html([^>]*)style="[^"]*"([^>]*)>/,'<html$1$2>');
+  html=html.replace(/<body[^>]*>/,'<body class="view-mini notes-hidden">');
+  html=html.replace(/<div id="toolbar"[^>]*>/,'<div id="toolbar">');
+  html=html.replace(/<div id="metabar"[^>]*>/,'<div id="metabar">');
+  html=html.replace(/<div id="sheet">[\s\S]*?<\/div>\s*<div class="color-popup" id="colorPopup">/,'<div id="sheet"></div>\n<div class="color-popup" id="colorPopup">');
+  return html;
+}
+function filenameSlug(name){
+  return (name||'bandsheet').replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'-').toLowerCase()||'bandsheet';
+}
+function cleanTextValue(v){
+  return String(v||'').replace(/\s+/g,' ').trim();
+}
+function cleanArtistValue(v){
+  v=cleanTextValue(v).replace(/^[-—]\s*/,'');
+  return v;
+}
+function slugText(v){
+  return cleanTextValue(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+}
+function cssFontName(name){
+  return "'"+String(name||'Roboto Condensed').replace(/'/g,'')+"'";
+}
+function htmlToExportText(html){
+  var div=document.createElement('div');
+  div.innerHTML=String(html||'')
+    .replace(/<br\s*\/?>/gi,'\n')
+    .replace(/<\/(p|div|li|h[1-6])>/gi,'\n');
+  return div.textContent.replace(/\u00a0/g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function appendSpacedText(parent,text){
+  var words=cleanTextValue(text).split(' ').filter(Boolean);
+  words.forEach(function(word,idx){
+    var span=document.createElement('span');
+    span.textContent=word;
+    span.style.display='inline-block';
+    span.style.marginRight=idx===words.length-1?'0':'0.24em';
+    parent.appendChild(span);
+  });
+}
+function inputValue(id){var el=document.getElementById(id);return el?String(el.value||'').trim():''}
+function usefulMetaValue(id){
+  var v=inputValue(id);
+  var low=v.toLowerCase();
+  if(id==='tb-filename'&&(low==='song title'||low==='new song'))return '';
+  if(id==='tb-artist'&&(low==='— artist'||low==='artist'))return '';
+  return v;
+}
+function titleFromDocument(){
+  return (document.title||'').replace(/\s*[·-]\s*bandsheet.*$/i,'').trim();
+}
+async function lookupIndexMeta(){
+  var path=location.pathname.replace(/^\/+/,'');
+  var parts=path.split('/');
+  var file=parts.pop()||'';
+  var band=parts.pop()||'';
+  var titleSlug=slugText(usefulMetaValue('tb-filename')||titleFromDocument());
+  var urls=['index.html','../index.html','/index.html'];
+  for(var ui=0;ui<urls.length;ui++){
+    try{
+      var res=await fetch(urls[ui],{cache:'no-store'});
+      if(!res.ok)continue;
+      var txt=await res.text();
+      var m=txt.match(/var SONGS\s*=\s*(\[[\s\S]*?\]);/);
+      if(!m)continue;
+      var songs=JSON.parse(m[1]);
+      var found=songs.find(function(s){
+        var songFile=s.file||'';
+        var songSlug=slugText(s.title||songFile.replace(/\.html$/,''));
+        return s.href===path
+          ||s.href===band+'/'+file
+          ||songFile===file&&(!band||s.bandId===band)
+          ||titleSlug&&(songSlug===titleSlug||songFile===titleSlug+'.html');
+      });
+      if(found)return found;
+    }catch(e){}
+  }
+  return null;
+}
+async function getExportMeta(){
+  var meta={
+    title:usefulMetaValue('tb-filename')||titleFromDocument()||'bandsheet',
+    artist:usefulMetaValue('tb-artist'),
+    key:usefulMetaValue('meta-key'),
+    bpm:usefulMetaValue('meta-bpm'),
+    time:usefulMetaValue('meta-time')||'4/4',
+    vocalist:usefulMetaValue('meta-vocalist')
+  };
+  var needsIndex=!meta.artist||!meta.key||!meta.bpm||meta.title.toLowerCase()==='song title';
+  if(needsIndex){
+    var found=await lookupIndexMeta();
+    if(found){
+      if(!meta.title||meta.title.toLowerCase()==='song title')meta.title=found.title||meta.title;
+      if(!meta.artist)meta.artist=found.artist||'';
+      if(!meta.key)meta.key=found.key||'';
+      if(!meta.bpm)meta.bpm=found.bpm||'';
+    }
+  }
+  return meta;
+}
+function buildExportWrap(meta){
+  var fn=cleanTextValue(meta.title)||'bandsheet';
+  var ar=cleanArtistValue(meta.artist);
+  var key=cleanTextValue(meta.key);
+  var bpm=cleanTextValue(meta.bpm);
+  var time=cleanTextValue(meta.time);
+  var vocalist=cleanTextValue(meta.vocalist);
+  var wrap=document.createElement('div');
+  var exportWidth=1120;
+  var contentWidth=1056;
+  var exportCellW=128;
+  wrap.style.cssText='position:absolute;left:0;top:0;z-index:2147483647;pointer-events:none;background:#f7f9fc;padding:24px 32px 28px;font-family:Arial,sans-serif;width:'+exportWidth+'px;max-width:'+exportWidth+'px;overflow:hidden;color:#172033;';
+  var hdr=document.createElement('div');
+  hdr.style.cssText='width:'+contentWidth+'px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #dfe7f2;';
+  var titleEl=document.createElement('div');
+  appendSpacedText(titleEl,fn);
+  titleEl.style.cssText='font-family:Arial,sans-serif;font-size:24px;font-weight:600;color:#172033;line-height:1.32;letter-spacing:0;word-spacing:0;white-space:normal;overflow-wrap:anywhere;width:'+contentWidth+'px;';
+  hdr.appendChild(titleEl);
+  if(ar){
+    var artistEl=document.createElement('div');
+    var dash=document.createElement('span');dash.textContent='—';dash.style.marginRight='0.18em';artistEl.appendChild(dash);
+    appendSpacedText(artistEl,ar);
+    artistEl.style.cssText='font-family:Arial,sans-serif;font-size:14px;font-weight:300;color:#7d8ca0;margin-top:5px;line-height:1.38;letter-spacing:0;word-spacing:0;white-space:normal;overflow-wrap:anywhere;width:'+contentWidth+'px;';
+    hdr.appendChild(artistEl);
+  }
+  var metaRow=document.createElement('div');
+  metaRow.style.cssText='margin-top:12px;display:flex;flex-wrap:wrap;column-gap:30px;row-gap:7px;font-size:13px;color:#9aa8ba;font-family:Arial,sans-serif;letter-spacing:0;width:'+contentWidth+'px;';
+  [['key',key],['bpm',bpm],['time',time],['vocalist',vocalist]].forEach(function(pair){
+    if(!pair[1])return;
+    var item=document.createElement('span');
+    item.style.cssText='display:inline-flex;align-items:baseline;white-space:nowrap;';
+    var label=document.createElement('span');
+    label.textContent=pair[0];
+    label.style.cssText='color:#9aa8ba;font-weight:300;margin-right:8px;';
+    var value=document.createElement('span');
+    value.textContent=pair[1];
+    value.style.cssText='color:#5f6f83;font-weight:400;letter-spacing:0;';
+    item.appendChild(label);item.appendChild(value);metaRow.appendChild(item);
+  });
+  hdr.appendChild(metaRow);
+  wrap.appendChild(hdr);
+
+  var exportSheet=document.createElement('div');
+  exportSheet.style.cssText='width:'+contentWidth+'px;';
+  var barNum=1;
+  function exportMaxRowWidth(){
+    var max=0;
+    SECTIONS.forEach(function(sec){
+      if(sec.type==='note'||!sec.bars)return;
+      var pos=0,ri=0;
+      while(pos<sec.bars.length){
+        var rowSize=Math.max(1,Math.min(parseInt((sec.rowSizes&&sec.rowSizes[ri])||DEFAULT_ROW_SIZE,10)||DEFAULT_ROW_SIZE,COLS));
+        var end=Math.min(pos+rowSize,sec.bars.length);
+        var visibleCount=end-pos;
+        var repeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri];
+        var repeatVal=repeatCountForGroup(sec,repeatGroup);
+        var nextRepeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri+1];
+        max=Math.max(max,visibleCount*exportCellW+(repeatGroup&&repeatVal&&repeatVal>1&&nextRepeatGroup!==repeatGroup?28:0));
+        pos=end;ri++;
+      }
+    });
+    return Math.min(contentWidth,max||contentWidth);
+  }
+  var exportNoteW=exportMaxRowWidth();
+  function makeExportBar(bar,col,displayNum){
+    var cell=document.createElement('div');
+    cell.style.cssText='position:relative;min-height:44px;border:none;border-radius:1px;background:'+(bar.h?darken(col.bar,0.28):col.bg)+';padding:17px 6px 7px 7px;color:#172033;overflow:hidden;box-shadow:'+(bar.skipCount?'none':'inset 2px 0 0 '+col.bar)+';';
+    if(bar.h){cell.style.color='#fff';}
+    var strip=document.createElement('div');
+    strip.style.cssText='position:absolute;top:0;left:0;right:0;height:12px;border-radius:1px 1px 0 0;background:'+(bar.h?'rgba(255,255,255,.22)':col.bar+'4a')+';';
+    cell.appendChild(strip);
+    var num=document.createElement('div');
+    num.textContent=displayNum;
+    num.style.cssText='position:absolute;top:2px;left:6px;font-family:Arial,sans-serif;font-size:8px;font-weight:600;color:'+(bar.h?'rgba(255,255,255,.72)':col.lbl)+';line-height:8px;';
+    cell.appendChild(num);
+    if(bar.sn&&cleanTextValue(bar.sn)){
+      var sn=document.createElement('div');
+      sn.textContent=cleanTextValue(bar.sn);
+      sn.style.cssText='position:absolute;top:2px;right:6px;max-width:50%;font-family:Arial,sans-serif;font-size:7px;font-weight:400;color:'+(bar.h?'rgba(255,255,255,.72)':col.lbl)+';line-height:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;';
+      cell.appendChild(sn);
+    }
+    var chord=document.createElement('div');
+    var splitParts=chordSplitParts(bar.c);
+    if(splitParts){
+      chord.style.cssText='display:grid;grid-template-columns:repeat('+splitParts.length+',minmax(0,1fr));border:none;overflow:hidden;font-family:'+cssFontName(CHORD_FONT)+',Arial,sans-serif;font-size:14.5px;font-weight:700;line-height:1.05;color:'+(bar.h?'#fff':'#172033')+';';
+      chordSplitSegments(splitParts).forEach(function(seg){
+        var part=document.createElement('div');
+        part.textContent=cleanTextValue(seg.text)||'—';
+        part.style.cssText='grid-column:'+(seg.start+1)+' / span '+seg.span+';padding:2px 5px;min-width:0;border-left:none;overflow-wrap:anywhere;';
+        chord.appendChild(part);
+      });
+    } else {
+      chord.textContent=cleanTextValue(bar.c)||'—';
+      chord.style.cssText='font-family:'+cssFontName(CHORD_FONT)+',Arial,sans-serif;font-size:14.5px;font-weight:700;line-height:1.05;color:'+(bar.h?'#fff':'#172033')+';white-space:pre-wrap;overflow-wrap:anywhere;';
+    }
+    cell.appendChild(chord);
+    if(bar.a&&cleanTextValue(bar.a)){
+      var ann=document.createElement('div');
+      ann.textContent=cleanTextValue(bar.a);
+      ann.style.cssText='margin-top:4px;font-size:9px;line-height:1.25;color:'+(bar.h?'rgba(255,255,255,.72)':'#7d8ca0')+';overflow-wrap:anywhere;';
+      cell.appendChild(ann);
+    }
+    return cell;
+  }
+  function addRhythmStrip(target,bar,col){
+    if(!bar.r||!bar.r.length)return;
+    var strip=document.createElement('div');
+    strip.style.cssText='height:26px;border:none;border-radius:1px 1px 0 0;background:'+col.bg+';display:flex;align-items:center;justify-content:center;gap:1px;padding:2px 5px;color:'+col.lbl+';overflow:hidden;';
+    bar.r.forEach(function(noteId){
+      var icon=svgEl(noteId,bar.r.length>5?'note-icon-sm':'note-icon');
+      if(icon){icon.style.height=bar.r.length>5?'15px':'18px';icon.style.color=col.lbl;strip.appendChild(icon);}
+    });
+    target.appendChild(strip);
+  }
+  SECTIONS.forEach(function(sec){
+    var col=sec.color||{bar:'#3b82f6',bg:'#eef4fd',lbl:'#1e40af'};
+    if(sec.type==='note'){
+      if(!EDIT_MODE){
+        if(!sec.cols)sec.cols=sec.text?[sec.text,'']:['',''];
+        if(!sec.cols.some(noteColHasContent))return;
+      }
+      var noteWrap=document.createElement('div');
+      noteWrap.style.cssText='margin:12px 0 14px;';
+      var cols=(sec.cols&&sec.cols.length)?sec.cols:[sec.text||''];
+      var grid=document.createElement('div');
+      var realCols=cols.map(htmlToExportText).filter(function(c){return c.length>0;});
+      grid.style.cssText='display:grid;grid-template-columns:'+(realCols.length>1?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)')+';gap:8px;width:'+exportNoteW+'px;max-width:100%;margin:0 auto;';
+      (realCols.length?realCols:cols.map(htmlToExportText)).forEach(function(colText){
+        var note=document.createElement('div');
+        note.textContent=colText||'';
+        note.style.cssText='border-left:2px solid '+col.bar+';border-radius:0 5px 5px 0;background:#fff;padding:9px 2px 9px 11px;min-height:34px;font-family:IBM Plex Sans Thai Looped,sans-serif;font-size:20px;font-weight:400;line-height:1.7;color:#172033;letter-spacing:0;word-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;text-rendering:geometricPrecision;';
+        grid.appendChild(note);
+      });
+      noteWrap.appendChild(grid);
+      exportSheet.appendChild(noteWrap);
+      return;
+    }
+    var sectionWrap=document.createElement('div');
+    sectionWrap.style.cssText='width:'+exportNoteW+'px;max-width:100%;margin:0 auto 14px;';
+    var tag=document.createElement('div');
+    tag.textContent=cleanTextValue(sec.label||'section');
+    var tagWrap=document.createElement('div');
+    tagWrap.style.cssText='width:100%;max-width:100%;margin:0 0 6px;';
+    tag.style.cssText='display:inline-block;border:1px solid '+col.bar+';border-radius:3px;padding:2px 8px;font-family:Arial,sans-serif;font-size:9px;font-weight:600;line-height:1;color:'+col.lbl+';background:'+col.bg+';text-transform:uppercase;letter-spacing:.08em;';
+    tagWrap.appendChild(tag);
+    sectionWrap.appendChild(tagWrap);
+    var pos=0,ri=0;
+    while(sec.bars&&pos<sec.bars.length){
+      var rowSize=Math.max(1,Math.min(parseInt((sec.rowSizes&&sec.rowSizes[ri])||DEFAULT_ROW_SIZE,10)||DEFAULT_ROW_SIZE,COLS));
+      var end=Math.min(pos+rowSize,sec.bars.length);
+      var visibleCount=end-pos;
+      var repeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri];
+      var repeatVal=repeatCountForGroup(sec,repeatGroup);
+      var nextRepeatGroup=sec.rowRepeatGroups&&sec.rowRepeatGroups[ri+1];
+      var hasRepeatBadge=repeatGroup&&repeatVal&&repeatVal>1&&nextRepeatGroup!==repeatGroup;
+      var row=document.createElement('div');
+      row.style.cssText='display:grid;grid-template-columns:repeat('+visibleCount+','+exportCellW+'px)'+(hasRepeatBadge?' 28px':'')+';gap:0;width:100%;margin-bottom:4px;align-items:end;justify-content:start;';
+      for(var i=pos;i<end;i++){
+        var bar=sec.bars[i]||{c:'—'};
+        var displayNum=bar.skipCount?'':barNum;
+        if(!bar.skipCount)barNum++;
+        var holder=document.createElement('div');
+        holder.style.cssText='min-width:0;';
+        if(barHasVisibleRhythm(sec,bar)&&bar.r&&bar.r.length){
+          addRhythmStrip(holder,bar,col);
+          var c=makeExportBar(bar,col,displayNum);
+          c.style.borderTop='none';
+          c.style.borderRadius='0 0 1px 1px';
+          holder.appendChild(c);
+        }else{
+          holder.appendChild(makeExportBar(bar,col,displayNum));
+        }
+        row.appendChild(holder);
+      }
+      if(hasRepeatBadge){
+        var rep=document.createElement('div');
+        rep.textContent='×'+repeatVal;
+        rep.style.cssText='min-width:28px;border-radius:1px;background:'+col.bg+';color:'+col.lbl+';display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:13px;font-weight:600;line-height:1;';
+        row.appendChild(rep);
+      }
+      barNum+=repeatExtraForRow(sec,ri);
+      sectionWrap.appendChild(row);
+      pos=end;ri++;
+    }
+    exportSheet.appendChild(sectionWrap);
+  });
+  var footerNotes=(FOOTER&&FOOTER.notes?FOOTER.notes:[]).map(cleanTextValue).filter(function(n){return n.length>0});
+  if(footerNotes.length){
+    var footerWrap=document.createElement('div');
+    footerWrap.style.cssText='margin:16px 0 0;padding-top:14px;border-top:1px solid #dfe7f2;';
+    var footerLabel=document.createElement('div');
+    footerLabel.textContent='NOTES';
+    footerLabel.style.cssText='margin:0 auto 8px;width:'+exportNoteW+'px;max-width:100%;font-family:Arial,sans-serif;font-size:9px;font-weight:700;line-height:1;color:#b7c3d1;letter-spacing:.12em;text-transform:uppercase;';
+    footerWrap.appendChild(footerLabel);
+    footerNotes.forEach(function(noteText){
+      var note=document.createElement('div');
+      note.textContent=noteText;
+      note.style.cssText='width:'+exportNoteW+'px;max-width:100%;margin:0 auto 6px;border:1px solid #dfe7f2;border-radius:5px;background:#fff;padding:9px 2px 9px 11px;font-family:IBM Plex Sans Thai Looped,sans-serif;font-size:20px;font-weight:400;line-height:1.7;color:#172033;letter-spacing:0;word-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;text-rendering:geometricPrecision;';
+      footerWrap.appendChild(note);
+    });
+    exportSheet.appendChild(footerWrap);
+  }
+  wrap.appendChild(exportSheet);
+  return {wrap:wrap,filename:filenameSlug(fn),width:exportWidth};
+}
+function saveJPG(){
+  if(typeof htmlToImage==='undefined'&&typeof html2canvas==='undefined'){
+    toast('JPG export unavailable offline · use browser screenshot');return;
+  }
+  var btn=[].slice.call(document.querySelectorAll('button')).find(function(b){return b.getAttribute('onclick')==='saveJPG()'});
+  if(btn){btn.textContent='saving...';btn.disabled=true;}
+  getExportMeta().then(function(meta){
+  var exp=buildExportWrap(meta);
+  document.body.appendChild(exp.wrap);
+  var ready=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();
+  ready.then(function(){return new Promise(function(resolve){requestAnimationFrame(function(){requestAnimationFrame(resolve)})})}).then(function(){
+    var captureHeight=Math.ceil(exp.wrap.getBoundingClientRect().height);
+    if(typeof htmlToImage!=='undefined'){
+      document.body.dataset.jpgEngine='html-to-image';
+      return htmlToImage.toJpeg(exp.wrap,{
+        quality:.94,
+        pixelRatio:2,
+        backgroundColor:'#f7f9fc',
+        width:exp.width,
+        height:captureHeight,
+        cacheBust:true,
+        style:{
+          transform:'none'
+        }
+      });
+    }
+    document.body.dataset.jpgEngine='html2canvas';
+    return html2canvas(exp.wrap,{
+      scale:2,useCORS:true,backgroundColor:'#f7f9fc',logging:false,
+      width:exp.width,height:captureHeight,
+      windowWidth:exp.width,windowHeight:captureHeight
+    }).then(function(canvas){return canvas.toDataURL('image/jpeg',0.92)});
+  }).then(function(dataUrl){
+    document.body.removeChild(exp.wrap);
+    if(btn){btn.textContent='save jpg';btn.disabled=false;}
+    var a=document.createElement('a');
+    a.href=dataUrl;
+    a.download=exp.filename+'.jpg';
+    document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a)},100);
+    toast('JPG saved ✓');
+  }).catch(function(err){
+    if(document.body.contains(exp.wrap))document.body.removeChild(exp.wrap);
+    if(btn){btn.textContent='save jpg';btn.disabled=false;}
+    toast('JPG error: '+err.message);
+  });
+  }).catch(function(err){
+    if(btn){btn.textContent='save jpg';btn.disabled=false;}
+    toast('JPG error: '+err.message);
+  });
+}
+function printPDF(){
+  if(typeof html2canvas==='undefined'||typeof jspdf==='undefined'){
+    toast('PDF export unavailable offline · use browser print');return;
+  }
+  var btn=document.getElementById('pdf-btn');
+  if(btn){btn.textContent='⏳ Rendering…';btn.disabled=true;}
+
+  // Build a self-contained print container
+  var fn=(document.getElementById('tb-filename')||{value:'bandsheet'}).value||'bandsheet';
+  var ar=(document.getElementById('tb-artist')||{value:''}).value||'';
+  var key=(document.getElementById('meta-key')||{value:''}).value||'';
+  var bpm=(document.getElementById('meta-bpm')||{value:''}).value||'';
+  var time=(document.getElementById('meta-time')||{value:''}).value||'';
+  var vocalist=(document.getElementById('meta-vocalist')||{value:''}).value||'';
+
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-9999px;top:0;background:#f9f9f7;padding:20px 28px 28px;font-family:IBM Plex Sans Thai,sans-serif;min-width:800px;';
+
+  // Song header
+  var hdr=document.createElement('div');
+  hdr.style.cssText='margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #e0e0dc;';
+  hdr.innerHTML='<div style="font-size:20px;font-weight:700;color:#111;line-height:1.2">'+fn+'</div>'
+    +(ar?'<div style="font-size:13px;color:#666;margin-top:2px">'+ar+'</div>':'')
+    +'<div style="margin-top:8px;display:flex;gap:18px;font-size:11px;color:#888;font-family:var(--ui-font);letter-spacing:.05em;text-transform:uppercase">'
+    +(key?'<span><b style="color:#555">KEY</b> '+key+'</span>':'')
+    +(bpm?'<span><b style="color:#555">BPM</b> '+bpm+'</span>':'')
+    +(time?'<span><b style="color:#555">TIME</b> '+time+'</span>':'')
+    +(vocalist?'<span><b style="color:#555">VOCALIST</b> '+vocalist+'</span>':'')
+    +'</div>';
+  wrap.appendChild(hdr);
+
+  // Clone sheet content
+  var sheet=document.getElementById('sheet');
+  var sheetClone=sheet.cloneNode(true);
+  // Remove edit-mode UI from clone
+  sheetClone.querySelectorAll('.sec-btn,.section-actions,.add-bar-cell,.del-btn,.bar-bottom,.note-toggle,.row-ctrl,.rhythm-bar-btn').forEach(function(el){el.remove();});
+  wrap.appendChild(sheetClone);
+  document.body.appendChild(wrap);
+
+  html2canvas(wrap,{
+    scale:2,useCORS:true,backgroundColor:'#f9f9f7',logging:false,
+    width:wrap.scrollWidth,height:wrap.scrollHeight,
+    windowWidth:wrap.scrollWidth,windowHeight:wrap.scrollHeight
+  }).then(function(canvas){
+    document.body.removeChild(wrap);
+    if(btn){btn.textContent='🖨 Print / PDF';btn.disabled=false;}
+    var imgData=canvas.toDataURL('image/png');
+    var {jsPDF}=jspdf;
+    var pxToMm=function(px){return px*25.4/96;};
+    var wMm=pxToMm(canvas.width/2);
+    var hMm=pxToMm(canvas.height/2);
+    var pdf=new jsPDF({orientation:'p',unit:'mm',format:[wMm,hMm]});
+    pdf.addImage(imgData,'PNG',0,0,wMm,hMm,undefined,'FAST');
+    pdf.save(fn.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'-').toLowerCase()+'.pdf');
+    toast('PDF saved ✓');
+  }).catch(function(err){
+    if(document.body.contains(wrap))document.body.removeChild(wrap);
+    if(btn){btn.textContent='🖨 Print / PDF';btn.disabled=false;}
+    toast('PDF error: '+err.message);
+  });
+}
+function downloadTemplate(){
+  var html=cleanRuntimeHtml(document.documentElement.outerHTML);
+  // Reset metadata fields to blank
+  ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time','meta-vocalist'].forEach(function(id){
+    html=html.replace(new RegExp('(id="'+id+'"[^>]*value=")[^"]*(")'),'$1$2');
+  });
+  html=html.replace(/<title>[^<]*<\/title>/,'<title>New Song · bandsheet<\/title>');
+  // Reset data to blank template defaults
+  var blankSections=JSON.stringify([{"id":"intro","label":"Intro","note":"","noteHidden":true,"lyric":"","color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"bars":[{"c":"—","a":"","h":false},{"c":"—","a":"","h":false},{"c":"—","a":"","h":false},{"c":"—","a":"","h":false}],"rowSizes":[]}]);
+  html=html.replace(/var SECTIONS\s*=\s*\[[\s\S]*?\];\s*\/\/ ── END DATA ──/,'var SECTIONS = '+blankSections+';\n// ── END DATA ──');
+  html=html.replace(/var FOOTER\s*=\s*\{[\s\S]*?\};\s*\/\/ ── END FOOTER ──/,'var FOOTER = {"notes":[]};\n// ── END FOOTER ──');
+  html=html.replace(/var SETTINGS\s*=\s*\{[\s\S]*?\};\s*\/\/ ── END SETTINGS ──/,'var SETTINGS = {"chordSize":14.5,"chordFont":"Roboto Condensed","transpose":0,"noteSize":20,"autoScrollDuration":"","autoScrollSpeed":1};\n// ── END SETTINGS ──');
+  var blob=new Blob(['<!DOCTYPE html>\n'+html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='bandsheet-template.html';
+  document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href)},100);
+  toast('Template downloaded ✓');
+}
+function saveToFile(){
+  var dirty=hasUnsavedChanges();
+  if(dirty){
+    var revision=parseInt(SHEET_META&&SHEET_META.sheetRevision,10)||1;
+    SHEET_META.sheetRevision=revision+1;
+    SHEET_META.contentUpdated=new Date().toISOString().slice(0,10);
+    SHEET_META.contentSource='browser-edit';
+  }
+  ['tb-filename','tb-artist','meta-key','meta-bpm','meta-time','meta-vocalist'].forEach(function(id){var el=document.getElementById(id);if(el)el.setAttribute('value',el.value)});
+  var fn=(document.getElementById('tb-filename')||{value:'bandsheet'}).value||'bandsheet';
+  var ar=(document.getElementById('tb-artist')||{value:''}).value||'';
+  var html=injectData(cleanRuntimeHtml(document.documentElement.outerHTML));
+  html=html.replace(/<title>[^<]*<\/title>/,'<title>'+fn+(ar?' '+ar:'')+' · bandsheet<\/title>');
+  var blob=new Blob(['<!DOCTYPE html>\n'+html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=fn.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'-').toLowerCase()+'.html';
+  document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href)},100);
+  markSheetSaved();
+  toast(dirty?'บันทึกแล้ว · revision '+SHEET_META.sheetRevision+' ✓':'ไม่มีการเปลี่ยนแปลง · ดาวน์โหลดซ้ำแล้ว');
+}
+
+function updateTitle(){var fn=document.getElementById('tb-filename').value;var ar=document.getElementById('tb-artist').value;document.title=fn+' '+ar+' · bandsheet';updateSaveState()}
+function saveMeta(){if(typeof META!=='undefined'){META.key=document.getElementById('meta-key').value;META.bpm=document.getElementById('meta-bpm').value;META.time=document.getElementById('meta-time').value;META.vocalist=document.getElementById('meta-vocalist').value;}updateSaveState()}
+var toastTimer;
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show')},2400)}
+
+// ── Init ──
+document.body.classList.toggle('view-mini',VIEW==='mini');
+document.body.classList.toggle('edit-mode',EDIT_MODE);
+updateCellWidth();
+render();
+buildRhythmPicker();buildBeatPicker();
+['wheel','touchstart','keydown'].forEach(function(ev){
+  window.addEventListener(ev,function(e){
+    if(ev==='keydown'&&['Tab','Shift','Alt','Control','Meta'].indexOf(e.key)>=0)return;
+    stopAutoScrollFromUser();
+  },{passive:true});
+});
+(function(){
+  updateModeButtons();
+  updateAutoScrollControls();
+  var csv=document.getElementById('chord-size-val');if(csv)csv.textContent=CHORD_SIZE;
+  var nsv=document.getElementById('note-size-val');if(nsv)nsv.textContent=NOTE_SIZE;
+  document.querySelectorAll('.rte-editor,.footer-note-ta').forEach(function(el){el.style.fontSize=NOTE_SIZE+'px'});
+  document.documentElement.style.setProperty('--chord-font',"'"+CHORD_FONT+"'");
+  var kv=document.getElementById('key-val');
+  if(kv&&TRANSPOSE!==0){kv.textContent=TRANSPOSE>0?'+'+TRANSPOSE:''+TRANSPOSE;kv.classList.add('transposed');}
+})();
+markSheetSaved();
+document.addEventListener('input',updateSaveState);
+document.addEventListener('change',updateSaveState);
+document.addEventListener('click',function(){setTimeout(updateSaveState,0)});
+window.addEventListener('beforeunload',function(e){
+  if(!hasUnsavedChanges())return;
+  e.preventDefault();
+  e.returnValue='';
+});
+</script>
+
+<script id="lean-prototype-behavior">
+(function () {
+  function rgb(hex) {
+    var value = String(hex || '').replace('#', '');
+    if (value.length === 3) value = value.split('').map(function (c) { return c + c; }).join('');
+    if (!/^[0-9a-f]{6}$/i.test(value)) return { r: 100, g: 116, b: 139 };
+    return {
+      r: parseInt(value.slice(0, 2), 16),
+      g: parseInt(value.slice(2, 4), 16),
+      b: parseInt(value.slice(4, 6), 16)
+    };
+  }
+
+  function hex(color) {
+    function channel(value) { return Math.round(value).toString(16).padStart(2, '0'); }
+    return '#' + channel(color.r) + channel(color.g) + channel(color.b);
+  }
+
+  function blend(from, to, toWeight) {
+    var a = rgb(from), b = rgb(to);
+    return hex({
+      r: a.r * (1 - toWeight) + b.r * toWeight,
+      g: a.g * (1 - toWeight) + b.g * toWeight,
+      b: a.b * (1 - toWeight) + b.b * toWeight
+    });
+  }
+
+  var LUMINOUS_PRESETS = [
+    { bar: '#275dff', bg: '#eef2ff', lbl: '#1736a8' },
+    { bar: '#009ddc', bg: '#eaf8fd', lbl: '#00658c' },
+    { bar: '#00a98f', bg: '#eaf9f6', lbl: '#006b5c' },
+    { bar: '#6757e8', bg: '#f0eeff', lbl: '#3e3298' },
+    { bar: '#c83d8e', bg: '#fdebf5', lbl: '#85245d' },
+    { bar: '#f05b62', bg: '#fff0f1', lbl: '#a3313a' },
+    { bar: '#e28a17', bg: '#fff6e8', lbl: '#8a5009' },
+    { bar: '#334a73', bg: '#eef2f7', lbl: '#24334f' },
+    { bar: '#172033', bg: '#edf0f4', lbl: '#172033' }
+  ];
+  var LEGACY_ACCENT_MAP = {
+    '#3b82f6': LUMINOUS_PRESETS[0], '#007aff': LUMINOUS_PRESETS[0],
+    '#ffcc00': LUMINOUS_PRESETS[1], '#f59e0b': LUMINOUS_PRESETS[6],
+    '#34c759': LUMINOUS_PRESETS[2], '#059669': LUMINOUS_PRESETS[2],
+    '#af52de': LUMINOUS_PRESETS[3], '#8b5cf6': LUMINOUS_PRESETS[3],
+    '#ff2d55': LUMINOUS_PRESETS[4], '#ff3b30': LUMINOUS_PRESETS[5],
+    '#ff9500': LUMINOUS_PRESETS[6], '#ff6b30': LUMINOUS_PRESETS[6],
+    '#64748b': LUMINOUS_PRESETS[7], '#1f2937': LUMINOUS_PRESETS[8]
+  };
+  PRESETS = LUMINOUS_PRESETS;
+  var CONTENT_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Noto Sans Thai", Thonburi, sans-serif';
+  CHORD_FONT = CONTENT_FONT;
+  CHORD_SIZE = 15;
+  NOTE_SIZE = 16;
+  SETTINGS.chordFont = CONTENT_FONT;
+  document.documentElement.style.setProperty('--chord-font', CONTENT_FONT);
+  document.body.classList.remove('notes-hidden');
+
+  function headingColor(source) {
+    var original = source || LUMINOUS_PRESETS[0];
+    var mapped = LEGACY_ACCENT_MAP[String(original.bar || '').toLowerCase()];
+    if (mapped) return mapped;
+    return {
+      bar: original.bar || '#275dff',
+      bg: original.bg || blend(original.bar || '#275dff', '#ffffff', 0.91),
+      lbl: original.lbl || blend(original.bar || '#275dff', '#132033', 0.46)
+    };
+  }
+
+  function applyPrototypeTheme() {
+    document.querySelectorAll('#sheet .section[data-si]').forEach(function (sectionEl) {
+      var si = parseInt(sectionEl.dataset.si, 10);
+      var section = SECTIONS[si];
+      if (!section) return;
+      var tone = headingColor(section.color || PRESETS[si % PRESETS.length]);
+
+      sectionEl.querySelectorAll('.section-tag').forEach(function (tag) {
+        tag.style.background = tone.bg;
+        tag.style.color = tone.lbl;
+        tag.style.borderColor = tone.bar;
+      });
+      sectionEl.querySelectorAll('.rte-editor').forEach(function (editor) {
+        editor.style.borderLeftColor = '#d8e1ed';
+        editor.style.fontSize = NOTE_SIZE + 'px';
+        editor.style.lineHeight = '1.5';
+        editor.style.fontWeight = '450';
+      });
+      sectionEl.querySelectorAll('.bar-chord,.bar-chord-part').forEach(function (chord) {
+        chord.style.fontFamily = 'var(--content-font)';
+        chord.style.fontSize = CHORD_SIZE + 'px';
+        chord.style.fontWeight = '600';
+      });
+      sectionEl.querySelectorAll('.row-repeat-badge').forEach(function (badge) {
+        badge.style.background = '#edf2fa';
+        badge.style.color = '#46566d';
+      });
+      sectionEl.querySelectorAll('.bar-cell').forEach(function (cell) {
+        cell.style.setProperty('--bar-strip', '#d8e1ed');
+        cell.style.setProperty('--bar-num-color', '#a5b1c1');
+        cell.style.setProperty('--bar-accent', '#d8e1ed');
+        if (cell.classList.contains('highlighted')) {
+          cell.style.background = '#eaf0ff';
+          cell.style.borderColor = '#8ea8ff';
+          cell.style.outlineColor = '#8ea8ff';
+          cell.style.boxShadow = 'inset 3px 0 0 #275dff';
+        } else {
+          cell.style.background = '#f8fafd';
+          cell.style.borderColor = '#d8e1ed';
+          cell.style.boxShadow = 'none';
+        }
+        var number = cell.querySelector('.bar-num');
+        var note = cell.querySelector('.bar-snote');
+        if (number && !cell.classList.contains('highlighted')) number.style.color = '#a5b1c1';
+        if (note && !cell.classList.contains('highlighted')) note.style.color = '#46566d';
+      });
+    });
+  }
+
+  function lyricLines(noteSection) {
+    var editor = noteSection.querySelector('.rte-editor');
+    if (!editor) return [];
+    return (editor.innerText || editor.textContent || '')
+      .split(/\n+/)
+      .map(function (line) { return line.trim(); })
+      .filter(Boolean);
+  }
+
+  function addChordPeek(sectionEl) {
+    var head = sectionEl.querySelector('.section-head');
+    if (!head || head.querySelector('.chord-peek-btn')) return;
+    var button = document.createElement('button');
+    button.className = 'chord-peek-btn';
+    button.textContent = 'show chord';
+    button.onclick = function (event) {
+      event.stopPropagation();
+      var open = sectionEl.classList.toggle('chords-open');
+      button.textContent = open ? 'hide chord' : 'show chord';
+    };
+    head.appendChild(button);
+  }
+
+  function makeBandLyricCue(lyric) {
+    var cue = document.createElement('div');
+    cue.className = 'band-lyric-cue';
+    var lines = lyricLines(lyric);
+    if (lines.length) {
+      var first = document.createElement('span');
+      first.className = 'cue-first';
+      first.textContent = lines[0];
+      cue.appendChild(first);
+      if (lines.length > 1) {
+        var last = document.createElement('span');
+        last.className = 'cue-last';
+        last.textContent = '→ ' + lines[lines.length - 1];
+        cue.appendChild(last);
+      }
+    }
+    return cue;
+  }
+
+  function pairChordAndLyrics() {
+    if (EDIT_MODE) return;
+    var sheet = document.getElementById('sheet');
+    if (!sheet) return;
+    var sections = Array.prototype.slice.call(sheet.querySelectorAll(':scope > .section'));
+    for (var i = 0; i < sections.length; i++) {
+      var chord = sections[i];
+      var chordIndex = parseInt(chord.dataset.si, 10);
+      if (isNaN(chordIndex) || (SECTIONS[chordIndex] && SECTIONS[chordIndex].type === 'note')) continue;
+      addChordPeek(chord);
+      var lyric = sections[i + 1];
+      var lyricIndex = lyric ? parseInt(lyric.dataset.si, 10) : -1;
+      var hasLyric = !isNaN(lyricIndex) && SECTIONS[lyricIndex] && SECTIONS[lyricIndex].type === 'note';
+      if (hasLyric) lyric.insertBefore(makeBandLyricCue(lyric), lyric.firstChild);
+
+      var pair = document.createElement('div');
+      pair.className = 'section-pair' + (hasLyric ? '' : ' no-lyric');
+      sheet.insertBefore(pair, chord);
+      pair.appendChild(chord);
+      if (hasLyric) {
+        pair.appendChild(lyric);
+        i += 1;
+      } else {
+        var placeholder = document.createElement('div');
+        placeholder.className = 'lyric-placeholder';
+        placeholder.setAttribute('aria-hidden', 'true');
+        pair.appendChild(placeholder);
+      }
+    }
+    requestAnimationFrame(syncPairOffsets);
+  }
+
+  function syncPairOffsets() {
+    document.querySelectorAll('.section-pair').forEach(function (pair) {
+      if (window.innerWidth <= 760) {
+        pair.style.removeProperty('--pair-head-offset');
+        return;
+      }
+      var chord = pair.querySelector(':scope > .section:not(.note-type-sec)');
+      var head = chord && chord.querySelector('.section-head');
+      if (!head) return;
+      var style = window.getComputedStyle(head);
+      var offset = head.getBoundingClientRect().height + (parseFloat(style.marginBottom) || 0);
+      pair.style.setProperty('--pair-head-offset', offset + 'px');
+    });
+  }
+
+  var MOBILE_VIEW = 'lyric';
+  window.setMobileView = function (mode) {
+    MOBILE_VIEW = mode === 'lyric' ? 'lyric' : 'band';
+    document.body.classList.toggle('mobile-band', MOBILE_VIEW === 'band');
+    document.body.classList.toggle('mobile-lyric', MOBILE_VIEW === 'lyric');
+    var band = document.getElementById('band-view-btn');
+    var lyric = document.getElementById('lyric-view-btn');
+    if (band) band.classList.toggle('active', MOBILE_VIEW === 'band');
+    if (lyric) lyric.classList.toggle('active', MOBILE_VIEW === 'lyric');
+  };
+
+  function pruneLeanControls() {
+    document.querySelectorAll('.section-actions .sec-btn').forEach(function (button) {
+      var label = (button.textContent || '').trim().toLowerCase();
+      if (label === 'renumber' || label.indexOf('reset') >= 0 || label.indexOf('↺') >= 0) {
+        button.remove();
+      }
+    });
+    document.querySelectorAll('.section-tag').forEach(function (tag) {
+      tag.title = 'Double-click to edit · add cue after an em dash';
+      var raw = (tag.textContent || '').trim();
+      var match = raw.match(/^(.*?)\s+[—–-]\s+(.+)$/);
+      tag.textContent = '';
+      var name = document.createElement('span');
+      name.className = 'section-name';
+      name.textContent = match ? match[1] + ' —' : raw;
+      tag.appendChild(name);
+      if (match) {
+        var detail = document.createElement('span');
+        detail.className = 'section-detail';
+        detail.textContent = match[2];
+        tag.appendChild(detail);
+      }
+    });
+  }
+
+  window.toggleNotesView = function () {
+    var hidden = document.body.classList.toggle('notes-hidden');
+    var button = document.getElementById('notes-btn');
+    if (button) button.classList.toggle('active', !hidden);
+  };
+
+  var renderCore = window.render;
+  window.render = function () {
+    renderCore();
+    pruneLeanControls();
+    applyPrototypeTheme();
+    pairChordAndLyrics();
+    window.setMobileView(MOBILE_VIEW);
+  };
+
+  pruneLeanControls();
+  applyPrototypeTheme();
+  pairChordAndLyrics();
+  window.setMobileView(MOBILE_VIEW);
+  window.addEventListener('resize', syncPairOffsets, { passive: true });
+  var chordSizeValue = document.getElementById('chord-size-val');
+  var noteSizeValue = document.getElementById('note-size-val');
+  if (chordSizeValue) chordSizeValue.textContent = CHORD_SIZE;
+  if (noteSizeValue) noteSizeValue.textContent = NOTE_SIZE;
+  document.body.dataset.prototype = 'lean-80-20';
+})();
+</script>
+</body></html>
