@@ -76,11 +76,6 @@ body.edit-mode .section-head-main{display:flex;align-items:center;gap:7px;min-wi
 .section-tag:hover{opacity:.8}
 .note-type-sec .section-tag{display:none!important}
 .section-label-inp{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;background:transparent;color:inherit;border-radius:3px;padding:2px 7px;outline:none;font-family:inherit;min-width:40px;max-width:140px}
-.note-toggle{font-size:10px;color:var(--text-faint);background:none;border:1px dashed transparent;border-radius:3px;padding:2px 6px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0}
-.note-toggle:hover{color:var(--text-muted);border-color:var(--border)}
-.note-toggle.note-on{color:var(--text-muted);border-style:solid;border-color:var(--border-strong)}
-.section-note{font-size:11px;color:var(--text-muted);font-family:var(--ui-font);border:none;background:transparent;outline:none;cursor:text;flex:1;min-width:40px}
-.section-note:focus{background:var(--bg);border-radius:2px;padding:0 3px;color:var(--text)}
 .section-actions{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
 body.edit-mode .section-actions{margin-left:0;justify-self:start}
 .sheet-add-actions{display:flex;gap:4px;align-items:center;flex-shrink:0}
@@ -246,15 +241,6 @@ body.view-mini .bar-chord{font-weight:700;flex:1;min-width:0;padding:0}
 body.view-mini .bar-bottom{bottom:3px;left:3px}
 body.view-mini .highlight-btn,body.view-mini .rhythm-bar-btn,body.view-mini .count-bypass-btn{width:11px;height:11px}
 body.view-mini .highlight-btn{font-size:8px}
-body.view-mini .section-note{display:none!important}
-body.view-mini .note-toggle{display:none!important}
-body.notes-hidden .section-note{display:none!important}
-body.notes-hidden .note-toggle{display:none!important}
-body.notes-hidden .note-type-sec .rte-toolbar{display:none!important}
-body.notes-hidden .note-type-sec .sec-note-wrap{padding-bottom:3px}
-body.notes-hidden .note-type-sec .rte-editor{min-height:0;max-height:calc(1.65em + 16px);overflow:hidden}
-body.notes-hidden .note-type-sec .rte-editor p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.notes-hidden .note-type-sec .rte-editor br{display:none}
 /* ── Rhythm strip ── */
 :root{--rhythm-h:38px}
 body:not(.edit-mode) .add-rhythm-hint{display:none!important}
@@ -358,7 +344,7 @@ body.chords-hidden .bar-row.has-visible-rhythm .bar-col:not(.has-rhythm){padding
 
 /* ── PRINT ── */
 @media print{
-  #toolbar,#metabar,.sec-btn,.section-actions,.add-bar-cell,.del-btn,.color-popup,.bar-bottom,.note-toggle,.row-ctrl,.footer-add-note,.fn-ctrl,.rte-toolbar{display:none!important}
+  #toolbar,#metabar,.sec-btn,.section-actions,.add-bar-cell,.del-btn,.color-popup,.bar-bottom,.row-ctrl,.footer-add-note,.fn-ctrl,.rte-toolbar{display:none!important}
   .rhythm-bar-btn,#rhythmPicker,#beatPicker,#rhythmOverlay{display:none!important}
   body{padding:0;background:#fff}
   #sheet{padding:12px}
@@ -517,8 +503,6 @@ document.addEventListener('DOMContentLoaded',function(){
   body:not(.edit-mode) .section-head-main { width: 100%; }
   /* 80/20: performance cues live in the section label itself
      (for example "VERSE 1 — Riff A ×2"), not in a second note field. */
-  .note-toggle,
-  .section-note { display: none !important; }
 
   .bar-chord,
   .bar-chord-part,
@@ -946,7 +930,7 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 </style>
 </head>
-<body class="view-mini notes-hidden" spellcheck="false">
+<body class="view-mini" spellcheck="false">
 <div id="toolbar" class="lean-toolbar">
   <div class="tb-group" aria-label="Mode">
     <button class="tb-btn home-btn" onclick="goHome()" title="Back to index">&lt;</button>
@@ -1362,17 +1346,6 @@ function render(){
       function done(){var v=inp.value.trim();if(v)SECTIONS[idx].label=v;render();}
       inp.onblur=done;inp.onkeydown=function(ev){if(ev.key==='Enter')inp.blur();if(ev.key==='Escape')render();};
     }})(si,tag);
-    var isNoteHidden=(sec.noteHidden!==false);
-    var noteToggle=document.createElement('button');
-    noteToggle.className='note-toggle'+(isNoteHidden?'':' note-on');
-    noteToggle.textContent='≡'+(sec.note&&sec.note.trim()?' ·':'');
-    noteToggle.title=(isNoteHidden?'Show':'Hide')+' section note';
-    noteToggle.onclick=(function(idx){return function(e){
-      e.stopPropagation();SECTIONS[idx].noteHidden=(SECTIONS[idx].noteHidden!==false)?false:true;render();
-    }})(si);
-    var noteEl=document.createElement('input');noteEl.className='section-note';noteEl.value=sec.note||'';
-    noteEl.style.display=isNoteHidden?'none':'';
-    noteEl.oninput=(function(idx){return function(){SECTIONS[idx].note=this.value}})(si);
     var orderInp=document.createElement('input');orderInp.className='sec-order-inp';orderInp.type='number';orderInp.min='1';orderInp.max=SECTIONS.length;orderInp.value=si+1;orderInp.title='Section order (Enter to move)';
     orderInp.onmousedown=orderInp.onclick=function(e){e.stopPropagation()};
     orderInp.onkeydown=function(e){if(e.key==='Enter')this.blur();if(e.key==='Escape'){this.value=si+1;this.blur();}};
@@ -1463,7 +1436,7 @@ function render(){
       });
       snWrap.appendChild(colsDiv);div.appendChild(snWrap);
     } else {
-      headMain.appendChild(tag);headMain.appendChild(noteToggle);headMain.appendChild(noteEl);headMain.appendChild(addActs);
+      headMain.appendChild(tag);headMain.appendChild(addActs);
       head.appendChild(orderInp);head.appendChild(headMain);head.appendChild(acts);
       div.appendChild(head);
       // Bar rows
@@ -2000,11 +1973,6 @@ function deleteSection(si){if(SECTIONS.length<=1)return toast('ต้องม�
 function resetSection(si){if(!confirm('reset bars in "'+SECTIONS[si].label+'" to blank?'))return;var cols=SECTIONS[si].rowSizes&&SECTIONS[si].rowSizes.length?SECTIONS[si].rowSizes[0]:DEFAULT_ROW_SIZE;var blank=[];for(var i=0;i<cols;i++)blank.push(blankBar());SECTIONS[si].bars=blank;SECTIONS[si].rowSizes=[];render();toast('reset section แล้ว ✓')}
 function duplicateSection(si){var copy=JSON.parse(JSON.stringify(SECTIONS[si]));copy.label=copy.label+' (copy)';SECTIONS.splice(si+1,0,copy);render();toast('duplicate section แล้ว ✓')}
 
-function toggleNotesView(){
-  var hide=document.body.classList.toggle('notes-hidden');
-  var btn=document.getElementById('notes-btn');
-  if(btn)btn.classList.toggle('active',hide);
-}
 function updateModeButtons(){
   var editBtn=document.getElementById('edit-btn');
   var displayBtn=document.getElementById('display-btn');
@@ -2251,7 +2219,7 @@ function injectData(html){
 }
 function cleanRuntimeHtml(html){
   html=html.replace(/<html([^>]*)style="[^"]*"([^>]*)>/,'<html$1$2>');
-  html=html.replace(/<body[^>]*>/,'<body class="view-mini notes-hidden">');
+  html=html.replace(/<body[^>]*>/,'<body class="view-mini">');
   html=html.replace(/<div id="toolbar"[^>]*>/,'<div id="toolbar">');
   html=html.replace(/<div id="metabar"[^>]*>/,'<div id="metabar">');
   html=html.replace(/<div id="sheet">[\s\S]*?<\/div>\s*<div class="color-popup" id="colorPopup">/,'<div id="sheet"></div>\n<div class="color-popup" id="colorPopup">');
@@ -2640,7 +2608,7 @@ function printPDF(){
   var sheet=document.getElementById('sheet');
   var sheetClone=sheet.cloneNode(true);
   // Remove edit-mode UI from clone
-  sheetClone.querySelectorAll('.sec-btn,.section-actions,.add-bar-cell,.del-btn,.bar-bottom,.note-toggle,.row-ctrl,.rhythm-bar-btn').forEach(function(el){el.remove();});
+  sheetClone.querySelectorAll('.sec-btn,.section-actions,.add-bar-cell,.del-btn,.bar-bottom,.row-ctrl,.rhythm-bar-btn').forEach(function(el){el.remove();});
   wrap.appendChild(sheetClone);
   document.body.appendChild(wrap);
 
@@ -2797,7 +2765,6 @@ window.addEventListener('beforeunload',function(e){
   NOTE_SIZE = 16;
   SETTINGS.chordFont = CONTENT_FONT;
   document.documentElement.style.setProperty('--chord-font', CONTENT_FONT);
-  document.body.classList.remove('notes-hidden');
   var FOCUS_KEY = 'bandsheet-focus:' + window.location.pathname;
   var FOCUS_ANCHOR = null;
   try { FOCUS_ANCHOR = JSON.parse(sessionStorage.getItem(FOCUS_KEY) || 'null'); }
