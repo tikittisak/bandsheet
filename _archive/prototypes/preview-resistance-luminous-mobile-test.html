@@ -849,7 +849,6 @@ document.addEventListener('DOMContentLoaded',function(){
       min-width: 25px;
     }
     body:not(.edit-mode):not(.toolbar-more-open) #display-btn,
-    body:not(.edit-mode):not(.toolbar-more-open) .tb-group[aria-label="Visibility"],
     body:not(.edit-mode):not(.toolbar-more-open) #spell-btn {
       display: none;
     }
@@ -953,9 +952,6 @@ document.addEventListener('DOMContentLoaded',function(){
     <button class="tb-btn home-btn" onclick="goHome()" title="Back to index">&lt;</button>
     <button class="tb-btn" id="edit-btn" onclick="toggleEditMode()" title="Edit this sheet">edit</button>
     <button class="tb-btn" id="display-btn" onclick="setDisplayMode()" title="Read-only performance view">display</button>
-  </div>
-  <div class="tb-group" aria-label="Visibility">
-    <button class="tb-btn active" id="notes-btn" onclick="toggleNotesView()" title="Hide / show lyrics and notes">notes</button>
   </div>
   <div class="tb-group mobile-view-switch" aria-label="Mobile view">
     <div class="seg-ctrl">
@@ -3130,12 +3126,6 @@ window.addEventListener('beforeunload',function(e){
       }
     });
   }
-
-  window.toggleNotesView = function () {
-    var hidden = document.body.classList.toggle('notes-hidden');
-    var button = document.getElementById('notes-btn');
-    if (button) button.classList.toggle('active', !hidden);
-  };
 
   var renderCore = window.render;
   window.render = function () {
