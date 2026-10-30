@@ -1,0 +1,24 @@
+{
+  "name": "Bandsheet Luminous",
+  "version": "7.0.0-alpha.1",
+  "recordedOn": "2026-10-29",
+  "status": "frozen-ui-baseline",
+  "sourceCommit": "4fb98e91389ddc021dea13996d9a72a7ed11ae75",
+  "artifact": {
+    "path": "_archive/prototypes/preview-resistance-luminous-mobile-test.html",
+    "sha256": "b5f41bda0c5cc8c87b04a0bc322559ae5b84ce27041e800a201eefb449584bc5",
+    "role": "derived-preview-containing-resistance-song-data"
+  },
+  "canonicalSong": {
+    "path": "songs/resistance.html",
+    "sha256": "ed38c379f6eb8d2c271d4de1a30436dd254f2d20b1eaf5cf25f21def1ead29a4"
+  },
+  "productionTemplate": {
+    "path": "_template.html",
+    "version": "6.19",
+    "sha256": "78f28f92883649a959452754f8bff46162ffae190da708b1074fb448eba8ca5a"
+  },
+  "legacyImporters": "suspended-until-explicit-user-change",
+  "securityCertified": false,
+  "musicApproved": false
+}

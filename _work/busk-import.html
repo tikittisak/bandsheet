@@ -303,15 +303,18 @@ function render(payload){
     '<div class="sections">'+sectionHtml+'</div>';
 }
 function parseNow(){
+  alert('Legacy importer suspended by Ti.'); return;
   currentPayload=parseBusk(document.getElementById('source').value);
   render(currentPayload);
   syncJson();
 }
 function copyJson(){
+  alert('Legacy importer suspended by Ti.'); return;
   if(!currentPayload)parseNow();
   navigator.clipboard.writeText(JSON.stringify(stripPrivateFields(currentPayload),null,2));
 }
 function downloadJson(){
+  alert('Legacy importer suspended by Ti.'); return;
   if(!currentPayload)parseNow();
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(stripPrivateFields(currentPayload),null,2)+'\n'],{type:'application/json'}));
@@ -476,6 +479,7 @@ function loadTemplateFromFrame(path){
   });
 }
 async function downloadBandsheet(){
+  alert('Legacy importer suspended by Ti.'); return;
   if(!currentPayload)parseNow();
   try{
     var tmpl=await loadTemplate();

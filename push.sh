@@ -44,6 +44,10 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "Mode: dry-run"
 fi
 
+# Every entrypoint validates before generation and again before staging.
+python3 "$BAND_ROOT/validate_bandsheet.py"
+python3 "$BAND_ROOT/content_guard.py" "${CONTENT_GUARD_ARGS[@]}"
+
 # Step 1: Update all band indexes
 echo ""
 echo "1. Updating indexes..."
@@ -54,6 +58,7 @@ python3 "$BAND_ROOT/update_index.py"
 echo ""
 echo "2. Checking protected song content..."
 python3 "$BAND_ROOT/content_guard.py" "${CONTENT_GUARD_ARGS[@]}"
+python3 "$BAND_ROOT/validate_bandsheet.py"
 
 # Step 3: Show current changes
 echo ""
@@ -71,6 +76,12 @@ echo ""
 echo "4. Staging changes..."
 git add -A
 git status --short
+# Ensure the index contains the same bytes that were checked above.
+if ! git diff --quiet; then
+  echo "ERROR: files changed during staging; inspect index before retrying" >&2
+  exit 1
+fi
+python3 "$BAND_ROOT/content_guard.py" "${CONTENT_GUARD_ARGS[@]}"
 
 # Step 5: Check if anything to commit
 if git diff --cached --quiet; then

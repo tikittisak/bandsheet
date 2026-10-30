@@ -133,6 +133,9 @@ def ensure_clean_output(doc):
 
 
 def main():
+    print("Legacy importer suspended by Ti. No input read or output written.", file=sys.stderr)
+    return 2
+    # Historical implementation retained for reference only.
     parser = argparse.ArgumentParser(
         description="Import a browser-saved edited bandsheet HTML by extracting data and regenerating from _template.html."
     )

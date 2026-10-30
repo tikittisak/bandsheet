@@ -11,6 +11,9 @@ from html.parser import HTMLParser
 
 import bandsheet_import
 
+if __name__ == "__main__":
+    sys.exit("Legacy importer suspended by Ti. No input read or output written.")
+
 
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 

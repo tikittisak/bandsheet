@@ -165,7 +165,7 @@ def validate_section(section, index):
         raise ValueError(f"{path}.rowSizes must be a list")
     clean_rows = []
     for idx, size in enumerate(row_sizes):
-        if not isinstance(size, int) or size < 1 or size > 8:
+        if isinstance(size, bool) or not isinstance(size, int) or size < 1 or size > 8:
             raise ValueError(f"{path}.rowSizes[{idx}] must be an integer from 1 to 8")
         clean_rows.append(size)
     out["rowSizes"] = clean_rows
@@ -251,6 +251,7 @@ def replace_input_value(doc, field_id, value):
 
 
 def swap_var(doc, marker, decl, payload):
+    payload = payload.replace("<", "\\u003c")
     marker_index = doc.find(marker)
     if marker_index < 0:
         raise ValueError(f"missing marker: {marker}")
@@ -284,6 +285,9 @@ def inject(template, payload):
 
 
 def main():
+    print("Legacy importer suspended by Ti. No input read or output written.", file=sys.stderr)
+    return 2
+    # Historical implementation retained for reference only.
     parser = argparse.ArgumentParser(description="Validate AI-generated bandsheet JSON and inject it into _template.html.")
     parser.add_argument("input_json", help="JSON file containing title, metadata, and sections")
     parser.add_argument("--check", action="store_true", help="Validate the JSON and template without writing HTML")

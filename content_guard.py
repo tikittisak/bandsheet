@@ -36,6 +36,8 @@ def json_var(doc, name, marker):
     if marker_pos < 0 or start < 0:
         raise ValueError(f"missing {name} or marker {marker}")
     raw = doc[start + len(decl):marker_pos].strip().rstrip(";").strip()
+    if re.search(r"</script\s*>", raw, re.I):
+        raise ValueError(f"unsafe inline script terminator in {name}")
     return json.loads(raw)
 
 
@@ -44,6 +46,7 @@ def content_payload(doc):
         "metadata": {field: input_value(doc, field) for field in CONTENT_FIELDS},
         "sections": json_var(doc, "SECTIONS", "// ── END DATA ──"),
         "footer": json_var(doc, "FOOTER", "// ── END FOOTER ──"),
+        "settings": json_var(doc, "SETTINGS", "// ── END SETTINGS ──"),
     }
 
 
@@ -86,6 +89,11 @@ def lock_songs(raw_paths, note):
 def verify_locks():
     data = load_locks()
     errors = []
+    baseline_doc = head_text("content-locks.json")
+    baseline = json.loads(baseline_doc)["songs"] if baseline_doc else {}
+    for rel, record in baseline.items():
+        if data["songs"].get(rel) != record:
+            errors.append(f"approval record removed or rewritten: {rel}; independent review required")
     for rel, record in sorted(data["songs"].items()):
         path = ROOT / rel
         if not path.exists():
@@ -202,9 +210,37 @@ def find_drift():
     return drift, template_only
 
 
+def executable_payload(doc):
+    """Compare executable HTML surfaces, excluding explicitly parsed data blocks."""
+    for name, marker in (("SECTIONS", "DATA"), ("FOOTER", "FOOTER"),
+                         ("SETTINGS", "SETTINGS"), ("SHEET_META", "SHEET META")):
+        end = doc.find(f"// ── END {marker} ──")
+        start = doc.rfind(f"var {name} = ", 0, end)
+        if end >= 0 and start >= 0:
+            doc = doc[:start] + f"var {name} = null;\n" + doc[end:]
+    scripts = re.findall(r"<script\b[^>]*>[\s\S]*?</script\s*>", doc, re.I)
+    handlers = re.findall(r"\bon[a-z]+\s*=\s*(?:\"[^\"]*\"|'[^']*')", doc, re.I)
+    return scripts, handlers
+
+
+def executable_changes():
+    changed = []
+    for rel in sorted(tracked_song_paths()):
+        before = head_text(rel)
+        path = ROOT / rel
+        if before is not None and path.exists():
+            if executable_payload(before) != executable_payload(path.read_text(encoding="utf-8")):
+                changed.append(rel)
+    return changed
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Fail when song metadata, sections, lyrics, chords, or footer differ from HEAD without an exact allowlist entry."
+    )
+    parser.add_argument(
+        "--allow-code", action="append", default=[], metavar="SONG_HTML",
+        help="exact explicitly reviewed executable song-code change (separate from music approval)",
     )
     parser.add_argument(
         "--allow", "--allow-content", action="append", default=[], metavar="SONG_HTML",
@@ -225,8 +261,10 @@ def main():
             print("Content locks updated: " + ", ".join(locked))
             return 0
         allowed = normalize_allowed(args.allow)
+        allowed_code = normalize_allowed(args.allow_code)
         drift, template_only = find_drift()
         lock_errors, lock_count = verify_locks()
+        code_changes = set(executable_changes())
     except (RuntimeError, ValueError) as exc:
         print(f"Content guard: FAIL\nERROR: {exc}")
         return 1
@@ -235,7 +273,8 @@ def main():
     unapproved = changed - allowed
     unused = allowed - changed
 
-    failed = bool(unapproved or unused or lock_errors)
+    code_errors = (code_changes - allowed_code) | (allowed_code - code_changes)
+    failed = bool(unapproved or unused or lock_errors or code_errors)
     print("Content guard: " + ("FAIL" if failed else "PASS"))
     print(f"Approved content locks verified: {lock_count}")
     for rel in template_only:
@@ -247,6 +286,8 @@ def main():
         print(f"ERROR: unused allowlist entry: {rel}")
     for error in lock_errors:
         print(f"ERROR: {error}")
+    for rel in sorted(code_errors):
+        print(f"ERROR: executable code change requires exact review (or unused --allow-code): {rel}")
     if unapproved:
         print("ERROR: content drift requires an exact --allow-content songs/<name>.html entry")
     return 1 if failed else 0

@@ -1,3 +1,12 @@
+# Retired document — 2026-10-29
+
+Original path: `irealpro-form-reference.md`
+Role: historical/reference snapshot, NOT current operating instructions.
+Replacement: repository-root `AGENTS.md` is the sole project workflow authority.
+Snapshot includes local uncommitted edits present at retirement; this is not a release approval.
+
+---
+
 # iReal Pro Form Reference
 
 Use this when translating an iReal Pro chart into a bandsheet bar map or chord map.

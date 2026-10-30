@@ -1,394 +1,227 @@
-# Bandsheet Project — Codex Instructions
-
-## Right-Tool Escalation Rule
-
-Follow `00-vault-system/ai-working/right-ai-tool-escalation-rule.md`. When the
-current tool or session becomes materially inefficient, recommend either a fresh
-session in the same tool or the best-fit different tool. Always consider the current
-tool itself, explain why, and provide a ready-to-use handoff. Do not switch without
-Ti's approval.
-
-## Cost-Aware Model Routing Rule
-
-Follow `00-vault-system/ai-working/cost-aware-model-routing-rule.md`. Use the
-lightest reliable model for each work phase; step up before critical reasoning or
-final review, step down afterward, and consider a fresh session to reduce stale context.
-
-## Ti Style Rule
-
-For Ti-facing writing, thinking, summarizing, planning, and decision-support work, follow the vault-wide style seed:
-
-```text
-00-vault-system/ai-working/ti-style-value-density-principle.md
-```
-
-Operating summary:
-
-- Optimize for usable thinking, not pleasant prose.
-- Answer the core question first.
-- Prefer tables, rankings, frameworks, decision logic, and reusable artifacts over narrative.
-- Default output modes: `answer`, `table`, `patch`, `prompt`, `review`.
-- Ask first when format changes artifact, voice, audience, or decision path.
-- Use the short companion by default; read the full policy only for style-sensitive work or policy updates.
-- Apply the style silently; do not explain the rule back to Ti unless asked.
-- Cut generic intros, obvious explanations, public-friendly filler, and repeated summaries.
-- Preserve Ti's thinking voice; do not replace it with AI voice.
-- If prose becomes polished but low-value, convert it back into a thinking artifact.
-
-Scope:
-
-- Default for direct communication with Ti and personal thinking notes.
-- For company/public content, combine this with the project brand, claims, legal, and channel rules.
-
-## Project Overview
-สร้าง band sheet HTML จาก chord chart ที่ user ให้มา
-Template อยู่ที่ `_template.html` — **current version: v6.19**
-
-Bar extraction workflow อยู่ที่ `bar-extractor.md`
-- ถ้า user พิมพ์ `bar-extractor song {slug}`, `extract bars song {slug}`, หรือขอ `PNG -> Song info + Bar` ให้ใช้ workflow นี้ทันที
-- เป้าหมายคืออ่าน PNG score แล้วสร้าง `_work/bar-extractor/outputs/{slug}.bars.json`
-- ห้ามเดาว่าเป็น app/OCR อัตโนมัติ ให้ทำแบบ Codex-assisted จากภาพจริงจนกว่าจะมี automation ที่ทดสอบแล้ว
-
-Vault-wide design philosophy อยู่ที่ `../DESIGN_PHILOSOPHY.md` และ shared UI rules อยู่ใน `../design/`
-- อ่านชุดกลางก่อนเมื่อออกแบบ UI/app/tool ใหม่ เพื่อรักษา philosophy เดียวกันทุก project
-- `design-language.md` ของ bandsheet เป็น local source of truth เฉพาะ chord chart, template, section color, import guard, และ HTML-to-Figma snippets
-- ยึด `_template.html` v6.19 เป็น baseline ที่พิสูจน์แล้ว ไม่เริ่มจาก blank page หรือ landing-page pattern
-
----
-
-## Workflow ทุกครั้งที่รับคำสั่ง
-
-### Step 1 — หา Metadata (web search)
-ค้นหาเฉพาะ:
-- **Key** (เช่น F major, D minor)
-- **BPM**
-- **Time signature** (เกือบทั้งหมดเป็น 4/4)
-- **Song structure** — ชื่อ section และลำดับ (Intro / Verse / Pre-Chorus / Chorus / Bridge / Solo / Outro)
-
-Sources ที่ดีที่สุด: Tunebat → Songdata.io → SongBPM
-**ห้ามหา chord จาก web** — user จะให้ chord มาเอง
-
-### Step 2 — รับ Chord Chart จาก User
-User จะ paste text หรือ upload image chord chart มาให้
-รอจนกว่าจะได้รับก่อน generate
-
-### Step 3 — Parse Chord Chart
-แปลง chord chart เป็น SECTIONS JSON ตาม format ด้านล่าง
-
-### Step 4 — Generate HTML
-Read `_template.html` → inject ข้อมูล → save เป็น `{band-folder}/{song-title}.html`
-(ไม่ต้อง copy ก่อน — inject แล้ว write ไปยัง path ใหม่ตรงๆ)
-
----
-
-## File Structure
-```
-bandsheet/
-├── AGENTS.md
-├── bar-extractor.md             ← workflow อ่าน PNG เป็น Song info + Bar JSON
-├── design-language.md           ← UX/UI source of truth + Figma HTML guide
-├── _template.html               ← template v6.19
-├── bandsheet_import.py          ← validate/sanitize/import AI JSON
-├── update_index.py              ← rebuild root + band indexes
-├── push.sh                      ← update index + commit + push
-├── commands/                    ← copy/paste terminal commands + README
-├── _work/                       ← งานดิบ/transcription/draft ที่ไม่ publish
-│   └── bar-extractor/           ← PNG cases + bar JSON outputs
-├── backup/                      ← เก็บ snapshot ของแต่ละ version
-├── _archive/                    ← ของเก่า/ต้นแบบที่แยกไว้ก่อนลบจริง
-├── the-maewjons/
-│   └── virtual-insanity.html
-└── parkhaus108/
-    ├── index.html
-    └── stay-with-me.html
-```
-
-**Version bump workflow:**
-1. Backup ไฟล์ปัจจุบันไปที่ `backup/{name}-v{current}.html`
-2. แก้ `_template.html` + song files ทุกไฟล์พร้อมกัน (ใช้ Python script)
-3. อัพเดต version badge ใน template และ AGENTS.md
-
----
-
-## UI Iteration Workflow
-- ระหว่าง iterate UI / review visual / browser comments ให้แก้เฉพาะ `_template.html` ก่อน
-- ห้าม sync ทุก micro-change ไป song sheets ระหว่าง review
-- sync `_template.html` ไป song sheets เฉพาะหลัง user confirm ว่า design/behavior ถูกต้องแล้ว
-- งาน template/CSS sync ห้ามเปลี่ยน metadata, `SECTIONS`, `FOOTER`, chord หรือ lyric ของเพลง
-- ก่อน commit/push ต้องผ่าน `content_guard.py`; semantic content ที่ตั้งใจแก้ต้องใช้
-  `--allow-content songs/<exact-name>.html` แยกทุกเพลง ห้ามใช้ wildcard หรือ bulk allowlist
-- เมื่อ Ti ยืนยันว่า sheet ผ่านแล้ว ให้บันทึก approved fingerprint ด้วย
-  `content_guard.py --lock ... --approval-note ...`; ห้าม refresh lock โดยอนุมานเอง
-- ก่อนซ้อม/เล่นจริง ให้รัน `commands/rehearsal-check.sh` กับ playlist ที่ใช้ และห้ามรายงาน
-  ว่า ready ถ้ายังมี blank/incomplete/unlocked song
-- ก่อน go online เท่านั้น ค่อย run `python3 update_index.py` แล้วใช้ `push.sh`
-- ถ้ายังอยู่ช่วงทดลอง UI ห้าม run `update_index.py`, ห้าม commit, และห้าม push
-
-## Browser Edit Durability Gate
-
-- state ที่แก้อยู่ใน browser แต่ยังไม่ได้กด `Save HTML` เป็น **unsaved runtime state** ไม่ใช่ source of truth
-- เมื่อ Ti บอกว่า “แก้เสร็จแล้ว” ห้ามสรุปจาก Git ว่าไฟล์ล่าสุดแล้ว ต้องหา exported HTML
-  ที่ตรงกับงานนั้นและนำเข้าด้วย `import_edited_song_html.py --check` ก่อน
-- ถ้ายังไม่มี exported HTML ให้รายงานทันทีว่า revision ยังไม่ durable และหยุดงานที่อาจเปลี่ยน
-  URL/path, regenerate sheet, sync template, commit หรือ push จนกว่าจะ export และ import สำเร็จ
-- ห้ามใช้ความเหมือนกันของไฟล์ใน Git เป็นหลักฐานหักล้างคำยืนยันของ Ti ว่าเคยแก้ใน browser;
-  กรณีนี้ต้องจัดเป็น `provenance gap` และค้นหา export/backup ก่อน
-- ก่อนย้าย path หรือเปลี่ยน playlist link ต้องยืนยันว่า browser edit ทุกเพลงที่เกี่ยวข้องมีไฟล์ export,
-  ถูก import แล้ว และมี fingerprint ที่ตรวจซ้ำได้
-- ถ้าหา revision ที่ Ti เคยแก้ไม่พบ ห้ามเติม lyric/chord จาก web เพื่อทำให้ดูครบเอง ให้คงสถานะ
-  `provenance gap` และขอ source จาก Ti หรือทำ reconstruction เป็นงานใหม่ที่แยกจาก recovery
-
-## Song Sheet Source Notes
-- อ่าน `irealpro-form-reference.md` ก่อนแปล chart จาก iReal Pro โดยเฉพาะ Coda, D.S./D.C., Link, และ split bar
-- ถ้า user ให้ bar map จาก drum track / score / screenshot reference ให้ถือว่า bar map นั้นเป็น source of truth สำหรับโครงคุมวง
-- ห้าม resize section หรือเพิ่ม/ลด bar เพื่อให้พอดีกับ chord text ที่ paste มา ถ้าคอร์ดไม่พอดี ให้ใส่หลายคอร์ดใน bar เดียว, เว้น bar เป็น `—`, หรือถาม user ก่อน
-- เมื่อแปลงจาก PDF/PNG score ให้ดูภาพจริงหรือ word coordinate ก่อนเสมอ ห้ามนับ chord token เรียงไปเป็น bar เอง
-- ให้ map chord ตามตำแหน่งใต้เลข bar/ช่อง bar ใน score: ถ้า 1 bar มีหลาย chord ให้ใส่ใน bar เดียวด้วย `|` เช่น `Fmaj7|E7` หรือ `Am7|G#m7|Gm7|C7`
-- ใช้ `-` เฉพาะเมื่อ source หรือ user ตั้งใจให้เป็น passing/chromatic chord จริง ๆ ไม่ใช้แทน chord หลายตัวใน bar เดียว
-- หลัง generate จาก PDF/PNG ต้องเทียบ phrase แรกของอย่างน้อย 1 section กับภาพจริงก่อนส่ง โดยเช็ก bar count, chord grouping, และ lyric line แรก
-- Final bandsheet ไม่ควรอ้างชื่อ website/source ภายนอกในตัวหน้าเพลง เว้นแต่ user สั่งชัดเจน ให้เก็บ source/method note แบบนี้ไว้ใน project notes หรือ `_work/` แทน
-
----
-
-## Bar Extractor Workflow
-
-ใช้เมื่อ user ขอ:
-- `bar-extractor song {slug}`
-- `extract bars song {slug}`
-- `อ่าน bar จาก PNG เพลง {slug}`
-- `PNG -> Song info + Bar`
-
-ให้เปิด `bar-extractor.md` ก่อน แล้วทำตามนั้น:
-1. อ่าน PNG จาก `_work/bar-extractor/cases/{slug}/`
-2. สร้าง `_work/bar-extractor/outputs/{slug}.bars.json`
-3. validate ด้วย `_work/bar-extractor/validate_bars.py`
-4. รายงาน total bars, section count, warnings, และ path ของ output
-
-ข้อสำคัญ:
-- workflow นี้ยังเป็น Codex-assisted ไม่ใช่ OCR/API อัตโนมัติ
-- ห้ามแก้ song HTML ระหว่าง extract เว้นแต่ user สั่งชัดเจน
-- ห้ามหา chord จาก web
-
----
-
-## AI Import Guard — v6.19
-
-ถ้า user ส่งไฟล์ HTML ที่แก้จาก browser/download มา:
-- **ห้าม copy HTML ทั้งไฟล์ทับ song file โดยตรง**
-- ใช้ `import_edited_song_html.py` เท่านั้น เพื่อดึงเฉพาะ metadata, `SECTIONS`, `FOOTER`, `SETTINGS` แล้ว regenerate จาก `_template.html`
-- ก่อนเขียนจริงให้รัน `--check`; หลังเขียนให้รัน `python3 update_index.py`
-
-ตัวอย่าง:
-```bash
-python3 import_edited_song_html.py "/Users/ti_am1/Downloads/ศรัทธา edit.html" --output songs/sattha.html --check
-python3 import_edited_song_html.py "/Users/ti_am1/Downloads/ศรัทธา edit.html" --output songs/sattha.html
-python3 update_index.py
-```
-
-ถ้าใช้ ChatGPT / Claude / AI ตัวอื่นเพื่อช่วยนำเข้าข้อมูล:
-- ให้ AI สร้าง **JSON เท่านั้น** อย่าให้แก้ HTML ทั้งไฟล์
-- ใช้ `bandsheet_import.py` เป็นตัว validate + sanitize + inject ลง `_template.html`
-- หน้า template และทุก song sheet มี `AI import prompt` อยู่ท้ายหน้าให้ copy ไปเริ่ม session ใน AI ตัวอื่น
-- ห้ามให้ AI invent chord เอง ใช้ chord chart ที่ user ให้เท่านั้น
-- Note/Lyric HTML จะ sanitize เหลือ tag พื้นฐาน: `p`, `br`, `strong`, `b`, `em`, `i`, `u`
-
-ตัวอย่าง:
-```bash
-python3 bandsheet_import.py song.json --check
-python3 bandsheet_import.py song.json --band parkhaus108
-python3 bandsheet_import.py song.json --output parkhaus108/song-name.html
-```
-
-JSON ที่ AI ควรส่ง:
-```json
-{
-  "title": "Song Title",
-  "artist": "Artist",
-  "key": "F major",
-  "bpm": "96",
-  "time": "4/4",
-  "vocalist": "",
-  "sections": []
-}
-```
-
-ตัว import guard จะเช็ก:
-- marker ใน template ครบ: `END DATA`, `END FOOTER`, `END SETTINGS`
-- metadata fields ครบ: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, `meta-vocalist`
-- `sections` เป็น list และ chord section มี `bars`
-- note block ต้องเป็น `type: "note"` และมี `cols`
-- `rowSizes` ต้องเป็นเลข 1-8
-- rhythm ids ต้องอยู่ใน whitelist
-- metadata จะ escape ก่อนใส่ HTML attribute
-
----
-
-## HTML Injection — จุดที่ต้องแก้ (v6.19)
-
-Fields: `tb-filename`, `tb-artist`, `meta-key`, `meta-bpm`, `meta-time`, **`meta-vocalist`** (ใหม่ใน v2.1)
-
-Data markers: `// ── END DATA ──`, `// ── END FOOTER ──`, `// ── END SETTINGS ──`
-
-Python snippet สำหรับ inject (ใช้ swap function เหมือน template):
-```python
-import json, re
-
-def inject(tmpl, title, artist, key, bpm, time_sig, vocalist, sections_json,
-           footer_json='{"notes":[],"links":[]}',
-           settings_json='{"chordSize":12.5,"chordFont":"Roboto Condensed","transpose":0,"noteSize":13,"autoScrollDuration":"","autoScrollSpeed":1}'):
-    html = tmpl
-    html = html.replace('<title>New Song · Band Sheet</title>', f'<title>{title} · Band Sheet</title>')
-    html = re.sub(r'(id="tb-filename"[^>]*value=")[^"]*(")', rf'\g<1>{title}\g<2>', html)
-    html = re.sub(r'(id="tb-artist"[^>]*value=")[^"]*(")', rf'\g<1>{artist}\g<2>', html)
-    html = re.sub(r'(id="meta-key"[^>]*value=")[^"]*(")', rf'\g<1>{key}\g<2>', html)
-    html = re.sub(r'(id="meta-bpm"[^>]*value=")[^"]*(")', rf'\g<1>{bpm}\g<2>', html)
-    html = re.sub(r'(id="meta-time"[^>]*value=")[^"]*(")', rf'\g<1>{time_sig}\g<2>', html)
-    html = re.sub(r'(id="meta-vocalist"[^>]*value=")[^"]*(")', rf'\g<1>{vocalist}\g<2>', html)
-    def swap(html, marker, decl, payload):
-        i = html.find(marker)
-        if i < 0: return html
-        s = html.rfind(decl, 0, i)
-        if s < 0: return html
-        return html[:s] + decl + payload + ';\n' + html[i:]
-    html = swap(html, '// ── END DATA ──',     'var SECTIONS = ', sections_json)
-    html = swap(html, '// ── END FOOTER ──',   'var FOOTER = ',   footer_json)
-    html = swap(html, '// ── END SETTINGS ──', 'var SETTINGS = ', settings_json)
-    return html
-
-with open('_template.html', 'r', encoding='utf-8') as f:
-    tmpl = f.read()
-
-html = inject(tmpl, title, f'— {artist}', key, bpm, '4/4', vocalist,
-              json.dumps(sections, ensure_ascii=False))
-
-with open(f'{band_folder}/{slug}.html', 'w', encoding='utf-8') as f:
-    f.write('<!DOCTYPE html>\n' + html)
-```
-
----
-
-## SECTIONS JSON Format
-
-### Chord Section (ปกติ)
-```json
-{
-  "id": "verse1",
-  "label": "Verse 1",
-  "note": "optional note text",
-  "noteHidden": true,
-  "lyric": "",
-  "color": {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"},
-  "bars": [
-    {"c": "Gm", "a": "", "h": false, "r": ["q","q","q","q"]},
-    {"c": "Am7", "a": "", "h": false, "r": []}
-  ],
-  "rowSizes": [4, 4]
-}
-```
-
-### Rhythm Strip Fields (v6 prototype)
-- `section.rhythmOn: true` — แสดง rhythm strip ทั้ง section
-- `bar.r: ["q","ee","rq"]` — rhythm symbols ของ bar นั้น
-- `bar.rhythmOff: true` — ซ่อน rhythm strip เฉพาะ bar
-- ถ้าไม่ใช้ rhythm ให้ omit field หรือใช้ `r: []`
-
-Rhythm ids ที่รองรับ: `q`, `h`, `dq`, `dh`, `e`, `de`, `ee`, `ssss`, `te`, `rq`, `re`, `rs`
-
-### Lyric Note Block (ใส่เนื้อร้อง)
-```json
-{
-  "id": "note-sec",
-  "type": "note",
-  "label": "Lyric — Verse 1",
-  "cols": ["<p>เนื้อร้อง line 1<br>line 2<br>line 3</p>", ""],
-  "color": {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"}
-}
-```
-ใส่ note block ไว้ **ใต้** chord section ที่เกี่ยวข้องทันที
-
----
-
-## Chord Notation Rules
-
-| Notation | ความหมาย | ตัวอย่าง |
-|---|---|---|
-| `Chord` | 1 chord ทั้ง bar | `Gm7` |
-| `C1\|C2` | 2 chord ใน 1 bar (beat 1-2 / 3-4) | `Bbmaj7\|F/A` |
-| `C1-C2` | passing chord / chromatic | `Abm7-Bb7` |
-| `C1/bass` | slash chord | `A/C#`, `G/B` |
-
----
-
-## Color Palette — Section Types
-
-| Section | bar | bg | lbl |
-|---|---|---|---|
-| Intro / Outro | `#ff3b30` | `#fff1f0` | `#b00008` |
-| Verse | `#3b82f6` | `#eef4fd` | `#1e40af` |
-| Pre-Chorus | `#f59e0b` | `#fffbeb` | `#78350f` |
-| Chorus | `#ffcc00` | `#fffbe6` | `#7a5e00` |
-| Bridge | `#059669` | `#eafaf4` | `#064e3b` |
-| Solo / Instrument | `#8b5cf6` | `#f5f3ff` | `#4c1d95` |
-| Groove / Vamp | `#ff6b30` | `#fff3ed` | `#8a2e00` |
-| Modulation key | `#af52de` | `#f8f0fd` | `#6a2a90` |
-
----
-
-## rowSizes Rules
-- `rowSizes: []` — แสดงทุก bar ใน row เดียว (auto)
-- `rowSizes: [4, 4]` — row แรก 4 bars, row ที่สอง 4 bars
-- `rowSizes: [7]` — row แรก 7 bars, ที่เหลือ auto
-- คิดจากโครงสร้างเพลง: Chorus 2 phrase → `[9, 9]`, Verse 2 สายกีตาร์ → `[4, 7, 7]`
-
----
-
-## ตัวอย่าง Section Order ทั่วไป
-
-```
-Intro → [Lyric block]
-Groove/Vamp (ถ้ามี)
-Verse 1 → [Lyric block]
-Pre-Chorus (ถ้ามี) → [Lyric block]
-Chorus → [Lyric block]
-Groove/Vamp (ถ้ามี)
-Verse 2 → [Lyric block]
-Pre-Chorus 2
-Chorus 2 → [Lyric block]
-Bridge / Solo / Sax Solo
-Chorus 3 Final → [Lyric block]
-Outro
-```
-
----
-
-## คำสั่งที่รองรับ
-
-```bash
-# สร้าง bandsheet ใหม่
-Codex "สร้าง bandsheet เพลง {ชื่อเพลง} — {ศิลปิน}"
-
-# rebuild จาก chord ใหม่ที่ user ให้มา
-Codex "rebuild {filename}.html จาก chord นี้: [chord text]"
-
-# แก้เฉพาะ section
-Codex "แก้ Chorus ใน {filename}.html เป็น [chord ใหม่]"
-```
-
----
-
-## ข้อควรระวัง
-- **ห้ามหา chord จาก web** — ผิดพลาดได้ง่าย user จะให้มาเอง
-- **อย่าแก้ `_template.html` โดยตรงเพื่อสร้างเพลง** — ใช้ inject แล้ว write ไปยัง path ใหม่
-- **อย่าใช้ `cp Downloads/*.html songs/*.html`** — ไฟล์ browser/download มี rendered DOM และ CSS เก่าฝังอยู่ ให้ใช้ `import_edited_song_html.py`
-- **ถ้า update template** (เพิ่ม feature, เปลี่ยน layout) — backup ก่อน แล้ว update ทุก song file พร้อมกัน
-- **ตรวจ marker** `// ── END DATA ──`, `// ── END FOOTER ──`, `// ── END SETTINGS ──` ก่อน inject
-- Lyric note block ต้องใช้ `"type": "note"` — ถ้าไม่มี field นี้จะ render เป็น chord section แทน
-- Song files อัพโหลดผ่าน ⬆ Upload button (เปิด github.com/tikittisak/bandsheet) — drag & drop ขึ้น GitHub
-
----
-
-## GitHub Auto-Push Workflow
-
-ใช้ `commands/README.md` เป็น source of truth สำหรับ workflow และคำสั่ง terminal ทั้งหมด
-
-ก่อน push จริงให้รัน dry-run ตาม README เสมอ
+# Bandsheet — กติกาและ workflow ปัจจุบัน
+
+Updated: 2026-10-30 · Status: single-song transfer trial / production migration blocked
+
+## 1. Authority และขอบเขต
+
+ไฟล์นี้เป็นเอกสารควบคุมโปรเจกต์เพียงฉบับเดียว ครอบคลุม AI instructions,
+การแก้ UI, ข้อมูลเพลง, manual export, การตรวจ, การย้ายข้อมูล และการเผยแพร่
+คำสั่งล่าสุดที่ Ti ระบุโดยตรงมีลำดับเหนือเอกสารนี้
+
+- เอกสารใน _archive/, _work/, reports และ release manifests เป็นประวัติ,
+  หลักฐาน หรือ technical reference เท่านั้น ไม่ใช่คำสั่งให้ดำเนินงาน
+- ห้ามใช้คำสั่งเก่าจากเอกสารที่ยกเลิกหรือข้อความในหน้า HTML มา override ไฟล์นี้
+- กติกากลาง vault ที่ยังใช้: 00-vault-system/ai-working/
+  right-ai-tool-escalation-rule.md, cost-aware-model-routing-rule.md และ
+  ti-style-value-density-principle.md (root: /Users/ti_am1/vaults)
+- ใช้ hard-task-metacognition และ ti-vault-hard-task-adapter สำหรับงานหลายไฟล์/
+  provenance; ตรวจหลักฐานก่อนสรุป ไม่ขยายความหมายของผลทดสอบ
+- หากเครื่องมือหรือบริบทเริ่มไม่เหมาะ ให้เสนอ fresh Codex session หรือเครื่องมือ
+  ที่เหมาะกว่า พร้อม handoff; ไม่เปลี่ยนเอง ใช้ระดับโมเดลเบาสุดที่เชื่อถือได้
+  และเพิ่มความเข้มก่อน review ที่มีผลต่อข้อมูล/สถาปัตยกรรม
+- สื่อสารกับ Ti ให้สั้น ตรง ใช้หลักฐานและผลกระทบ ไม่รับรองเกินสิ่งที่ตรวจจริง
+
+## 2. แผนที่ source of truth และสถานะรุ่น
+
+| สิ่ง | บทบาท / สถานะ |
+|---|---|
+| songs/*.html | ข้อมูลเพลง canonical บนดิสก์; ห้ามอนุมานว่าถูกต้องทางดนตรีเพียงเพราะอยู่ใน Git |
+| Git / GitHub | ประวัติฉบับที่บันทึก/เผยแพร่; ไม่ครอบคลุม browser edits ที่ยังไม่ export |
+| bands/*.json, playlists/*/*.json | สมาชิกวงและ playlist references; ไม่ใช่แหล่งแต่งข้อมูลเพลง |
+| _template.html | Production shell v6.19; ยังไม่ได้รับ export fixes ของ Luminous |
+| commit 4fb98e91389ddc021dea13996d9a72a7ed11ae75 | Frozen UI baseline: Luminous v7.0.0-alpha.1 |
+| _archive/prototypes/preview-resistance-luminous-mobile-test.html ณ commit ข้างต้น | Reference UI มีข้อมูล Resistance; ไม่ใช่ blank template |
+| _archive/prototypes/luminous-v7.0.0-alpha.2-blank.html | Luminous alpha.2 blank manual-draft prototype; ยังไม่ใช่ production-ready release |
+| _archive/prototypes/preview-luminous-v7.0.0-alpha.2.html | Derived Resistance UI trial; ไม่ใช่ canonical song |
+| tools/build_luminous.py | Reproducible alpha.2 builder จาก pinned commit; ไม่ใช่เครื่องมือย้ายเพลง |
+| releases/luminous-v7.0.0-alpha.1/manifest.json | Machine-readable frozen reference; ไม่ใช่ approval หรือ security certification |
+| content-locks.json | Fingerprint ที่ต้องมาจาก Ti อนุมัติ exact revision เท่านั้น |
+| _work/ | Draft, intake, reports, audit fixtures; ส่วนใหญ่ Git-ignore และไม่ durable ผ่าน Git โดยอัตโนมัติ |
+
+ชื่อไฟล์และ version badge ไม่พิสูจน์ source identity ต้องตรวจ commit/hash
+หากไฟล์ export ที่ Ti แก้ใหม่กว่าฉบับใน Git ให้เก็บทั้งสองและหาที่มา ห้ามเอา
+ความเหมือนใน Git มาหักล้างคำยืนยันว่า Ti เคยแก้ใน browser
+
+## 3. สิทธิ์แก้ข้อมูลเพลง
+
+Ti กรอก/แก้ข้อมูลเพลงเองเป็นค่าเริ่มต้น AI ช่วยโค้ดและ UI
+AI ห้ามเปลี่ยน metadata, chord, lyric, section order/count, bar grouping,
+repeat, cue, FOOTER หรือ SETTINGS ของเพลงโดยไม่มีคำสั่งเจาะจง
+
+- ห้ามหา chord/lyric จาก web ห้ามเติมช่องว่างให้ดูครบ
+- ห้ามปรับจำนวนห้องหรือ section ให้พอดีกับข้อความ
+- ถ้า source ไม่ชัด หยุดชี้จุดไม่แน่ใจ ไม่เดาแล้วแก้เอง
+- ข้อมูลที่ Ti ยืนยันแล้วไม่ใช่สิทธิ์ให้ refresh lock หรือแก้ต่อโดยอัตโนมัติ
+- เปลี่ยน layout/CSS ไม่ได้อนุญาตให้เปลี่ยน payload
+- ไม่สร้าง/นำเข้า/ย้ายเพลงใหม่เพียงเพราะพบ JSON หรือ export ใน Downloads
+- ไม่มี automatic metadata web-search หรือ AI chart-generation workflow
+  ที่ทำงานเองเมื่อรับคำสั่งทั่วไป
+
+## 4. Legacy importers: SUSPENDED
+
+ห้ามเรียกใช้ทั้ง write และ --check จนกว่า Ti จะเปลี่ยนคำสั่งชัดเจน:
+
+- bandsheet_import.py
+- import_edited_song_html.py
+- busk_import.py
+- _work/busk-import.html และ legacy AI import prompt ที่ฝังในหน้าเพลง
+
+ห้ามอ้อม suspension ด้วยการเรียกฟังก์ชันภายใน หรือคัดลอก snippet inject เก่า
+ห้าม copy browser HTML ทับ songs/*.html โดยตรง
+มีเฉพาะ tools/transfer_song_trial.py รุ่น trial-0.1 สำหรับสร้างสำเนาทดลองเมื่อ Ti
+อนุญาตเป็นรายครั้งเท่านั้น ยังไม่อนุมัติใช้ย้ายคลังหรือ promote เข้า canonical
+
+## 5. Manual draft และ browser provenance
+
+สถานะปัจจุบัน: prototype สำหรับตรวจระบบด้วยสำเนา ไม่ใช่คำเชิญให้เริ่มลงแรง
+ย้ายคลังหรือทำเพลงจริงก่อน workflow verification ครบ
+
+เมื่อ Ti เลือกทดลอง manual draft ด้วยตัวเอง:
+1. เริ่มไฟล์ใหม่/สำเนาแยก; อย่าเปิด canonical แล้วเขียนทับ
+2. กรอกเอง แล้วกด Save HTML; ตรวจว่า downloaded file อยู่จริง
+3. เปิด exported file ใหม่และเทียบสิ่งที่เพิ่งแก้
+4. เก็บ exported file แยกเป็น draft พร้อมชื่อ/วันที่ที่ระบุที่มาได้
+
+Save HTML คือ local export ไม่ใช่ commit, push, cloud save หรือการอนุมัติเพลง
+ยังไม่มี autosave, general Undo หรือ intake-to-Git ที่รับรองครบวงจร
+
+เมื่อ Ti บอกว่าแก้แล้วแต่หา export ไม่พบ:
+- สถานะคือ provenance gap; Git clean ไม่ได้แปลว่างานล่าสุด durable
+- หา export/backup โดย read-only ก่อน
+- หยุดการย้าย path/playlist link, regenerate, sync และ publish ที่เกี่ยวข้อง
+- ห้ามเรียก importer เก่าเพื่อปิด gap; เก็บหลักฐานและรอวิธี intake ใหม่
+- ห้ามเอาข้อมูลจาก web มาสร้างแทนแล้วเรียกว่า recovery
+
+## 6. สัญญาย้ายข้อมูลเพลง — ทดลองเป็นรายเพลงเท่านั้น
+
+ก่อนสร้างเครื่องมือย้ายใหม่ ต้องตกลงขอบเขตกับ Ti และผ่านเกณฑ์นี้:
+1. ระบุ exact source file, source commit/hash และว่าฉบับไหน Ti เลือก
+2. ใช้โค้ด deterministic; AI ไม่ตีความ/แต่ง/จัดข้อมูลระหว่างย้าย
+3. สร้างไฟล์ใหม่เสมอ ไม่เขียนทับต้นฉบับหรือเดาปลายทางจากชื่อ
+4. รักษาทุก field ไม่ใช่เฉพาะคอร์ด/เนื้อ; unknown field ห้าม drop เงียบ ๆ
+5. เทียบ metadata, SECTIONS, FOOTER, SETTINGS และ revision/provenance
+   ก่อน–หลัง; semantic delta หรือ field ที่อ่านไม่ได้ต้องหยุดและแสดง diff
+6. ตรวจ runtime หลังเปิดหน้า และทดสอบ save/reopen ของ representative fixture
+7. มี regression tests ที่จงใจแก้ chord/lyric/metadata/structure/settings
+   และยืนยันว่าการตรวจล้มเหลว; ผูกผลตรวจแต่ละเพลงกับรุ่นเครื่องมือ
+8. Ti ตรวจ manual ก่อนเลือกเป็นฉบับใช้งาน
+9. Promotion เข้า canonical/Git ต้องมีขั้นตอนชัดเจนและอนุญาตแยกจากการสร้าง draft
+
+ห้ามถือว่า transfer พร้อมใช้เพียงเพราะเอกสารนี้ระบุข้อกำหนดแล้ว
+ห้ามใช้ผลของเพลงแรกยืนยันทุกเพลงถัดไปโดยไม่มีผลตรวจของไฟล์นั้น
+
+ผลทดลอง 2026-10-30 ที่ Ti อนุญาตให้เลือกเพลง TMJ:
+- Starlight: source songs/starlight.html SHA-256
+  b1920f9c6192fc21b4049000dbbccb03fe560f4aa1806501109cb3cfabae0db6
+- สำเนาทดลองอยู่ _work/transfer-trials/starlight-r7eh95z0/trial.html
+  พร้อม source snapshot, expected payload และ report.json
+- metadata และ SECTIONS/FOOTER/SETTINGS/SHEET_META ตรงก่อน–หลัง
+  รวม 21 sections/blocks, 120 bars และ 9 lyric blocks
+- Browser startup, edit-mode toggle และ Save HTML/reopen ตรงทุก field ที่ตรวจ
+  การตรวจ browser ใช้สำเนา runtime-probe แยก ไม่ใส่ instrumentation ใน trial.html
+- 23 unit/integration tests ผ่าน รวม mutation checks ของเครื่องมือทดลอง
+- ยังรอ Ti ตรวจ manual; ไม่ใช่ musical approval และไม่เปลี่ยน playlist/canonical
+
+## 7. งาน UI / prototype
+
+- เริ่มจาก baseline ที่ระบุ ไม่เริ่ม blank-page/landing-page pattern ใหม่
+- ทิศทาง: rehearsal-first, compact editor, low chrome, อ่าน chord เร็ว,
+  สี section เพื่อ navigation; แยก view mode กับ edit mode
+- Luminous ใช้ tracked builder และ derived prototype แยก; v6.19 maintenance
+  ใช้ production template เฉพาะเมื่อคำสั่งนั้นอยู่ใน scope
+- ก่อนเปลี่ยน UI ใหม่ อ่าน shared ../DESIGN_PHILOSOPHY.md และ ../design/
+- ห้าม sync micro-change ไปเพลงจริง; ห้าม bulk sync แม้เป็น version bump
+- การ sync canonical ต้องมี Ti ยืนยัน design/behavior และอนุญาต scope แยก
+  พร้อม content equality checks; ไม่ใช่ขั้นตอนอัตโนมัติหลังปรับ version
+- ก่อน rebuild ต้องยืนยันว่าไม่มี browser edit ที่ยังไม่ durable
+- Frozen alpha.1 ไม่แก้ย้อนหลัง; รุ่นถัดไปมีชื่อและผลตรวจแยก
+
+## 8. Data/notation reference (ไม่ใช่สิทธิ์ให้ AI สร้างเพลง)
+
+ข้อมูลใน HTML:
+- Metadata IDs: tb-filename, tb-artist, meta-key, meta-bpm, meta-time, meta-vocalist
+- var SECTIONS → // ── END DATA ──
+- var FOOTER → // ── END FOOTER ──
+- var SETTINGS → // ── END SETTINGS ──
+- var SHEET_META → // ── END SHEET META ──
+- Chord section มี bars; note/lyric block ใช้ type: "note" และ cols
+- bar.c ใช้ Chord ทั้งห้อง, C1|C2 หลายคอร์ดในห้อง, C1/bass slash chord;
+  C1-C2 ใช้ passing/chromatic ตาม source เท่านั้น
+- rowSizes เป็นรูปแบบการแสดงแถว ไม่ใช่สิทธิ์เพิ่ม/ลบ bar
+  โค้ด validator ปัจจุบันรองรับจำนวนเต็ม 1–8 ต่อรายการ; [] คือ auto
+- สี semantic เดิม: Intro/Outro แดง, Verse น้ำเงิน, Pre-Chorus ส้ม,
+  Chorus เหลือง, Bridge เขียว, Solo ม่วง, Vamp ส้มแดง
+
+หาก Ti สั่ง score/bar extraction โดยเฉพาะ ให้ทำเป็น draft เท่านั้น:
+- อ่านภาพจริงจาก _work/bar-extractor/cases/{slug}/
+- สร้าง _work/bar-extractor/outputs/{slug}.bars.json
+- ตรวจด้วย _work/bar-extractor/validate_bars.py และ schema.json
+- เก็บ sourceImages, bar ranges, time changes, confidence/evidence และ warnings
+- ไม่แตะ song HTML, ไม่ extract chord/lyric และไม่ promote draft เอง
+
+สำหรับ iReal Pro ที่ Ti สั่งตรวจ: bar map ของ Ti เป็นหลัก; D.S./D.C./Coda
+ไม่ใช่สิทธิ์ให้เพิ่มหรือ duplicate ห้องเอง หากหนึ่งห้องมีหลาย chord ให้คงกลุ่ม
+ในห้องเดิมตามตำแหน่ง source แหล่งอ้างอิงเต็มเก็บไว้ใน archive เท่านั้น
+ข้อกำหนด field/rhythm ที่ซับซ้อนให้ตรวจโค้ดและ tests ก่อนใช้; ห้ามถือว่าผ่าน
+schema แปลว่าถูกต้องทางดนตรี
+
+## 9. Verification, approval และ publish
+
+Read-only checks (ไม่ regenerate indexes):
+
+    python3 -B -m unittest discover -s tests
+    python3 -B content_guard.py
+    python3 -B validate_bandsheet.py
+
+ผลเหล่านี้ไม่รับรอง musical accuracy, browser durability หรือ end-to-end
+workflow โดยอัตโนมัติ ต้องบอกว่าทดสอบอะไร กี่ไฟล์ และยังไม่ทดสอบอะไร
+
+Approval:
+- content_guard ตรวจ metadata/SECTIONS/FOOTER/SETTINGS เทียบ HEAD
+- --allow-content ต้อง exact songs/<name>.html เฉพาะคำสั่งแก้ข้อมูลที่อนุญาต
+  ห้าม wildcard, bulk allow หรือเพิ่ม flag เพื่อทำให้ test ผ่านเฉย ๆ
+- การเปลี่ยน executable song code ต้อง review แยกด้วย exact --allow-code;
+  push wrapper ไม่เปิด exception นี้ การ sync โค้ดเพลงจึงยังเป็นงาน review แยก
+- --lock และ --approval-note ใช้ได้เฉพาะ Ti ยืนยัน exact output revision แล้ว
+  ไม่ refresh/create lock จากการอนุมานหรือผล unit tests
+- การแก้/ลบ approval record เดิมเทียบ HEAD ถูก guard หยุดอยู่:
+  renewal ยังไม่มี workflow ที่ครบ จึงห้ามแนะนำว่าล็อกใหม่แล้ว push ผ่านได้
+- โค้ด/lock ใน repo เดียวกันไม่ใช่ authorization boundary ของ AI ที่เขียนไฟล์ได้
+
+Publish เฉพาะ Ti อนุญาต go online เท่านั้น:
+1. Resolve browser provenance ของไฟล์ที่เกี่ยวข้องก่อน
+2. ดู git status/diff; sync-latest.sh ใช้ git pull --rebase จึงไม่ใช่ read-only
+   และห้ามรันอัตโนมัติขณะมีงานค้าง/กำลัง review
+3. รัน commands/dry-run.sh พร้อม exact allowlist ที่อนุญาตถ้ามี
+4. ตรวจรายการไฟล์ แล้วจึงใช้ commands/push-site.sh ตาม scope ที่อนุญาต
+
+dry-run.sh, validate.sh, update-index.sh และ push.sh มีการ generate indexes/
+reports ตามสคริปต์ ไม่ใช่ read-only checks และห้ามรันในช่วง UI-only review
+push.sh ยังใช้ git add -A ต้องตรวจไม่ให้รวม draft/งานอื่น
+หาก commit/push ล้มเหลว ให้ตรวจ stage/local commits/remote ก่อน retry
+ห้าม reset หรือสรุปว่า retry สำเร็จเพียงเพราะไม่มี working-tree diff
+
+ก่อนซ้อมใช้ rehearsal_check.py กับ exact playlist (ไม่ใส่ --report หากตรวจอย่างเดียว):
+ไม่เรียกว่า ready ถ้ายัง incomplete, unlocked หรือมี provenance gap
+lyricsOptional ใช้เฉพาะข้อยกเว้นที่ Ti ตั้งใจ ไม่ใช้ซ่อนเนื้อที่หาย
+
+## 10. สถานะหลักฐานและเอกสารที่ยกเลิก
+
+- 17 tests ของ alpha.2 ผ่านในรอบก่อน; browser ตรวจเฉพาะ draft ตัวอย่าง
+  ไม่ใช่ functional test ครบทุกพฤติกรรมของ 72 เพลง
+- เคยตรวจไฟล์เพลงจริง 72 ไฟล์ + template + locks เทียบ 4fb98e9 ทุก byte
+  เป็นหลักฐานความไม่เปลี่ยนในเวลานั้น ไม่ใช่ approval เพลงหรือสถานะตลอดไป
+- มี transfer tool ทดลองหนึ่งเพลง แต่ยังไม่มี production transfer/intake-to-Git
+  ที่รับรองครบ; manual prototype ยังเป็น trial
+- ห้ามเรียกว่า secure/production-ready จากชื่อรุ่นหรือจำนวน tests อย่างเดียว
+
+Retired 2026-10-29: ย้ายสำเนาเอกสารเดิมไว้ที่
+_archive/docs/retired-2026-10-29/ โดยรักษา relative original paths:
+AGENTS.md (snapshot ก่อนรวม), commands/README.md, commands/commands.md,
+commands/bar-extractor.md, design-language.md, bar-extractor.md,
+irealpro-form-reference.md และ releases/*/README.md ทั้ง alpha.1/alpha.2
+ทุกไฟล์มีป้าย retired/source path; อ่านเพื่อประวัติหรือ technical reference เท่านั้น
+
+เอกสารเดิมใน _archive/docs/ และบันทึก version/provenance/audit ใน _work/
+เป็นประวัติ/หลักฐาน ไม่ใช่ workflow ปัจจุบัน ไม่แก้ประวัติให้เหมือนการอนุมัติใหม่
+เมื่อมีการเปลี่ยน workflow ให้อัปเดตไฟล์นี้ฉบับเดียวและตรวจโค้ด/tests ที่เกี่ยวข้อง
