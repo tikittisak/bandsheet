@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import html
+from html.parser import HTMLParser
 import json
 import re
 import subprocess
@@ -36,7 +37,7 @@ def json_var(doc, name, marker):
     if marker_pos < 0 or start < 0:
         raise ValueError(f"missing {name} or marker {marker}")
     raw = doc[start + len(decl):marker_pos].strip().rstrip(";").strip()
-    if re.search(r"</script\s*>", raw, re.I):
+    if re.search(r"</script(?=[\s/>])", raw, re.I):
         raise ValueError(f"unsafe inline script terminator in {name}")
     return json.loads(raw)
 
@@ -47,6 +48,7 @@ def content_payload(doc):
         "sections": json_var(doc, "SECTIONS", "// ── END DATA ──"),
         "footer": json_var(doc, "FOOTER", "// ── END FOOTER ──"),
         "settings": json_var(doc, "SETTINGS", "// ── END SETTINGS ──"),
+        "sheet_meta": json_var(doc, "SHEET_META", "// ── END SHEET META ──"),
     }
 
 
@@ -185,6 +187,8 @@ def describe_change(before, after):
             details.append("sections changed: " + ", ".join(changed))
     if before["footer"] != after["footer"]:
         details.append("footer changed")
+    if before.get("sheet_meta") != after.get("sheet_meta"):
+        details.append("revision/provenance changed")
     return "; ".join(details) or "content changed"
 
 
@@ -210,6 +214,24 @@ def find_drift():
     return drift, template_only
 
 
+class ExecutableHTML(HTMLParser):
+    """Include unquoted handlers/URLs as browsers parse them, not just regex quotes."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.surfaces = []
+
+    def handle_starttag(self, tag, attrs):
+        executable = []
+        for key, value in attrs:
+            normalized = re.sub(r'[\x00-\x20]', '', value or '').lower()
+            if key.startswith('on') or key == 'srcdoc' or normalized.startswith('javascript:'):
+                executable.append((key, value))
+        if tag in ('iframe', 'object', 'embed', 'base') or (tag == 'meta' and dict(attrs).get('http-equiv','').lower() == 'refresh'):
+            executable = attrs
+        if executable:
+            self.surfaces.append((tag, executable))
+
+
 def executable_payload(doc):
     """Compare executable HTML surfaces, excluding explicitly parsed data blocks."""
     for name, marker in (("SECTIONS", "DATA"), ("FOOTER", "FOOTER"),
@@ -219,8 +241,10 @@ def executable_payload(doc):
         if end >= 0 and start >= 0:
             doc = doc[:start] + f"var {name} = null;\n" + doc[end:]
     scripts = re.findall(r"<script\b[^>]*>[\s\S]*?</script\s*>", doc, re.I)
-    handlers = re.findall(r"\bon[a-z]+\s*=\s*(?:\"[^\"]*\"|'[^']*')", doc, re.I)
-    return scripts, handlers
+    parser = ExecutableHTML()
+    parser.feed(doc)
+    parser.close()
+    return scripts, parser.surfaces
 
 
 def executable_changes():

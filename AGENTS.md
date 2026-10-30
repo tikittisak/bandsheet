@@ -177,7 +177,7 @@ Read-only checks (ไม่ regenerate indexes):
 workflow โดยอัตโนมัติ ต้องบอกว่าทดสอบอะไร กี่ไฟล์ และยังไม่ทดสอบอะไร
 
 Approval:
-- content_guard ตรวจ metadata/SECTIONS/FOOTER/SETTINGS เทียบ HEAD
+- content_guard ตรวจ metadata/SECTIONS/FOOTER/SETTINGS/SHEET_META เทียบ HEAD
 - --allow-content ต้อง exact songs/<name>.html เฉพาะคำสั่งแก้ข้อมูลที่อนุญาต
   ห้าม wildcard, bulk allow หรือเพิ่ม flag เพื่อทำให้ test ผ่านเฉย ๆ
 - การเปลี่ยน executable song code ต้อง review แยกด้วย exact --allow-code;
@@ -214,6 +214,14 @@ lyricsOptional ใช้เฉพาะข้อยกเว้นที่ Ti �
 - มี transfer tool ทดลองหนึ่งเพลง แต่ยังไม่มี production transfer/intake-to-Git
   ที่รับรองครบ; manual prototype ยังเป็น trial
 - ห้ามเรียกว่า secure/production-ready จากชื่อรุ่นหรือจำนวน tests อย่างเดียว
+
+P0 zoom/resize patch (2026-10-30): alpha.2 builder แยก renderData จาก
+updateLayout และไม่ render song DOM เมื่อ viewport เปลี่ยน; layout view state
+ไม่เขียนลง payload/storage ทดสอบผ่าน scratch fixture เท่านั้น
+tracked alpha.2 HTML และ trial ที่เปิดอยู่ยังไม่ได้ regenerate ตามข้อห้ามรอบนี้
+Safari View → Zoom In + scroll ลง/ขึ้นตรวจบนเครื่องจริงแล้ว แต่ physical pinch
+และการย้ายหน้าต่างข้ามจอยังไม่ทดสอบ จึงยังไม่ถือว่า Safari P0 ปิดครบ
+Band/Vocal เป็นงานของ chat UI ภายหลัง ไม่ implement ใน security/P0 patch นี้
 
 Retired 2026-10-29: ย้ายสำเนาเอกสารเดิมไว้ที่
 _archive/docs/retired-2026-10-29/ โดยรักษา relative original paths:

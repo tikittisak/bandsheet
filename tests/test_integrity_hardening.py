@@ -37,17 +37,18 @@ class IntegrityHardening(unittest.TestCase):
         self.assertEqual(self.command(self.doc.replace('</style>','.audit{color:red}</style>',1)),0)
 
     def test_mutations_and_exact_allow(self):
-        for kind in ('chord','lyric','structure','metadata','settings','footer'):
+        for kind in ('chord','lyric','structure','metadata','settings','footer','revision'):
             with self.subTest(kind=kind):
                 doc=self.doc
                 if kind=='metadata':doc=doc.replace('value="135"','value="999"',1)
                 else:
-                    name,marker=('SETTINGS','SETTINGS') if kind=='settings' else ('FOOTER','FOOTER') if kind=='footer' else ('SECTIONS','DATA')
+                    name,marker=('SHEET_META','SHEET META') if kind=='revision' else ('SETTINGS','SETTINGS') if kind=='settings' else ('FOOTER','FOOTER') if kind=='footer' else ('SECTIONS','DATA')
                     value=copy.deepcopy(g.json_var(doc,name,f'// ── END {marker} ──'))
                     if kind=='chord':next(s for s in value if s.get('bars'))['bars'][0]['c']='AUDIT'
                     elif kind=='lyric':next(s for s in value if s.get('type')=='note')['cols'][0]='AUDIT'
                     elif kind=='structure':value.reverse()
                     elif kind=='settings':value['transpose']=11
+                    elif kind=='revision':value['sheetRevision']+=1
                     else:value['notes']=['AUDIT']
                     end=doc.index(f'// ── END {marker} ──');start=doc.rfind(f'var {name} = ',0,end)
                     doc=doc[:start]+f'var {name} = '+json.dumps(value)+';\n'+doc[end:]
@@ -58,6 +59,13 @@ class IntegrityHardening(unittest.TestCase):
     def test_runtime_mutation_not_covered_by_content_allow(self):
         doc=self.doc.replace('</body>','<script>SECTIONS[0].bars[0].c="AUDIT";</script></body>')
         self.assertEqual(self.command(doc),1)
+
+    def test_unquoted_handlers_and_script_urls_blocked(self):
+        for markup in ('<img src=x onerror=SECTIONS.pop()>',
+                       '<a href="java&#x0a;script:SECTIONS.pop()">test</a>',
+                       '<iframe srcdoc="test"></iframe>'):
+            with self.subTest(markup=markup):
+                self.assertEqual(self.command(self.doc.replace('</body>',markup+'</body>')),1)
 
     def test_deleted_lock_cannot_bypass(self):
         locks={'version':1,'songs':{'songs/resistance.html':{'sha256':g.content_digest(g.content_payload(self.doc))}}}

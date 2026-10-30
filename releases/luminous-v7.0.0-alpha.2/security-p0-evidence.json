@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-30",
+  "status": "data-control-patch-complete; UI handoff; batch injection not started",
+  "frozenBase": "4fb98e91389ddc021dea13996d9a72a7ed11ae75",
+  "securityCheckpoint": "f12fc41dfa9e9c82ea1fe92f50b901ff9400ca7d",
+  "finalRevision": "Git commit containing this record; exact hash supplied in handoff",
+  "securityChanges": [
+    "Guard includes SETTINGS and SHEET_META (revision/provenance)",
+    "Executable surface comparison includes scripts, unquoted handlers, script URLs, srcdoc and embedded browsing surfaces",
+    "Reject raw inline script terminators",
+    "Detect deletion/rewriting of existing approval records against HEAD",
+    "Legacy importer operations suspended",
+    "Safe HTML export in alpha.2; canonical v6.19 not rewritten",
+    "Validator/guard checks shared by push entrypoints"
+  ],
+  "p0Diagnosis": {
+    "sourceFile": "_archive/prototypes/preview-resistance-luminous-mobile-test.html at frozen base",
+    "lines": {
+      "viewport": 4,
+      "resizeRender": 1318,
+      "sheetDestruction": 1326,
+      "scrollRestore": 1517
+    },
+    "mechanism": "Crossing 900px layout breakpoint called render(), rebuilding song DOM and issuing scrollTo; maximum-scale restricted pinch. These are verified risk mechanisms, not proof of every Safari/hardware trigger.",
+    "autoHide": "Original scroll handler changes toolbar visibility only; no direct render call found"
+  },
+  "p0Changes": [
+    "Remove maximum-scale from generated candidate",
+    "Separate renderData from updateLayout; coalesce layout events",
+    "Defer layout computation while visualViewport.scale differs from 1",
+    "Keep original sheet max-width 1120px, pair minimums 520/360 and cell clamps",
+    "Wrap existing row nodes without data render; no transform scale fix",
+    "No new zoom/view persistence; no Band/Vocal implementation"
+  ],
+  "finalChangedFiles": [
+    "AGENTS.md",
+    "content_guard.py",
+    "tests/test_integrity_hardening.py",
+    "tests/test_layout_p0.py",
+    "tools/build_luminous.py",
+    "tools/luminous_layout.js",
+    "tools/p0_browser_fixture.py",
+    "releases/luminous-v7.0.0-alpha.2/security-p0-evidence.json"
+  ],
+  "semanticImpact": {
+    "canonicalMetadataSectionsFooterSettingsChordsLyricsAndStructure": "unchanged",
+    "protectedFilesComparedByteForByte": 75,
+    "protectedScope": "72 songs + production template + content-locks + frozen alpha.1 preview",
+    "approvalLocksCreatedOrRefreshed": 0,
+    "trackedAlpha2Regenerated": false,
+    "productionPublishOrPush": false,
+    "source": {
+      "file": "songs/starlight.html",
+      "fileSha256": "b1920f9c6192fc21b4049000dbbccb03fe560f4aa1806501109cb3cfabae0db6",
+      "payloadSha256": "a9c4107dff1a9f033730d71cea014db648b53f9e46edc4274e29eae12459fb59"
+    }
+  },
+  "automatedTests": {
+    "command": "python3 -B -m unittest discover -s tests",
+    "passed": 28,
+    "guard": "PASS; 0 approval locks",
+    "validator": "PASS; 72 songs",
+    "javascriptSyntax": "Node --check all generated script blocks",
+    "mutationTests": "Chord, lyric, metadata, section order, footer, settings, revision, inline executables and lock deletion",
+    "p0NegativeControl": "Former resize handler hits render tripwire; patched handlers do not render or mutate"
+  },
+  "browser": {
+    "fixture": "_work/audit/p0-zoom-swq86xx7/runtime.html",
+    "cleanCandidate": "_work/audit/p0-zoom-swq86xx7/candidate.html",
+    "baseline": "_work/audit/p0-zoom-swq86xx7/baseline-runtime.html",
+    "engine": "IAB, not Safari for resize simulation",
+    "geometry2560": {
+      "baseline": {
+        "sheet": 1120,
+        "pair": 1072,
+        "chord": 628.8,
+        "lyric": 419.2,
+        "cell": 130
+      },
+      "patched": {
+        "sheet": 1120,
+        "pair": 1072,
+        "chord": 628.8,
+        "lyric": 419.2,
+        "cell": 130
+      },
+      "screenshots": "Compared in tool transcript; no automated pixel-diff claim"
+    },
+    "events": [
+      {
+        "width": 2560,
+        "scrollY": 700
+      },
+      {
+        "width": 800,
+        "scrollY": 745
+      },
+      {
+        "width": 600,
+        "scrollY": 745
+      },
+      {
+        "width": 1600,
+        "scrollY": 745
+      }
+    ],
+    "allSnapshots": {
+      "metadata": true,
+      "SECTIONS": true,
+      "FOOTER": true,
+      "SETTINGS": true,
+      "SHEET_META": true,
+      "renders": 0,
+      "childMutations": 0,
+      "nodeIdentity": true,
+      "sections": 21,
+      "bars": 120,
+      "lyrics": 9,
+      "focusAnchor": "bar 5 retained"
+    },
+    "scrollLimitation": "Browser anchoring/reflow shifted scrollY +45px crossing to 800px after restoring baseline geometry. No app scrollTo or reset-to-top occurred; exact pixel stability across breakpoints is not claimed.",
+    "probeIsolation": "Proof panel exists only in scratch runtime/baseline files, absent from clean candidate and builder deliverable",
+    "safari": {
+      "tested": "Native Safari View > Zoom In, scroll down/up, restore prior zoom",
+      "testedFixture": "_work/audit/p0-zoom-yjatsbzz/runtime.html (earlier candidate before baseline-geometry rollback)",
+      "beforeWidth": 3413,
+      "zoomedWidth": 3011,
+      "afterScrollWidth": 3011,
+      "restoredWidth": 3413,
+      "payloadEqual": true,
+      "renders": 0,
+      "finalGeometryCandidateRetested": false,
+      "physicalPinch": "NOT TESTED",
+      "crossMonitorMove": "NOT TESTED",
+      "finalStatus": "PARTIAL; do not declare Safari P0 fully resolved"
+    }
+  },
+  "limitations": [
+    "Local guards do not create an authorization boundary against a principal able to rewrite code, flags or Git history",
+    "No batch transfer, canonical promotion, real push failure or remote branch protection testing in this round",
+    "Tracked alpha.2 and currently open old trial do not contain P0 changes until regeneration is separately authorized",
+    "Final Safari geometry candidate, physical pinch and external-display transition still need manual verification",
+    "Screenshot comparison covers the selected Starlight desktop sample, not every song or layout state"
+  ],
+  "handoff": {
+    "to": "ดึง template มาปรับ interface",
+    "actions": [
+      "Continue alpha.2 builder from final local commit",
+      "Preserve payload and existing width/column geometry; implement Band/Vocal only under Ti's UI authorization",
+      "Do not add probe panels to deliverables",
+      "Obtain separate regeneration/publish authorization",
+      "After UI settles, return exact commit, template hash, changed files and runtime evidence for batch injection testing"
+    ],
+    "legacyImporters": "remain suspended"
+  }
+}
