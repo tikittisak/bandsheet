@@ -1,4 +1,5 @@
 import importlib.util
+from collections import Counter
 from html.parser import HTMLParser
 import json
 from pathlib import Path
@@ -15,8 +16,9 @@ b=load('p0_builder',ROOT/'tools/build_luminous.py')
 t=load('p0_snapshot',ROOT/'tools/transfer_song_trial.py')
 
 class Scripts(HTMLParser):
-    def __init__(self):super().__init__();self.active=False;self.scripts=[]
+    def __init__(self):super().__init__();self.active=False;self.scripts=[];self.ids=[]
     def handle_starttag(self,tag,attrs):
+        self.ids.extend(value for key,value in attrs if key=='id' and value)
         if tag=='script':self.active=True;self.scripts.append('')
     def handle_endtag(self,tag):
         if tag=='script':self.active=False
@@ -24,6 +26,51 @@ class Scripts(HTMLParser):
         if self.active:self.scripts[-1]+=data
 
 class LayoutP0Tests(unittest.TestCase):
+    def test_export_removes_runtime_sheet_and_focus_controls(self):
+        node=shutil.which('node')
+        if not node:self.skipTest('Node unavailable')
+        doc=b.preview_html();start=doc.index('function cleanRuntimeHtml(html){')
+        end=doc.index('\nfunction filenameSlug',start)
+        harness=r'''
+const vm=require('vm'),assert=require('assert');const c={};
+vm.createContext(c);vm.runInContext(FUNCTION,c);
+const input='<html style="--cell-w:130px"><body class="has-focus-anchor"><div id="sheet" style="--note-content-w:517px"><div data-focus-bound="1"><div>runtime chart</div></div></div>\n<div class="color-popup" id="colorPopup"></div><button id="focus-return" class="focus-return">old</button></body></html>';
+const out=c.cleanRuntimeHtml(input);
+assert.ok(out.includes('<div id="sheet"></div>'));
+assert.ok(!out.includes('data-focus-bound'));
+assert.ok(!out.includes('id="focus-return"'));
+assert.ok(out.includes('id="colorPopup"'));
+assert.equal(c.cleanRuntimeHtml(out),out);
+'''
+        result=subprocess.run([node,'-e','const FUNCTION='+json.dumps(doc[start:end])+';\n'+harness],text=True,capture_output=True)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
+    def test_exported_focus_button_is_rebound_without_duplicates(self):
+        node=shutil.which('node')
+        if not node:self.skipTest('Node unavailable')
+        doc=b.preview_html()
+        start=doc.index('  function ensureFocusReturn() {')
+        end=doc.index('\n  function renderFocusAnchor()',start)
+        function=doc[start:end]
+        harness=r'''
+const vm=require('vm'),assert=require('assert');
+for(const exported of [false,true]){
+ let button=exported?{id:'focus-return',textContent:'old label'}:null;
+ let appends=0,returns=0;
+ const c={window:{returnToFocus(){returns++}},document:{
+  getElementById(){return button},createElement(){return {}},
+  body:{appendChild(b){button=b;appends++}}
+ }};
+ vm.createContext(c);vm.runInContext(FUNCTION,c);
+ for(let i=0;i<3;i++)c.ensureFocusReturn();
+ assert.equal(appends,exported?0:1);
+ assert.equal(typeof button.onclick,'function');button.onclick();
+ assert.equal(returns,1);
+}
+'''
+        result=subprocess.run([node,'-e','const FUNCTION='+json.dumps(function)+';\n'+harness],text=True,capture_output=True)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     @classmethod
     def setUpClass(cls):
         cls.original=subprocess.check_output(['git','show',f'{b.REF}:{b.SOURCE}'],cwd=ROOT,text=True)
@@ -57,6 +104,64 @@ class LayoutP0Tests(unittest.TestCase):
         for script in parser.scripts:
             p=subprocess.run([node,'--check'],input=script,text=True,capture_output=True)
             self.assertEqual(p.returncode,0,p.stderr)
+
+    def test_static_html_ids_are_unique(self):
+        parser=Scripts();parser.feed(self.candidate)
+        duplicates=sorted(value for value,count in Counter(parser.ids).items() if count>1)
+        self.assertEqual(duplicates,[])
+
+    def test_role_view_is_responsive_session_state_only(self):
+        self.assertIn('aria-label="Performance view"',self.candidate)
+        self.assertIn("onclick=\"setPerformanceView('band')\"",self.candidate)
+        self.assertIn("onclick=\"setPerformanceView('vocal')\"",self.candidate)
+        self.assertIn("window.matchMedia('(max-width: 760px)').matches ? 'vocal' : 'band'",self.candidate)
+        self.assertIn("document.body.dataset.performanceView = PERFORMANCE_VIEW",self.candidate)
+        for legacy in ('MOBILE_VIEW','setMobileView','mobile-band','mobile-lyric',
+                       'mobile-view-switch','lyric-view-btn'):
+            self.assertNotIn(legacy,self.candidate)
+        state=self.candidate[self.candidate.index('var PERFORMANCE_VIEW'):self.candidate.index('window.toggleToolbarMore')]
+        self.assertNotIn('localStorage',state)
+        self.assertNotIn('sessionStorage',state)
+        self.assertNotIn('document.cookie',state)
+        self.assertIn('#sheet { width: min(100%, 1240px); }',self.candidate)
+        self.assertIn('width: min(100%, var(--four-bar-w));',self.candidate)
+        self.assertIn('body:not(.edit-mode).view-vocal .note-type-sec .sec-note-cols,',self.candidate)
+
+    def test_section_color_has_one_rendered_source(self):
+        mapped="var renderedTone=getComputedStyle(el);inp.style.background=renderedTone.backgroundColor;inp.style.color=renderedTone.color;inp.style.borderColor=renderedTone.borderLeftColor;"
+        raw="inp.style.background=(SECTIONS[idx].color||{}).bg"
+        self.assertEqual(self.candidate.count(mapped),1)
+        self.assertNotIn(raw,self.candidate)
+        self.assertIn('var tone = headingColor(section.color || PRESETS[si % PRESETS.length]);',self.candidate)
+
+    def test_bar_number_weight_is_uniform(self):
+        self.assertNotIn('--bar-number-strong',self.candidate)
+        self.assertNotIn('.bar-col:first-child .bar-num',self.candidate)
+        self.assertNotRegex(self.candidate,r'\.highlighted[^,{]*\.bar-num')
+        self.assertIn('body:not(.edit-mode) .bar-num { display: none !important; }',self.candidate)
+
+    def test_bar_number_display_toggle_is_ephemeral(self):
+        self.assertIn('id="bar-number-btn"',self.candidate)
+        self.assertIn('onclick="toggleBarNumbers()"',self.candidate)
+        self.assertIn("var BAR_NUMBERS_VISIBLE = false",self.candidate)
+        self.assertIn("classList.toggle('show-bar-numbers', BAR_NUMBERS_VISIBLE)",self.candidate)
+        self.assertIn("body:not(.edit-mode).show-bar-numbers .bar-num { display: block !important; }",self.candidate)
+        self.assertIn('body.edit-mode .bar-number-toggle { display: none !important; }',self.candidate)
+        state=self.candidate[self.candidate.index('var BAR_NUMBERS_VISIBLE'):self.candidate.index('var PERFORMANCE_VIEW')]
+        self.assertNotIn('localStorage',state)
+        self.assertNotIn('sessionStorage',state)
+        self.assertNotIn('SETTINGS',state)
+
+    def test_retired_ai_import_prompt_is_absent(self):
+        for token in ('AI_START_PROMPT','copyAiPrompt','bandsheet_import.py'):
+            self.assertNotIn(token,self.candidate)
+        self.assertIn('function injectData(html){',self.candidate)
+
+    def test_lyric_formatting_uses_native_contenteditable_shortcuts(self):
+        self.assertNotIn('richTextShortcut',self.candidate)
+        self.assertNotIn("document.execCommand(cmd,false,null)",self.candidate)
+        self.assertIn('ed.contentEditable=EDIT_MODE',self.candidate)
+        self.assertIn('ed.oninput=ed.onblur=',self.candidate)
 
     def test_real_resize_scroll_handlers_do_not_render_or_mutate(self):
         node=shutil.which('node')

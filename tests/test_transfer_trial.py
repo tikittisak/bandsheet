@@ -46,6 +46,11 @@ class TransferTrialTests(unittest.TestCase):
     def test_hash_mismatch_writes_nothing(self):
         with self.assertRaises(ValueError):t.create_trial(ROOT/'songs/starlight.html','0'*64,'tmj')
 
+    def test_explicit_template_mismatch_writes_nothing(self):
+        source=ROOT/'songs/stockholm-syndrome.html'
+        with self.assertRaisesRegex(ValueError,'template hash changed'):
+            t.create_trial(source,t.sha(source.read_bytes()),'tmj','0'*64)
+
     def test_duplicate_json_keys_stop(self):
         source=self.source.replace('var FOOTER = {','var FOOTER = {"notes": [],',1)
         with self.assertRaises(ValueError):t.snapshot(source)

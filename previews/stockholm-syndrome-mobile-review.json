@@ -1,0 +1,15 @@
+{
+  "status": "mobile-review-only",
+  "version": "7.0.0-alpha.2",
+  "sourceSnapshotSha256": "a624ea1de6469a16ed9ac29b6d806099cc916eac2951149421772aacf1a5cd64",
+  "canonicalReference": "songs/stockholm-syndrome.html",
+  "canonicalSha256": "62585e79493479c8187eed3a76e4c2e0cdb71009b076e71044453d9aaaf7edfe",
+  "sourcePayloadEqualsCanonical": true,
+  "preview": "previews/stockholm-syndrome-mobile-review.html",
+  "previewSha256": "dd87ee8759214c644fc572237589a1984a3b160ea3ff4fbf64fc92a9c895fa95",
+  "templateSha256": "dbd86e1b1bceb8c3318122275f010ee571da6b1ff8dcd6ebbdc050e9cc3ce2d3",
+  "builderSha256": "f08b5977f49ae2986d6e4fb244c1d627400b38965198af046b2dfaedc91b692a",
+  "embeddedEquality": true,
+  "mobileManualReview": "pending",
+  "canonicalPromotion": false
+}

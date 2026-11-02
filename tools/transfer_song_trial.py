@@ -108,7 +108,7 @@ def render(source, template):
     return output
 
 
-def create_trial(source, expected_hash, band):
+def create_trial(source, expected_hash, band, expected_template_hash=TEMPLATE_HASH):
     source = source.resolve()
     if source.parent != ROOT/'songs' or source.suffix != '.html':
         raise ValueError('source must be a canonical songs/*.html file')
@@ -119,11 +119,13 @@ def create_trial(source, expected_hash, band):
     if sha(original) != expected_hash:
         raise ValueError('source hash changed; reselect source before proceeding')
     template = TEMPLATE.read_bytes()
-    if sha(template) != TEMPLATE_HASH:
+    if sha(template) != expected_template_hash:
         raise ValueError('template hash changed; independent review required')
     output = render(original.decode(),template.decode())
     if source.read_bytes() != original:
         raise ValueError('source changed during transfer')
+    if TEMPLATE.read_bytes() != template:
+        raise ValueError('template changed during transfer')
     folder = ROOT/'_work/transfer-trials'; folder.mkdir(parents=True,exist_ok=True)
     trial = Path(tempfile.mkdtemp(prefix=source.stem+'-',dir=folder))
     for name,body in [('source.html',original),('trial.html',output.encode())]:
@@ -147,6 +149,8 @@ if __name__=='__main__':
     parser.add_argument('source',type=Path)
     parser.add_argument('--expected-sha256',required=True)
     parser.add_argument('--band',choices=['tmj'],required=True)
+    parser.add_argument('--expected-template-sha256',default=TEMPLATE_HASH,
+                        help='Exact selected template revision for this scratch trial only')
     args=parser.parse_args()
-    try:print(create_trial(args.source,args.expected_sha256,args.band))
+    try:print(create_trial(args.source,args.expected_sha256,args.band,args.expected_template_sha256))
     except (ValueError,OSError) as exc:parser.exit(1,str(exc)+'\n')

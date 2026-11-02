@@ -1,6 +1,6 @@
 # Bandsheet — กติกาและ workflow ปัจจุบัน
 
-Updated: 2026-10-30 · Status: single-song transfer trial / production migration blocked
+Updated: 2026-11-01 · Status: freeze verification / production promotion blocked
 
 ## 1. Authority และขอบเขต
 
@@ -68,8 +68,9 @@ repeat, cue, FOOTER หรือ SETTINGS ของเพลงโดยไม�
 
 ห้ามอ้อม suspension ด้วยการเรียกฟังก์ชันภายใน หรือคัดลอก snippet inject เก่า
 ห้าม copy browser HTML ทับ songs/*.html โดยตรง
-มีเฉพาะ tools/transfer_song_trial.py รุ่น trial-0.1 สำหรับสร้างสำเนาทดลองเมื่อ Ti
-อนุญาตเป็นรายครั้งเท่านั้น ยังไม่อนุมัติใช้ย้ายคลังหรือ promote เข้า canonical
+tools/transfer_song_trial.py รุ่น trial-0.1 ใช้สร้างสำเนาทดลองรายเพลง
+tools/batch_transfer.py รุ่น batch-review-0.1 ใช้เตรียมแผนและสำเนา batch สำหรับ
+Ti ตรวจทีละเพลงตามคำสั่ง 2026-10-30; ไม่ใช่สิทธิ์ promote เข้า canonical
 
 ## 5. Manual draft และ browser provenance
 
@@ -92,7 +93,7 @@ Save HTML คือ local export ไม่ใช่ commit, push, cloud save ห
 - ห้ามเรียก importer เก่าเพื่อปิด gap; เก็บหลักฐานและรอวิธี intake ใหม่
 - ห้ามเอาข้อมูลจาก web มาสร้างแทนแล้วเรียกว่า recovery
 
-## 6. สัญญาย้ายข้อมูลเพลง — ทดลองเป็นรายเพลงเท่านั้น
+## 6. สัญญาย้ายข้อมูลเพลง — ตรวจทุกไฟล์ในสำเนา review
 
 ก่อนสร้างเครื่องมือย้ายใหม่ ต้องตกลงขอบเขตกับ Ti และผ่านเกณฑ์นี้:
 1. ระบุ exact source file, source commit/hash และว่าฉบับไหน Ti เลือก
@@ -207,21 +208,25 @@ lyricsOptional ใช้เฉพาะข้อยกเว้นที่ Ti �
 
 ## 10. สถานะหลักฐานและเอกสารที่ยกเลิก
 
-- 17 tests ของ alpha.2 ผ่านในรอบก่อน; browser ตรวจเฉพาะ draft ตัวอย่าง
-  ไม่ใช่ functional test ครบทุกพฤติกรรมของ 72 เพลง
+- 11 alpha.2 UI regression tests ผ่านใน UI cleanup รอบ 2026-10-30;
+  browser ตรวจ alpha.2 ด้วย
+  Resistance fixture บน mobile/desktop สำหรับ Band/Vocal, section colour,
+  focus/highlight, bar-number toggle และ layout rail เท่านั้น ไม่ใช่ functional
+  test ครบทุกพฤติกรรมหรือ musical approval ของ 72 เพลง
 - เคยตรวจไฟล์เพลงจริง 72 ไฟล์ + template + locks เทียบ 4fb98e9 ทุก byte
   เป็นหลักฐานความไม่เปลี่ยนในเวลานั้น ไม่ใช่ approval เพลงหรือสถานะตลอดไป
-- มี transfer tool ทดลองหนึ่งเพลง แต่ยังไม่มี production transfer/intake-to-Git
+- มี single-song trial และ batch review preparation แต่ยังไม่มี production transfer/intake-to-Git
   ที่รับรองครบ; manual prototype ยังเป็น trial
 - ห้ามเรียกว่า secure/production-ready จากชื่อรุ่นหรือจำนวน tests อย่างเดียว
 
 P0 zoom/resize patch (2026-10-30): alpha.2 builder แยก renderData จาก
 updateLayout และไม่ render song DOM เมื่อ viewport เปลี่ยน; layout view state
-ไม่เขียนลง payload/storage ทดสอบผ่าน scratch fixture เท่านั้น
-tracked alpha.2 HTML และ trial ที่เปิดอยู่ยังไม่ได้ regenerate ตามข้อห้ามรอบนี้
+ไม่เขียนลง payload/storage; tracked alpha.2 HTML สร้างซ้ำจาก pinned builder แล้ว
+UI layer ภายหลังเพิ่ม Band/Vocal และ bar-number toggle แบบไม่ persist
+พร้อมตัด retired AI_START_PROMPT/copyAiPrompt ออกจาก derived alpha.2;
+การ cleanup นี้ไม่ใช่การอนุญาต production transfer หรือ batch migration
 Safari View → Zoom In + scroll ลง/ขึ้นตรวจบนเครื่องจริงแล้ว แต่ physical pinch
 และการย้ายหน้าต่างข้ามจอยังไม่ทดสอบ จึงยังไม่ถือว่า Safari P0 ปิดครบ
-Band/Vocal เป็นงานของ chat UI ภายหลัง ไม่ implement ใน security/P0 patch นี้
 
 Retired 2026-10-29: ย้ายสำเนาเอกสารเดิมไว้ที่
 _archive/docs/retired-2026-10-29/ โดยรักษา relative original paths:
@@ -233,3 +238,137 @@ irealpro-form-reference.md และ releases/*/README.md ทั้ง alpha.1/a
 เอกสารเดิมใน _archive/docs/ และบันทึก version/provenance/audit ใน _work/
 เป็นประวัติ/หลักฐาน ไม่ใช่ workflow ปัจจุบัน ไม่แก้ประวัติให้เหมือนการอนุมัติใหม่
 เมื่อมีการเปลี่ยน workflow ให้อัปเดตไฟล์นี้ฉบับเดียวและตรวจโค้ด/tests ที่เกี่ยวข้อง
+
+## 11. Batch transfer สำหรับตรวจ manual — เตรียมแล้ว ยังไม่ execute ทั้งคลัง
+
+Ti อนุญาตให้เตรียม batch transfer/inject และจะตรวจทุกเพลงเอง
+ขอบเขตแผนเริ่มต้น: canonical disk snapshots ทั้ง 72 เพลง แยกสมาชิกวงไว้ในแผน
+ไม่ถือว่าไฟล์บนดิสก์เป็น revision ล่าสุดหาก Ti มี browser edits/export ใหม่กว่า
+
+เครื่องมือใหม่: tools/batch_transfer.py (ไม่ใช้ legacy importers)
+แผน: transfer-batches/2026-10-30-review-plan/plan.json
+แผนผูก exact source hashes, template hash, transfer code/library hashes และ Git HEAD
+72 เพลงผ่าน embedded equality preflight; 60 เพลงมี warnings ที่ต้องตรวจ manual
+warnings ไม่ใช่สิทธิ์แก้ข้อมูลหรือเติมเนื้อให้ครบ
+
+สถานะ 2026-11-01: แผนข้างต้นหมดอายุ เพราะ transfer code และ template
+ต่างจาก hashes ตอนเตรียมแผน; preflight หยุดจริงด้วย
+`transfer code changed; make a new reviewed plan` ห้าม execute แผนนี้
+หรือแก้ hashes ภายในแผนเก่าให้ผ่าน ให้เก็บไว้เป็นหลักฐานประวัติ
+
+ลำดับดำเนินงาน:
+1. Chat UI ยืนยัน exact template revision และ Ti อนุญาต commit แยกก่อน
+   (ตอนเตรียมแผน template ยัง uncommitted; batch write จึงถูกหยุด)
+2. ตรวจ template/source/tool hashes อีกครั้ง ถ้าต่างจากแผนให้หยุดและสร้างแผนใหม่
+   ห้าม refresh hashes เพื่อหลบการตรวจโดยไม่มีการ review revision ใหม่
+3. execute ต้องระบุ plan SHA-256 ที่เลือกชัดเจน และ preflight ทุกเพลงก่อนเขียน
+   หากเพลงใดไม่ผ่าน ต้องไม่เริ่มสร้าง batch output
+4. สร้าง run directory ใหม่ใต้ _work/batch-transfer/ เท่านั้น มี source snapshots,
+   song copies, manifest.json และ index.html สำหรับเปิดเทียบทีละเพลง
+5. ทุกเพลงเริ่ม manualReview=pending, runtimeReview=pending, approved=false
+   embedded equality ผ่านไม่ได้ทำให้สถานะ Ti-approved หรือ rehearsal-ready
+6. Ti ตรวจแต่ละเพลง; หากแก้ manual ให้เก็บเป็น revision ใหม่พร้อม export
+   ไม่ทับต้นฉบับหรือ raw transferred copy ที่ใช้เป็นหลักฐานเทียบ
+7. การรับ manual revisions/อนุมัติรายเพลง/ย้ายเข้า canonical ต้องตกลงขั้นตอน
+   แยกภายหลัง ไม่มี automatic approval, content lock, playlist update หรือ push
+
+คำสั่ง (execute เฉพาะหลัง checkpoint ข้างต้น):
+
+    python3 -B tools/batch_transfer.py plan --band all --output transfer-batches/<new-plan-id>/plan.json
+    python3 -B tools/batch_transfer.py execute transfer-batches/<plan-id>/plan.json --expected-plan-sha256 <reviewed-plan-hash>
+    python3 -B tools/batch_transfer.py verify _work/batch-transfer/<run-id>
+
+verify ตรวจความเหมือนของไฟล์ที่บันทึกจริงกับ source snapshot และ hashes
+ไม่ได้ตรวจ runtime ทุกเพลงหรือความถูกต้องทางดนตรีแทน Ti
+แผนเป็นข้อมูลควบคุมที่อยู่ใน project; outputs ใต้ _work ยัง Git-ignore จนกว่าจะ
+จัดเก็บตาม workflow ที่ Ti อนุมัติ ห้ามเรียกว่า Git-durable ก่อน commit ที่อนุญาต
+
+## 12. Freeze checklist และผู้รับผิดชอบ — เริ่ม 2026-11-01
+
+Ti สั่งให้เริ่มงานตรวจและเตรียม freeze; ยังไม่ใช่คำสั่ง commit/push,
+อนุมัติ UI สุดท้าย หรือแทนเพลง canonical ปัจจุบันยังเป็น alpha.2
+ชื่อเป้าหมายที่เสนอคือ Luminous v7.0.0-rc.1 — รุ่นตรึงสำหรับตรวจเพลง
+การตั้งชื่อไม่ใช่หลักฐานว่าผ่านเกณฑ์ เมื่อแก้ template หลัง freeze ต้องมี
+revision ใหม่และตรวจผลกระทบกับแผน/สำเนาเพลงอีกครั้ง
+
+| Task | เจ้าของ | เกณฑ์ผ่าน / สถานะล่าสุด |
+|---|---|---|
+| F1 เลือก UI และ source revision | Ti เลือก; AI บันทึก | รอ Ti ยืนยัน UI สุดท้ายและระบุ browser edits/export ที่ใหม่กว่า disk หากมี |
+| F2 Builder reproducibility | AI | ผ่าน: สร้าง preview และ blank ในหน่วยความจำ ตรง tracked working files ทุก byte; ไม่เรียก build() เขียนทับ |
+| F3 Data equality และ regression | AI | ผ่าน: 43 tests, content guard, validator 72 เพลง; current-template embedded equality 72/72; protected files 75 ไฟล์ตรง frozen baseline ทุก byte |
+| F4 Browser export round trip | AI | ผ่านเฉพาะ IAB fixture Stockholm: export ไม่แก้, แก้ title ในสำเนา, Save/reopen/resave; field อื่นตรงเดิม revision เพิ่มครั้งเดียว; ไม่ใช่ทุก editor action ทุกเพลง |
+| F5 Safari และอุปกรณ์จริง | Ti ทดสอบ; AI ช่วยวิเคราะห์ | physical pinch และย้ายข้ามจอยัง pending; ตรวจ Page Zoom + scroll กับ exact final revision อีกครั้ง |
+| F6 Freeze revision | AI เตรียม; Ti อนุมัติ | pending: ชื่อรุ่นสุดท้าย, exact commit/hash/manifest และไม่มี diff ค้างใน scope ที่ freeze; ยังไม่ commit |
+| B1 แผนและสำเนา batch ใหม่ | AI | ทำหลัง F1–F6: pin hashes ใหม่, preflight ทุกไฟล์, สร้างสำเนาแยก; ไม่ใช้แผนหมดอายุ |
+| B2 ตรวจ runtime และเพลง | AI ตรวจ runtime/equality; Ti ตรวจดนตรีทุกเพลง | pending ทั้งคลัง; ทุกเพลงเริ่ม pending/approved=false และเก็บผลราย revision |
+| I1 รับ manual exports | AI เสนอ/ทำเครื่องมือตาม scope ที่ตกลง; Ti เลือก exact revision | pending: ต้องมีขั้นตอนเก็บ exported revision ใหม่, ที่มา, diff และประวัติ ไม่ทับ raw copy; Save/reopen ไม่ได้แปลว่าขั้นตอนนี้เสร็จ |
+| P1 เปลี่ยน canonical / รุ่นใช้งานจริง | Ti อนุมัติ scope; AI ดำเนินการ | pending: ผ่าน runtime/manual review รายเพลง, intake และวิธีย้อนกลับ; commit/publish ต้องอนุญาตแยก |
+
+หลักฐานเครื่องอ่านได้ (ไม่ใช่คำสั่ง/approval):
+transfer-batches/2026-11-01-freeze-check/evidence.json ระบุ hashes ของ builder,
+template, transfer tools และผลตรวจรายเพลง ณ revision ที่ตรวจ
+ผลทดสอบใช้สำเนา _work/transfer-trials/2026-11-01-bc8kcnx2/ แยกจาก
+Stockholm trial ที่ Ti เปิดอยู่ และไม่แตะ canonical หรือ content lock
+ไฟล์ export ที่ทดสอบถูกคัดลอกเป็นหลักฐานจาก download จริง แล้วเปิดผ่าน
+localhost; ยังไม่ได้ทดสอบ file:// offline หรือ production intake-to-Git
+
+งานของ Ti เมื่อพร้อมตรวจ: เลือก UI, ทดสอบ Safari ใน F5, ยืนยันแหล่งข้อมูล
+ล่าสุด, ตรวจและ export การแก้เพลงทีละเพลง แล้วอนุมัติ revision/scope ชัดเจน
+AI ห้ามตีความการเปิดดูไฟล์, ผล tests ผ่าน หรือ Git clean ว่าเป็นการอนุมัติ
+หลัง freeze สำหรับ review ยังไม่ถือว่ารุ่น production พร้อมจน P1 ผ่าน
+
+UI review ต่อจาก Ti (2026-11-01): โดยรวมแจ้งว่าโอเค แต่พบ Vocal show chord
+ทำ Intro เป็น 3+1 เพราะ repeat badge แย่งความกว้างกับ bar-row-main ที่ wrap ได้
+แก้ใน builder ด้วย repeat gutter ขนาดเท่ากันทุก Vocal row และ nowrap/shrink
+เฉพาะ presentation; candidate แยกอยู่
+_work/transfer-trials/vocal-repeat-layout-mz6bd16q/ti-export-layout-fix.html
+ใช้ไฟล์ Downloads/stockholm-syndrome.html ที่ Ti ส่งเป็น source snapshot
+เทียบ payload กับ trial เดิมแล้วไม่พบ delta และ candidate ตรง source ทุก field
+ตรวจ IAB desktop: Intro 4 ห้องอยู่แถวเดียว, เปิด chord อีก 14 sections
+ไม่พบ wrapped row หรือ badge overlap; ยังไม่ใช่ native Safari/mobile test
+Ti รายงานไฟล์ Save ใหม่ focus แล้ว scroll ไม่เด้งกลับ; เก็บเป็น user-reported
+evidence ไม่อ้างว่า AI ตรวจ interaction นี้เองแล้ว
+Mobile ยัง pending; การส่งไฟล์นี้ไม่ใช่คำสั่ง push/go online
+tracked derived alpha.2 HTML ยังไม่ rebuild รอบนี้เพื่อรักษาไฟล์ที่กำลังตรวจ
+ดังนั้น F2 และ hashes ใน freeze-check เดิมเป็นผลก่อน patch นี้ ต้องตรวจซ้ำ
+กับ exact final builder/derived revision ก่อน freeze; ยังไม่ขึ้นชื่อ rc.1
+
+Export/focus regression ต่อมาในวันเดียวกัน: พบว่า outerHTML export เก็บ
+runtime #sheet (มี style attribute ทำให้ regex เดิมไม่ match) และ focus-return
+button; event handler ไม่ถูก serialize และปุ่มที่สร้างระหว่าง parse ซ้ำกับปุ่ม
+ที่ถูก export ท้ายหน้าได้ จึงยังห้ามอ้างว่าไฟล์ Save เก่าผ่าน focus-return
+builder ปัจจุบัน clear #sheet ที่มี attributes, ตัด runtime focus button
+ก่อน export และ rebind handler ของปุ่มที่มีอยู่ตอน startup
+หลักฐานใหม่: _work/transfer-trials/focus-export-fix-rmjpwabe/
+IAB Save/reopen: export ไม่มี rendered chart/binding markers/focus button,
+เปิดแล้วสร้างปุ่มเดียว; แตะ Intro, scrollY=1440, กด return แล้ว scrollY=25
+payload ทุก field เท่าเดิม; 45 tests ผ่าน รวม export cleanup/idempotence
+และ binding test สำหรับทั้งปุ่มใหม่/ปุ่มเดิมไม่สร้างซ้ำ
+ไม่ใช่หลักฐาน native Safari file:// หรือ mobile; ไฟล์ดาวน์โหลดเก่าไม่ถูก
+อัปเดตอัตโนมัติ ต้องใช้ revision ใหม่และตรวจตามแหล่งข้อมูลของ Ti
+
+Ti ยืนยัน "ok ละ test ผ่าน" หลังรับฉบับ focus/export fix ในวันที่
+2026-11-01: บันทึกเป็น user acceptance ของอาการที่กำลังตรวจเท่านั้น
+ไม่ได้ระบุ browser/device จึงไม่ขยายเป็น mobile, physical pinch,
+cross-display หรือทุก editor action ผ่านแล้ว
+Read-only review หลังยืนยัน: 45 tests, guard และ validator ผ่าน;
+75 protected files ไม่เปลี่ยน และ latest saved Stockholm payload ตรง canonical
+แต่ tracked derived preview/blank ยังไม่ตรง builder ปัจจุบัน (รู้ล่วงหน้าว่ายัง
+ไม่ได้ rebuild รอบ layout/export fixes) จึง F2/F6 ยังไม่ผ่าน
+งาน AI ที่เหลือก่อน freeze: รวม fixes ลง derived revision ที่เลือกพร้อมตรวจซ้ำ,
+ทบทวน code/export จาก exact revision, บันทึก hashes/evidence และเสนอ commit
+งานก่อน production เพิ่มเติม: ทดสอบแก้ chord/lyric/structure แล้ว save/reopen,
+ปิด manual-export intake/history และ batch review รายเพลง; ห้ามใช้ผล metadata
+round trip หรือ focus acceptance แทนการตรวจพฤติกรรมเหล่านี้
+
+2026-11-02 Ti สั่งให้นำขึ้น Git เพื่อทดสอบ mobile: อนุญาต publish หน้า
+previews/stockholm-syndrome-mobile-review.html พร้อม code/tests/evidence
+ที่เกี่ยวข้องผ่าน GitHub Pages main เท่านั้น ไม่ใช่สิทธิ์แทน canonical,
+execute batch, สร้าง lock หรือประกาศ production-ready
+refresh derived preview/blank ด้วย builder ล่าสุดแล้ว หลังเก็บสำเนาเดิม
+ใต้ _work/transfer-trials/pre-mobile-publish-*; ไม่แตะ browser trial ที่ Ti ใช้
+ข้อมูลของ public review มาจาก export snapshot ที่ Ti ส่งซึ่งเทียบกับเพลง
+canonical แล้วตรงทุก field; metadata/blocks ตรงหลัง render
+F2 ต้องตรวจ byte equality อีกครั้งหลัง generation; F5 mobile ยัง pending
+URL ตรวจ: https://tikittisak.github.io/bandsheet/previews/stockholm-syndrome-mobile-review.html
+Save HTML จาก preview ยังคงเป็น local download ไม่ใช่ cloud save

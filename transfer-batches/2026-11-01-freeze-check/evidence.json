@@ -1,0 +1,716 @@
+{
+  "date": "2026-11-01",
+  "status": "freeze-pending",
+  "proposedVersion": "7.0.0-rc.1",
+  "actualVersion": "7.0.0-alpha.2",
+  "gitHead": "d85a8c81d56e93102ab47f9da7e8d3d5d8f6f0ee",
+  "hashes": {
+    "tools/build_luminous.py": "0dcbc8bc831bd33d6366b6111b2fc5c18d28145f5d4a5f1aea18e5b64d17bcf5",
+    "tools/luminous_layout.js": "b592e2b0631e8786c71fa997d7c67b18cb51d0436098974805ce8058b7e9e53a",
+    "tools/transfer_song_trial.py": "0ee7966c29761515e8664826a3fdac597c37a966fba5077e2d53bc39f0d22c66",
+    "tools/batch_transfer.py": "c905dfd067c642a265b535b9e41d5032f5d33f3d81de7edaaa7ab6c784c7ad9d",
+    "_archive/prototypes/luminous-v7.0.0-alpha.2-blank.html": "39421f1ba4c439b7656e0eca26b2cb413e91ac6211e15ca70cf8c5ce27f09fe9",
+    "_archive/prototypes/preview-luminous-v7.0.0-alpha.2.html": "8e73401c3b4e532185d01f7ed7d1e89d738f1778cf9874e80c31d927fc1a7a89"
+  },
+  "builderByteEquality": true,
+  "protectedFilesCompared": 75,
+  "protectedBaseline": "4fb98e91389ddc021dea13996d9a72a7ed11ae75",
+  "protectedChanged": [],
+  "automatedTests": {
+    "command": "python3 -B -m unittest discover -s tests",
+    "passed": 43
+  },
+  "contentGuard": "PASS (0 approved locks)",
+  "validator": "PASS (72 songs)",
+  "currentTemplateEmbeddedPreflight": [
+    {
+      "source": "songs/anna-molly.html",
+      "sourceSha256": "fec978eeb7338af4a3aef7e8e5b92bf787604702416bbc364ccc35acc5db19ae",
+      "payloadSha256": "73e85fe2a888630f7ebd114103f0595a310a5652b885e148dc71cf671a6bab64",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/another-brick-in-the-wall-part-2.html",
+      "sourceSha256": "2d82ffc59b7daa7f8e11407acc386b7cdeb80751874d9bc4b0de7f738451aa6d",
+      "payloadSha256": "cceb5a9e811d06c8ee40115aa89ebd6efeb15515aa2b9df07370ef1ff9397ff1",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/bad-guy.html",
+      "sourceSha256": "e0a286c2fc8acbffadb3b5165342dcf3014cc0a0ebd291ddadf6ba338f028e38",
+      "payloadSha256": "b2247e9b1c8410869b420d617535db521a72312b3d32b9631713385c1b954836",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/beautiful-ones.html",
+      "sourceSha256": "a34220f7abae3e8a933718bdbbeab6fb941e5f1f33abd5d4287dba41c2278b5d",
+      "payloadSha256": "6c0ce6a917450967f7d9d9dc5c0ca0f0c0c3c2721a49c6e4bd6091d5475a22fc",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/beggin.html",
+      "sourceSha256": "5908270a17a48227ea9dadf2d7715207469978068cd970e95b916ff829d8b496",
+      "payloadSha256": "1d5d5db583d6095710888b225d737f5bce006aeab2cf947bdc066dbb66316003",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/birds-of-a-feather.html",
+      "sourceSha256": "7ec8dafdf505bfada757c1babbeb95bcd0dc418cc929d503072a0641b2de2893",
+      "payloadSha256": "d456b75d58f9ba82f2ab42e22e0bcb189c21101929a27081a358cbf436881d1e",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/black-hole-sun.html",
+      "sourceSha256": "21885031f58f9772266a247e1a0dd9cea2c0a4e6fc83eaec469d88c3a371d567",
+      "payloadSha256": "b3cf194008c1a8f78d5d4399e439b557dcabe037bbb4a22d4c992d92329a0313",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/blue-bird.html",
+      "sourceSha256": "1985b1d348fc995c59ef5ab25ad7aa2d14d0f851d3f0204bfbb9eeb31fa48daa",
+      "payloadSha256": "8b10a32783635fdd09c85351172aca2ea776d0b95abe96b6f455380135ffde06",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/bring-me-to-life.html",
+      "sourceSha256": "5927a195fd49edcfa9b35bfe3e1ac3fc7dfbe21cbc095cffd55b1f834cd8a2d1",
+      "payloadSha256": "8d5d53294ebbd1e7ff9f04e060b5ea8cfc7de0ba9bbbcc067d4849d5fca38fca",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/busbaa.html",
+      "sourceSha256": "1a6c8c1b3d4fa01f13dcce4352ccdeecb3c0d52272d150ad6cb098c2579f9a97",
+      "payloadSha256": "03358437a0540f54a2deae5a3b7a26bf28283e213ecc192ace1723601ee88326",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/butter-fly.html",
+      "sourceSha256": "e5bfefe735d4c6deb66f4600c5c59a331784b4f0a1d1ee53ae08ee281ce40445",
+      "payloadSha256": "d56e5fc9cb0637ce123d3416da9b8438f7e652ede23e0b8ee2cec0a44f5cfadb",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/comfortably-numb-bars.html",
+      "sourceSha256": "b74b33cff7d6ec2fb0609bad217fe82136a0a8d3d646f12e2522babaa5fcc7e5",
+      "payloadSha256": "5ce28cbe02d12d8064a52a252a9a4168c6657cf839915d07865366bfa97bd8e6",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/crazy.html",
+      "sourceSha256": "374d526e6293c149db5f29953258ce535d1ba578bf69452eabe353d074116a02",
+      "payloadSha256": "02f4d7efe44273a7ca6cb2e888f3b8a3abad772e81f1f83ab0f38cd79c633944",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/dee-gern-pai.html",
+      "sourceSha256": "fb8644012d5a88ff085e074eaf8fa8c5fc55e16f3e0f7405476a27cb62aca61d",
+      "payloadSha256": "57086d1185bb7eb500eefc729c798dc6230a14416ca397b4e6f618289e52099f",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/forever-young.html",
+      "sourceSha256": "391d858273154d16b0673e5d80dfe968bfd7f94ae441c0f359b610c30b82c965",
+      "payloadSha256": "89957fae3d8e211adfa3a8bb30991f1d01fc8c815f4f9dd87e90107ab422c952",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/get-lucky.html",
+      "sourceSha256": "35fee5d6e4ef00433b4c44396b7adc15696ca3d5b54aacef9bfc8915352a4c63",
+      "payloadSha256": "dab88cad37e821bd8fa61463bdaa65fe848e6c11ca713953b93f0e4114f43f82",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/gohok.html",
+      "sourceSha256": "89e034b16329bd73ca05071de2cfb4277d929013df27948ca692a9a378898602",
+      "payloadSha256": "008d47a8c09f5340757ca4f91cb4d08fa30e7bcaa638f9a6890b57379bd8aabd",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/guitar-practice-1.html",
+      "sourceSha256": "d0390b75689ef9ae27ddc5c11aeb82cade6e0f6db3f4fe63af5e97727e1247cf",
+      "payloadSha256": "bfc66cf52b0fb3ef354c9c1830a2611dc733a26319567a06958f3b5844f204ba",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/heathens.html",
+      "sourceSha256": "03751a17faffcaf774cb36481a9ecd2339109fa618e77b8eb0bb3e31796e508b",
+      "payloadSha256": "db45d584bd4e4a8702a512f5e3077570eb4b52a44e83266938de745854a57d6b",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/hysteria-overture.html",
+      "sourceSha256": "f3fae4782f9b364149251071d6e9d16b74d76f1962c18ec55a2b7814685527c9",
+      "payloadSha256": "c2565f5bc3073880c2fddda04aa61165750dc4a8796f5df705f51a3694022876",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/hysteria.html",
+      "sourceSha256": "3418e810eafe653418e5e00e92e8d23014d950b55bdf0960abb7174a0cdd1212",
+      "payloadSha256": "5cc184dcbf1d02047c96ace8a680ed7fa051d67df42767b11e260a6a2fdd9057",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/i-put-a-spell-on-you.html",
+      "sourceSha256": "e07f1a8404da64aa7613c50bce81ddf00ec7cf7f78ab1195c45041ce30bbf38b",
+      "payloadSha256": "2b74d543afcf5b8dcfd3a7a7430aa978be2aa73090781485ba04c8bd4ceef644",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/i-see-red.html",
+      "sourceSha256": "c50619a2ae8c712894feafbc810869cf3e07e424b62774e87b0aed297cfa07cc",
+      "payloadSha256": "c001640472e45d488fce84bd7d821602ea5f7622c3b3e18a68168858aa7f36e2",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/if-i-aint-got-you.html",
+      "sourceSha256": "8607151b92aa0f71727dd8d6832889642ee6b565e315122dcd440d87ca8b18df",
+      "payloadSha256": "b4a128c85a98fcbb8a442f042eaacd97eb1c143e37ef5b2b0bc6c78484f10597",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/its-my-life.html",
+      "sourceSha256": "1ea07cb3011d0a21a4a58659af8c54195652d937bd9d5a86902b2af5caabb36c",
+      "payloadSha256": "dd7af5b147581d29b9d10f60edd17fa23c1d6d4b2ed90bc09b4dcdacf557bbe0",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/jesus-of-suburbia.html",
+      "sourceSha256": "0c8e79710f2e543400f0bc946f8cc224c3196621eecdedaddf19b7150462e705",
+      "payloadSha256": "d5c7e1b0597eb750e3edc4abb0205edf14a45b25080cf8e374db7a86eb55b202",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/just-the-two-of-us-wawa.html",
+      "sourceSha256": "bfdc9ea62b101bcec3f9ba232745c9844018ef9ce6e7f98926e5981080bc32d1",
+      "payloadSha256": "3462ab12c1ea49260aa665d740e0507c42b9ca579ad79ca0bc5000822ecb16a3",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/just-the-two-of-us.html",
+      "sourceSha256": "6f12c00d3d0ff31802fd8e6eb784b3d670ae3fe97c2fad2428fca45d30c8a065",
+      "payloadSha256": "d7528dfdb6eebff6c644bd6a1751b842987595fd9ec63f0a2b47a5b6aadc4e34",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/keuab.html",
+      "sourceSha256": "5725764e8c2d5baa219b24d32ddf762f1395f1e9aa051f97b4d8bc2018e2efb7",
+      "payloadSha256": "f1d909881186c17e3584479931038868690022ef51a6f9418902386528cae1be",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/knights-of-cydonia.html",
+      "sourceSha256": "ade4a74d7de56bf9eae4740c6592bdb047443343c10882cbafe5080df84ff705",
+      "payloadSha256": "99357695ae5bcc675a37fd5605eca913d4ab1f546396a0b2a1143ff51cdc92f2",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/koey.html",
+      "sourceSha256": "8e8228c9a54722f2160aa55fe7bfe0051b8f3d2aa185b8bf625bafa76fbfe693",
+      "payloadSha256": "c575b46c1c4fbf1b709c5b1684d69a7b3091d66fee4b7b07534e46eb1d7b5cc7",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/live-forever.html",
+      "sourceSha256": "855f2afd99ec6ee20272cd8fc153a2f30c9db1fa84096434f42956262c9df3ba",
+      "payloadSha256": "8c3f44c979725fefce1b99e0a68ab86a7c1ec6b6dd58946ce5c17436db952751",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/lom-hai-jai.html",
+      "sourceSha256": "d31838d5177efb7aae5317af1e71e04c8e3cb8978345fcb25604961b0c6a58b6",
+      "payloadSha256": "4229e5f5b57c9708f2b4b29f896971b9b20f072938ab7ddaabafb0e5ab92ce5c",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/love-story.html",
+      "sourceSha256": "378090690750e5e2f45ed9042599ebec018933ddb9270d3aef8a4ee7bcf2579e",
+      "payloadSha256": "e19c08b72e89d8cabf394f83105d2b47519b1b2108c2102e271291b19f48a260",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/lovefool.html",
+      "sourceSha256": "b0b9cf986f6258ba68dcdd6f7d1895c51b6a8bf085feda2b28012650f70c12be",
+      "payloadSha256": "2a1a85c2bfa9b3f0dd483b418516981a39430a18c79f76824dfe40a29f9451ee",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/lum-long.html",
+      "sourceSha256": "b2a9056fdaa05542cf7525f88866ec6fa6194ee7a0a1dc4e0e40d1ac2b39db3b",
+      "payloadSha256": "f09939d73e86a72a5c46a99a47afbe8b49c9aa38dd77e24aab72f4d08645ee5d",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/mai-bok-thoe.html",
+      "sourceSha256": "bc095cd850d3f72ed62f44e527c9a1292a6727189e3df0f84563e24cdcdd5adc",
+      "payloadSha256": "4aa36c08fd68cb316efc0999dc1711d06b0eb7a9c5bc1e53d7a12379ab5ee97a",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/man-who-cant-be-moved.html",
+      "sourceSha256": "d10525174e1710dc9a8363a396e150276f69cf9d2c21c7488cb091dd82c675e5",
+      "payloadSha256": "058af1b0abe76402dd20d31c672f1a8cc608182e7e89b1d8f3461074ad8f4df7",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/megalomaniac.html",
+      "sourceSha256": "1f1c1f9e950e1a306bce32cdaa7948a0e7f6678f353a85516751f4aa3ede3e5a",
+      "payloadSha256": "b1bd87ceeeb7d19c2f027804fdb37a821c13f877760fbad8ac17bea5dcb8976a",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/new-born.html",
+      "sourceSha256": "8d63424a62ef773fc95f47a4371017e0dbcb7e4856a664fc1a814167c8622b91",
+      "payloadSha256": "78c197360096562552714ebbf6a1522a90ee7359885699e399fd4575cd98f615",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/plug-in-baby.html",
+      "sourceSha256": "dd9833ae9ed85caea4bc2664d3ca02cdf6e0a9eacdea11d008ce259fa6aba28b",
+      "payloadSha256": "74891f87fdb7cc4e13142809913f1d5db070d95c555898071ef586a567e4abbb",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/psycho.html",
+      "sourceSha256": "a5c7e5b26104da79b82bb6eea569c6e689d29809b576a6447071d1a2c34709be",
+      "payloadSha256": "25518587d8c69ba7adbb1959f06670e491f14e0608d7c07c358d79436753d05d",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/resistance.html",
+      "sourceSha256": "ed38c379f6eb8d2c271d4de1a30436dd254f2d20b1eaf5cf25f21def1ead29a4",
+      "payloadSha256": "a38db8b2ee5c3b6db12904f75ee4252edc3b2f601e9beee3f3adef8109081de8",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/ride.html",
+      "sourceSha256": "10df3a68d068ff97637f600faecd82cfe907464b24f8277bb739da78c2595fa2",
+      "payloadSha256": "129bb9cfbdc4fe7b72573aaaac236d3c6d2c5027f3cfd27b09dfb59078f71e50",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/sabai-dee.html",
+      "sourceSha256": "f5ccc56b52178e70ae0bf88f11dc58319a5960d282845efdb1b684a3b6c99060",
+      "payloadSha256": "d9babd06ac10266fa775616b6196ffa73c929dc308e020764deaf9edea1a8a6a",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/sattha.html",
+      "sourceSha256": "9bc65014cf0380f62880e654df7f5d9b8fe08605bd834c1403e5090e1f427b71",
+      "payloadSha256": "f9ee4e1b8f76a476b8bca9bda531b052acae3f878b845c55712cf83ee51eb3bd",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/saving-all-my-love.html",
+      "sourceSha256": "98c99abda5164ac0ea6e8e285059af35652de523b3c8b2ff1567e31cd4fe01de",
+      "payloadSha256": "ffc8d92b0ecbce904578a18fcf02abf89a2d7c22f68837f88e277446ef0790e2",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/shallow.html",
+      "sourceSha256": "c0b4ef33838051dee521751f3003d5a169c3b1c233a188d601c746fce9535469",
+      "payloadSha256": "bd231b8495225a7a19e57c36be2a333c95e1a0d02d558a3a59c2d08c86436f05",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/she-will-be-loved.html",
+      "sourceSha256": "891dc64d781ff77919cfa542f804a166cd4db08ab08e0f4f6c2b9ce024bf846b",
+      "payloadSha256": "9ab7b985485ea6828e7966c460bbc1a04e61307baa8f11860d36102c0ef89670",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/sleepwalk.html",
+      "sourceSha256": "5c0b813cd5834851340dfffb9d0058efa838be9cf7715e1fa66dfcaaf8ad6ec1",
+      "payloadSha256": "c5ff593ad4b96d8ef59ddf8391ccaaf7af6f718db4319834e05933b806dc2e97",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/somebody-told-me.html",
+      "sourceSha256": "0304c6676b6349a01ed0e354e580af757e4201773d90ecc7ebd75fb4599153e7",
+      "payloadSha256": "57b63fa2ab4710c49df89f30e72d7bde1db8b2a414cd8fc2218a27995a57ab25",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/starlight.html",
+      "sourceSha256": "b1920f9c6192fc21b4049000dbbccb03fe560f4aa1806501109cb3cfabae0db6",
+      "payloadSha256": "a9c4107dff1a9f033730d71cea014db648b53f9e46edc4274e29eae12459fb59",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/stay-with-me.html",
+      "sourceSha256": "6affcdec6b34ddabb553b9b3462a0c888e904fefb6bc37af1cf56350ece26602",
+      "payloadSha256": "9bc4c31256c3baf024dc1c897caead5d631fc80c502c4ddd055f1eefcf7928e5",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/stockholm-syndrome.html",
+      "sourceSha256": "62585e79493479c8187eed3a76e4c2e0cdb71009b076e71044453d9aaaf7edfe",
+      "payloadSha256": "db48f09c68f16a0f893080115b2c13a7ed36007e4508584b7fa50fe37f6c0598",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/supermassive-black-hole.html",
+      "sourceSha256": "ac800867bf00becd3d8b68ebdc5d64938219be0c8388996852d4dbb623003768",
+      "payloadSha256": "19702eab18bf52cdfbead54c3296757c648fa4825ba7b5b475dba5534ca11082",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/supersonic.html",
+      "sourceSha256": "a00b72f2fcd71420d8fb1106aae78285cdf43a939192277810eeafdf39821dd3",
+      "payloadSha256": "4e6ac23a71050d2bc1cbbfb695e567e11e4ec2bb1c594c16697771b3cdaf9909",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/supremacy.html",
+      "sourceSha256": "aabcb007b6c15fe630cf381d4cb13b3ae1d64cb03e68adeaf446bfeeca85979d",
+      "payloadSha256": "cce567addd4bbb2cf41e34e8ec9cfc5dab41e5253e61af805236c609d7ee78b1",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/sweet-disposition.html",
+      "sourceSha256": "2998020e82e53eea525283a49486bcd00060fdc072a50f052203479050ea49ca",
+      "payloadSha256": "9995218c99ff47975723c3a09166c2fa49655dd479f83a6796eb5abd22835725",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/take-me-out.html",
+      "sourceSha256": "56af34681fae497a0a428704b11599987a9e5926e4b271417ed281846bec7cdf",
+      "payloadSha256": "d3335e3121a6027c61e350d0a7c03869c65f9230e0f04ebddb8919ca1147fce7",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/the-adventures-of-rain-dance-maggie.html",
+      "sourceSha256": "548352fd0713dbcc4199ac17fe1d5d1d5ca6bdec758742628206d521ab9a9140",
+      "payloadSha256": "c9ce0345ca1694e80478fe23882e77f461fec4cbc887aa1d160671d3dec8a813",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/the-game-of-love.html",
+      "sourceSha256": "11cba22c805a152ad40248f5d9b27441da929d5d8cd902c8d199dd875c609d68",
+      "payloadSha256": "a78ef96820d280651709dd4bdf16ff5abb757e86cd4af3a3626f64a229086bac",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/time-is-running-out.html",
+      "sourceSha256": "85ada788e33f2202cd1e0cbf2224dfed728b042dc9e9706cac6e5f1dee8d74a6",
+      "payloadSha256": "12d3e5ab5bdb370169191985cb7e4e4129b0efebed872988937e678fc427c7bf",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/too-sweet.html",
+      "sourceSha256": "96e5953460c890d6644b0fcbeab2159d4bb0e1b90380318c543d897e049209e6",
+      "payloadSha256": "174a2186d6c71e0bd46cec25a7f4cc6c0b9234f0cc1819e3c84e5e05162c9038",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/toxic.html",
+      "sourceSha256": "f9c9086034046a68d51a450b10a4c390a64dad68555fdf757b6f9ba76a5c898d",
+      "payloadSha256": "01fef6298915f789ab38dc4c8c5378c1fd1334a70e957a779c80833ec9b9a482",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/uprising.html",
+      "sourceSha256": "e7a8ca6693be8abc60e476b757f8d8ef004643570cd5621dc66144eef0f12877",
+      "payloadSha256": "a68f12de6ea80f62e42f4f9926e835eb3250d5cb468f489c9f345dd9a8f4865e",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/use-somebody.html",
+      "sourceSha256": "c30f3df4dd9470fd7a8c6ff2b99e2772a6b88d57611f9409eaba6df58de53953",
+      "payloadSha256": "383de7e153e427e41192bb69a8e1c2af21d14dd65593201772b17f05f50dffbf",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/vampire.html",
+      "sourceSha256": "c5ee322928d7e1c63c153a988ca54bdd05f3e11715e0807d40a5c1c4cd9e324e",
+      "payloadSha256": "fb48562869bc30064a903a237b6b06aaea43956c2232effa65aec59005b198c9",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/versace-on-the-floor.html",
+      "sourceSha256": "070cd267e47c423a4aebb66f82f84b08d868cf5fd089ec9f57f2add0d7e3f697",
+      "payloadSha256": "7572bd36fdafb1261e8956f39c6d239306afec76c443067beb0a222984eda375",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/virtual-insanity.html",
+      "sourceSha256": "d9edd02cb3059b4b7772d4ed4d4dfc2d8bb325244ba29b950415f280171ff41f",
+      "payloadSha256": "53f49569cbc1d113ed2eeed48620173efa72f1e614854dd0792b2a45231a4acf",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/what-you-know.html",
+      "sourceSha256": "d409ab82ff3cf4ce2ca3ec414de707f010cf15939b3b7bf13ea5ce84fd666202",
+      "payloadSha256": "b001b9811a79e4436d2f984995c53bfb2403cbf52d9866c942af6c36ca1fbfe5",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/when-you-were-young.html",
+      "sourceSha256": "2177e8e02f11a752c9149f28cd2f19aa17e7a7ad10a268432907976c5b7b80fb",
+      "payloadSha256": "5497fe587d7886cf3092eba05e99b429badf52e43f78254254968a25f4d77e08",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    },
+    {
+      "source": "songs/yellow.html",
+      "sourceSha256": "9c2b0bf059e9f022bd7032e10b7d5b4055134d311b94c5d7a25a8426e2832212",
+      "payloadSha256": "efbcdd4e5add72da3dfeba2b476ae85444e047ffd185e6f21f0e9a6eef78dc0c",
+      "embeddedEquality": true,
+      "runtimeReview": "pending",
+      "manualReview": "pending",
+      "approved": false
+    }
+  ],
+  "oldPlanStatus": "stale",
+  "oldPlanStop": "transfer code changed; make a new reviewed plan",
+  "browserRoundTrip": {
+    "browser": "IAB (not native Safari)",
+    "fixture": "_work/transfer-trials/2026-11-01-bc8kcnx2/browser-fixture.html",
+    "fixtureSha256": "4a04310f557139c64f731be0d9bf54c3340d058282bf30f846f2e41803b74298",
+    "noEditExportEquality": true,
+    "edit": "fixture title only: FREEZE TEST ONLY Stockholm",
+    "expectedRevisionDelta": 1,
+    "otherChanges": [
+      "SHEET_META.contentUpdated",
+      "SHEET_META.contentSource=browser-edit"
+    ],
+    "unintendedPayloadDelta": false,
+    "reopenedDom": {
+      "sections": 22,
+      "bars": 143,
+      "lyricBlocks": 7
+    },
+    "reopenedResaveEquality": true,
+    "artifacts": {
+      "unchanged-export.html": "c016d6eafcf496972ca84807d4b02160be437064a5aaa7f32161dd7bf1c8ddd2",
+      "edited-export.html": "64bab8c506eb93af8507b98de6cef60b33e3b9f73ac20fd07d3f2f4c99025873",
+      "reopened-export.html": "e861dce0ba0764d24fb327c46cfe7943beca6c3cb32ea018ac85e9b0fa8d789f"
+    },
+    "limitations": [
+      "one metadata edit in one song fixture, not every editor action",
+      "downloaded HTML reopened via localhost; file:// offline not tested",
+      "no production intake or promotion tested"
+    ]
+  },
+  "pending": [
+    "Ti final UI selection and browser/export freshness confirmation",
+    "Safari physical pinch and cross-display tests",
+    "freeze revision naming, exact commit and manifest after approval",
+    "new reviewed batch plan against frozen revision",
+    "manual export intake and canonical promotion workflow",
+    "per-song runtime and Ti manual review"
+  ],
+  "canonicalPromotion": false,
+  "published": false
+}
