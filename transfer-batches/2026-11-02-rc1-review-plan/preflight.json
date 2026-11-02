@@ -1,0 +1,15 @@
+{
+  "plan": "transfer-batches/2026-11-02-rc1-review-plan/plan.json",
+  "planSha256": "f031c7a5a7bdc87b8bdfbe609244dcadd0da3f27997d957814f587989404fd4b",
+  "freezeCommit": "6c15b1f2ca32b5d6d4d1c92f6da2d6c2fa1b5735",
+  "template": "releases/luminous-v7.0.0-rc.1/template.html",
+  "templateSha256": "d6b5b547c56381e4c87349b73aeb8b61a6a9f9ed0d959e9fad5dc0e6208019fc",
+  "templateCleanAtPlanning": true,
+  "preflightPassed": 72,
+  "songsWithWarnings": 60,
+  "blockedSongs": [],
+  "outputsWritten": false,
+  "manualReview": "pending",
+  "runtimeReview": "pending",
+  "approved": false
+}

@@ -401,3 +401,11 @@ alpha.1, alpha.2, mobile preview ที่ตรวจแล้ว, canonical �
 batch-review-0.2 เพิ่ม plan --template <exact project path> และ pin hash;
 ต้องเลือก releases/luminous-v7.0.0-rc.1/template.html สำหรับแผน rc.1
 แผน review เก่าทั้งหมดคงเป็นหลักฐานประวัติ ไม่แก้ให้ดูเหมือนอนุมัติใหม่
+
+จุดอ้างอิง rc.1 local freeze: 6c15b1f2ca32b5d6d4d1c92f6da2d6c2fa1b5735
+แผนใหม่: transfer-batches/2026-11-02-rc1-review-plan/plan.json
+SHA-256: f031c7a5a7bdc87b8bdfbe609244dcadd0da3f27997d957814f587989404fd4b
+preflight.json เก็บผลตรวจจริง: template clean, ผ่าน 72/72, blocked=0,
+60 เพลงมี warnings; ไม่สร้าง outputs และทุกเพลงยัง manual/runtime pending
+แผนนี้ไม่ใช่ production migration หรือการรับรอง browser edits ล่าสุด
+ยังไม่ execute ข้าม checkpoint F5/I1 หรือถือว่าเตรียมแผนแล้วอนุมัติย้ายเพลง
