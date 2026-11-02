@@ -345,7 +345,35 @@ def blank_html(doc):
     return blank
 
 
-def build():
+def rc1_artifacts():
+    """Package the accepted alpha.2 behavior; change UI labels only.
+
+    Song blocks are checked independently and never version-bumped here.
+    The blank draft's own uiVersion identifies the new shell.
+    """
+    doc=preview_html()
+    preview=doc.replace('7.0.0-alpha.2','7.0.0-rc.1')
+    blank=blank_html(doc).replace('7.0.0-alpha.2','7.0.0-rc.1')
+    spec=importlib.util.spec_from_file_location('release_transfer',Path(__file__).with_name('transfer_song_trial.py'))
+    transfer=importlib.util.module_from_spec(spec);spec.loader.exec_module(transfer)
+    transfer.assert_equal(transfer.snapshot(doc),transfer.snapshot(preview))
+    expected=transfer.snapshot(blank_html(doc))
+    expected['SHEET_META']['uiVersion']='7.0.0-rc.1'
+    transfer.assert_equal(expected,transfer.snapshot(blank))
+    return {'preview-resistance.html':preview,'template.html':blank}
+
+
+def build(release_rc1=False):
+    if release_rc1:
+        folder=ROOT/'releases/luminous-v7.0.0-rc.1'
+        artifacts=rc1_artifacts()
+        if folder.exists():
+            raise ValueError('release directory already exists; never overwrite a frozen release')
+        folder.mkdir(parents=True)
+        for name,doc in artifacts.items():
+            with (folder/name).open('x',encoding='utf-8') as f:f.write(doc)
+            print(folder/name)
+        return
     doc=preview_html()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(doc, encoding='utf-8')
@@ -356,4 +384,7 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--release-rc1',action='store_true')
+    build(parser.parse_args().release_rc1)

@@ -1,0 +1,30 @@
+{
+  "version": "7.0.0-rc.1",
+  "status": "frozen-for-song-review-on-commit",
+  "date": "2026-11-02",
+  "acceptedBehaviorCommit": "cb32f502b5292a668e2b241a114bee2cf498bb9d",
+  "acceptedMobilePreview": "previews/stockholm-syndrome-mobile-review.html",
+  "acceptance": "Ti reported desktop focus/save passed and mobile preview looks OK; not exhaustive device certification",
+  "hashes": {
+    "releases/luminous-v7.0.0-rc.1/preview-resistance.html": "a46bf9a7fb0dc059af1de86e202c961911473c0b2a661cdb3ab7fb01350ada0b",
+    "releases/luminous-v7.0.0-rc.1/template.html": "d6b5b547c56381e4c87349b73aeb8b61a6a9f9ed0d959e9fad5dc0e6208019fc",
+    "tools/build_luminous.py": "f2bb5ff0af055bd8f710a7a5d9e0349245c768cf8b7097488bc6e18ae1a0da79",
+    "tools/luminous_layout.js": "b592e2b0631e8786c71fa997d7c67b18cb51d0436098974805ce8058b7e9e53a",
+    "tools/transfer_song_trial.py": "0ee7966c29761515e8664826a3fdac597c37a966fba5077e2d53bc39f0d22c66",
+    "tools/batch_transfer.py": "d19120e400d484b558abd91d545d68ebe7f88f496cc89b8c88d34c3484796b63"
+  },
+  "reproducibility": "rc1_artifacts() matches both files byte for byte",
+  "semanticImpact": "Resistance fixture unchanged; blank SHEET_META.uiVersion identifies rc.1; transferred songs retain their entire source SHEET_META",
+  "testsPassed": 48,
+  "protectedFilesCompared": 78,
+  "protectedFilesChanged": [],
+  "canonicalPromotionAllowed": false,
+  "batchExecutionAllowed": false,
+  "pending": [
+    "Safari physical pinch/cross-display against selected revision",
+    "per-song runtime/manual approval",
+    "broader chord/lyric/structure editing round trip",
+    "manual-export intake/history and promotion workflow"
+  ],
+  "releasePolicy": "Never overwrite this release. Further behavior changes require rc.2 and a new reviewed batch plan."
+}

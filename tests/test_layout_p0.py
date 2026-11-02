@@ -7,6 +7,8 @@ import re
 import shutil
 import subprocess
 import unittest
+import tempfile
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 def load(name,path):
@@ -26,6 +28,22 @@ class Scripts(HTMLParser):
         if self.active:self.scripts[-1]+=data
 
 class LayoutP0Tests(unittest.TestCase):
+    def test_rc1_has_no_song_delta_or_behavior_change(self):
+        files=b.rc1_artifacts()
+        self.assertEqual(files['preview-resistance.html'].replace('7.0.0-rc.1','7.0.0-alpha.2'),b.preview_html())
+        t.assert_equal(t.snapshot(b.preview_html()),t.snapshot(files['preview-resistance.html']))
+        expected=t.snapshot(b.blank_html(b.preview_html()))
+        expected['SHEET_META']['uiVersion']='7.0.0-rc.1'
+        t.assert_equal(expected,t.snapshot(files['template.html']))
+
+    def test_release_generation_never_overwrites_existing_release(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(b,'ROOT',Path(folder)),patch.object(b,'rc1_artifacts',return_value={'template.html':'fixture'}):
+                b.build(release_rc1=True)
+                with self.assertRaisesRegex(ValueError,'already exists'):
+                    b.build(release_rc1=True)
+                self.assertEqual((Path(folder)/'releases/luminous-v7.0.0-rc.1/template.html').read_text(),'fixture')
+
     def test_export_removes_runtime_sheet_and_focus_controls(self):
         node=shutil.which('node')
         if not node:self.skipTest('Node unavailable')

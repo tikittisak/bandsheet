@@ -1,6 +1,6 @@
 # Bandsheet — กติกาและ workflow ปัจจุบัน
 
-Updated: 2026-11-01 · Status: freeze verification / production promotion blocked
+Updated: 2026-11-02 · Status: rc.1 song-review preparation / production promotion blocked
 
 ## 1. Authority และขอบเขต
 
@@ -34,6 +34,8 @@ Updated: 2026-11-01 · Status: freeze verification / production promotion blocke
 | _archive/prototypes/luminous-v7.0.0-alpha.2-blank.html | Luminous alpha.2 blank manual-draft prototype; ยังไม่ใช่ production-ready release |
 | _archive/prototypes/preview-luminous-v7.0.0-alpha.2.html | Derived Resistance UI trial; ไม่ใช่ canonical song |
 | tools/build_luminous.py | Reproducible alpha.2 builder จาก pinned commit; ไม่ใช่เครื่องมือย้ายเพลง |
+| releases/luminous-v7.0.0-rc.1/template.html | รุ่นอ้างอิงสำหรับเตรียมตรวจเพลง; ห้ามเขียนทับหลัง commit ไม่ใช่ production template |
+| releases/luminous-v7.0.0-rc.1/manifest.json | Hashes และข้อจำกัดของ rc.1; ไม่ใช่ approval เพลงหรือสิทธิ์ execute batch |
 | releases/luminous-v7.0.0-alpha.1/manifest.json | Machine-readable frozen reference; ไม่ใช่ approval หรือ security certification |
 | content-locks.json | Fingerprint ที่ต้องมาจาก Ti อนุมัติ exact revision เท่านั้น |
 | _work/ | Draft, intake, reports, audit fixtures; ส่วนใหญ่ Git-ignore และไม่ durable ผ่าน Git โดยอัตโนมัติ |
@@ -372,3 +374,30 @@ canonical แล้วตรงทุก field; metadata/blocks ตรงหล�
 F2 ต้องตรวจ byte equality อีกครั้งหลัง generation; F5 mobile ยัง pending
 URL ตรวจ: https://tikittisak.github.io/bandsheet/previews/stockholm-syndrome-mobile-review.html
 Save HTML จาก preview ยังคงเป็น local download ไม่ใช่ cloud save
+
+2026-11-02 Ti แจ้ง mobile preview ว่า "น่าจะ ok ละ" และตอบ "ok"
+ให้เตรียม freeze rc.1 กับแผน batch ใหม่ จึงบันทึกจุดอ้างอิง local commit
+สำหรับ review โดยไม่ตีความว่าอนุมัติ canonical หรือการเผยแพร่รุ่นใหม่
+rc.1 ใช้พฤติกรรมจาก cb32f50 เปลี่ยนเฉพาะ UI version labels; preview payload
+เท่าเดิมทุก field และ blank draft มี SHEET_META.uiVersion=7.0.0-rc.1
+เมื่อ transfer ต้องรักษา SHEET_META ของ source เพลงทั้งก้อน ไม่ stamp รุ่นใหม่
+48 tests ผ่าน รวมห้าม overwrite release และ pin template ที่เลือกตาม hash
+alpha.1, alpha.2, mobile preview ที่ตรวจแล้ว, canonical และ locks ไม่ถูกแก้
+
+สถานะปัจจุบัน (ใช้แทนช่องสถานะเก่าในตารางเฉพาะจุดที่ระบุ):
+- F1: Ti ยอมรับ preview เบื้องต้น; browser/export recency ของเพลงอื่นยังไม่รับรอง
+- F2/F3: rc1_artifacts() สร้าง release ทั้งสองไฟล์ตรงทุก byte; 48 tests,
+  guard และ validator ผ่าน; evidence ใน release manifest
+- F4: ผล export/focus เดิมคงอยู่; ยังไม่ใช่ทุก editor action
+- F5: mobile user-reported OK เบื้องต้น; physical pinch/ข้ามจอยัง pending
+- F6: เตรียม local review freeze พร้อม manifest; exact commit ดู Git history
+  ของ releases/luminous-v7.0.0-rc.1/ ไม่เรียกว่า production freeze
+- B1: อนุญาตเตรียมแผนใหม่โดยเลือก --template ชัดเจน แต่ยังไม่ execute ทั้งคลัง
+- I1/P1: ยัง pending; ไม่มีสิทธิ์แก้ canonical, สร้าง lock หรือ publish อัตโนมัติ
+
+สร้าง rc.1 ครั้งเดียว: python3 -B tools/build_luminous.py --release-rc1
+คำสั่งนี้ reject ถ้า release directory มีอยู่แล้ว; ตรวจซ้ำด้วย rc1_artifacts()
+แทนการเขียนทับ manifest hashes ถ้าแก้ behavior ให้ขึ้น rc.2 และตรวจใหม่
+batch-review-0.2 เพิ่ม plan --template <exact project path> และ pin hash;
+ต้องเลือก releases/luminous-v7.0.0-rc.1/template.html สำหรับแผน rc.1
+แผน review เก่าทั้งหมดคงเป็นหลักฐานประวัติ ไม่แก้ให้ดูเหมือนอนุมัติใหม่

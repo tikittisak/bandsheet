@@ -12,7 +12,7 @@ import transfer_song_trial as transfer
 
 ROOT=Path(__file__).resolve().parents[1]
 TEMPLATE=Path('_archive/prototypes/luminous-v7.0.0-alpha.2-blank.html')
-VERSION='batch-review-0.1'
+VERSION='batch-review-0.2'
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def dump(data):return json.dumps(data,ensure_ascii=False,indent=2)+'\n'
@@ -23,7 +23,7 @@ def inside(rel):
 def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT,text=True).strip()
 def template_clean(path):return not git('status','--porcelain','--',str(path))
 
-def make_plan(band='all'):
+def make_plan(band='all',template_path=TEMPLATE):
     members={}
     for path in sorted((ROOT/'bands').glob('*.json')):
         for name in json.loads(path.read_text())['songs']:
@@ -31,7 +31,8 @@ def make_plan(band='all'):
     files=sorted((ROOT/'songs').glob('*.html'))
     if band!='all':files=[p for p in files if band in members.get(p.name,[])]
     if not files:raise ValueError('scope has no songs')
-    template=(ROOT/TEMPLATE).read_bytes();transfer.snapshot(template.decode())
+    selected=inside(template_path)
+    template=selected.read_bytes();transfer.snapshot(template.decode())
     rows=[]
     for path in files:
         raw=path.read_bytes()
@@ -56,8 +57,8 @@ def make_plan(band='all'):
     return {'version':VERSION,'gitHead':git('rev-parse','HEAD'),'scope':band,
             'toolSha256':sha(Path(__file__).read_bytes()),
             'transferLibrarySha256':sha(Path(transfer.__file__).read_bytes()),
-            'template':str(TEMPLATE),'templateSha256':sha(template),
-            'templateCleanAtPlanning':template_clean(TEMPLATE),
+            'template':str(selected.relative_to(ROOT)),'templateSha256':sha(template),
+            'templateCleanAtPlanning':template_clean(selected.relative_to(ROOT)),
             'sourceSelection':'canonical disk snapshots only; browser/export recency not certified',
             'promotionAllowed':False,'songs':rows}
 
@@ -121,13 +122,13 @@ def verify(run):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='action',required=True)
-    q=sub.add_parser('plan');q.add_argument('--band',default='all');q.add_argument('--output',type=Path,required=True)
+    q=sub.add_parser('plan');q.add_argument('--band',default='all');q.add_argument('--output',type=Path,required=True);q.add_argument('--template',type=Path,default=TEMPLATE)
     q=sub.add_parser('execute');q.add_argument('plan',type=Path);q.add_argument('--expected-plan-sha256',required=True)
     q=sub.add_parser('verify');q.add_argument('run',type=Path)
     a=p.parse_args()
     try:
         if a.action=='plan':
-            plan=make_plan(a.band);out=inside(a.output);out.parent.mkdir(parents=True,exist_ok=True)
+            plan=make_plan(a.band,a.template);out=inside(a.output);out.parent.mkdir(parents=True,exist_ok=True)
             with out.open('x',encoding='utf-8') as f:f.write(dump(plan))
             print(f'Plan: {out}; songs={len(plan["songs"])}; templateClean={plan["templateCleanAtPlanning"]}')
         elif a.action=='execute':print(execute(a.plan,a.expected_plan_sha256))

@@ -46,6 +46,16 @@ class BatchTransferTests(unittest.TestCase):
         with (self.root/b.TEMPLATE).open('a') as f:f.write('changed')
         with self.assertRaisesRegex(ValueError,'template changed'):self.execute()
 
+    def test_selected_release_template_is_pinned_and_drift_stops(self):
+        template=self.root/'releases/rc/template.html';template.parent.mkdir(parents=True)
+        template.write_bytes((self.root/b.TEMPLATE).read_bytes())
+        plan=b.make_plan('all',Path('releases/rc/template.html'))
+        self.assertEqual(plan['template'],'releases/rc/template.html')
+        self.assertEqual(len(b.preflight(plan)),2)
+        template.write_text(template.read_text()+'changed')
+        with self.assertRaisesRegex(ValueError,'template changed'):b.preflight(plan)
+        with self.assertRaisesRegex(ValueError,'outside project'):b.make_plan('all',Path('../outside.html'))
+
     def test_uncommitted_template_stops(self):
         with patch.object(b,'template_clean',return_value=False):
             with self.assertRaisesRegex(ValueError,'uncommitted'):self.execute()
