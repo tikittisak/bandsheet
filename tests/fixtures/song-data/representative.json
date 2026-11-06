@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "songId": "fixture-representative",
+  "slug": "fixture-representative",
+  "contentRevision": 1,
+  "provenance": {
+    "sourceType": "synthetic-fixture",
+    "capturedOn": "2026-11-06",
+    "parentRevisionHash": null,
+    "sourceRef": "tests/fixtures/song-data/representative.json",
+    "note": "Synthetic data only; not a real song."
+  },
+  "metadata": {
+    "title": "Contract Fixture",
+    "artist": "Synthetic",
+    "key": "C",
+    "bpm": "120",
+    "timeSignature": "4/4",
+    "vocalist": ""
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "label": "Intro",
+      "note": "",
+      "noteHidden": true,
+      "lyric": "",
+      "color": {"bar": "#ff3b30", "bg": "#fff1f0", "lbl": "#b00008"},
+      "bars": [
+        {"c": "C", "a": "", "h": false},
+        {"c": "F|G", "a": "", "h": false}
+      ],
+      "rowSizes": [2]
+    },
+    {
+      "id": "fixture-note",
+      "type": "note",
+      "label": "Fixture note",
+      "cols": ["Synthetic text <strong>with formatting</strong>."],
+      "colCount": 1,
+      "color": {"bar": "#3b82f6", "bg": "#eef4fd", "lbl": "#1e40af"}
+    }
+  ],
+  "footer": {"notes": ["Synthetic footer"], "links": []},
+  "settings": {
+    "chordSize": 14.5,
+    "chordFont": "Roboto Condensed",
+    "transpose": 0,
+    "noteSize": 20,
+    "autoScrollDuration": "",
+    "autoScrollSpeed": 1
+  },
+  "extensions": {
+    "fixtureUnknownField": {"preserve": true}
+  }
+}

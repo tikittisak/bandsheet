@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "playlistId": "fixture-set",
+  "title": "Fixture Set",
+  "bandId": "fixture-band",
+  "songs": [
+    {"position": 1, "songId": "fixture-representative", "note": "Synthetic"}
+  ]
+}

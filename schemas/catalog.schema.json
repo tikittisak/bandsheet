@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ti.muse/bandsheet/schemas/catalog.schema.json",
+  "title": "Bandsheet Derived Catalog v1",
+  "type": "object",
+  "required": ["schemaVersion", "indexVersion", "releaseId", "catalogBuildHash", "songs", "bands", "playlists"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "indexVersion": {"type": "string", "minLength": 1},
+    "releaseId": {"type": "string", "minLength": 1},
+    "catalogBuildHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "songs": {"type": "array", "items": {"type": "object"}},
+    "bands": {"type": "array", "items": {"type": "object"}},
+    "playlists": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false
+}

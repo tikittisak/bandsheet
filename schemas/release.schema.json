@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ti.muse/bandsheet/schemas/release.schema.json",
+  "title": "Bandsheet Release v1",
+  "type": "object",
+  "required": ["schemaVersion", "releaseId", "editorVersion", "indexVersion", "catalogBuildHash", "artifactHashes", "promotionAllowed"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "releaseId": {"type": "string", "minLength": 1},
+    "editorVersion": {"type": "string", "minLength": 1},
+    "indexVersion": {"type": "string", "minLength": 1},
+    "catalogBuildHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifactHashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+    "promotionAllowed": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,15 @@
+{
+  "baselineCommit": "5a5ff4830e27106ef0a49cd72f54c70b9cc95b8f",
+  "capturedOn": "2026-11-06",
+  "songCount": 72,
+  "gitTreeHashes": {
+    "songs": "4c992141f63226c6d3262e9bd339eedc7f5929a5",
+    "bands": "8d3ac00ad4cd1e358032bdaadd54b38cdf7604ab",
+    "playlists": "aeb3c2e70540923fe3b795da8db59c439c6ccf74"
+  },
+  "artifactHashes": {
+    "index.html.gitBlob": "eb16e615d4b83d395c0df3fe73c7a912934d3a13",
+    "luminousRc1Template.sha256": "d6b5b547c56381e4c87349b73aeb8b61a6a9f9ed0d959e9fad5dc0e6208019fc"
+  },
+  "policy": "Read-only input evidence. This manifest does not certify musical correctness or browser recency."
+}

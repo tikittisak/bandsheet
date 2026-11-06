@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ti.muse/bandsheet/schemas/band.schema.json",
+  "title": "Bandsheet Band v1",
+  "type": "object",
+  "required": ["schemaVersion", "bandId", "name", "color", "songIds"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "bandId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"},
+    "name": {"type": "string", "minLength": 1},
+    "color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+    "songIds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  },
+  "additionalProperties": false
+}

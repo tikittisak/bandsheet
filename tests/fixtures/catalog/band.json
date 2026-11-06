@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "bandId": "fixture-band",
+  "name": "Fixture Band",
+  "color": "#336699",
+  "songIds": ["fixture-representative"]
+}

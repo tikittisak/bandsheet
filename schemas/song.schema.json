@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ti.muse/bandsheet/schemas/song.schema.json",
+  "title": "Bandsheet Song v1",
+  "type": "object",
+  "required": ["schemaVersion", "songId", "slug", "contentRevision", "provenance", "metadata", "sections", "footer", "settings"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "songId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,79}$"},
+    "contentRevision": {"type": "integer", "minimum": 1},
+    "provenance": {
+      "type": "object",
+      "required": ["sourceType", "capturedOn", "parentRevisionHash"],
+      "properties": {
+        "sourceType": {"type": "string", "minLength": 1},
+        "capturedOn": {"type": "string", "format": "date"},
+        "parentRevisionHash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "sourceRef": {"type": "string"},
+        "note": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["title", "artist", "key", "bpm", "timeSignature", "vocalist"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "artist": {"type": "string"},
+        "key": {"type": "string"},
+        "bpm": {"type": "string"},
+        "timeSignature": {"type": "string"},
+        "vocalist": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "sections": {"type": "array", "items": {"type": "object"}},
+    "footer": {"type": "object"},
+    "settings": {"type": "object"},
+    "extensions": {"type": "object"}
+  },
+  "additionalProperties": false
+}
