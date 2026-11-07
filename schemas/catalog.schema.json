@@ -3,15 +3,97 @@
   "$id": "https://ti.muse/bandsheet/schemas/catalog.schema.json",
   "title": "Bandsheet Derived Catalog v1",
   "type": "object",
-  "required": ["schemaVersion", "indexVersion", "releaseId", "catalogBuildHash", "songs", "bands", "playlists"],
+  "required": [
+    "schemaVersion",
+    "catalogBuildHash",
+    "songs",
+    "bands",
+    "playlists"
+  ],
   "properties": {
-    "schemaVersion": {"const": 1},
-    "indexVersion": {"type": "string", "minLength": 1},
-    "releaseId": {"type": "string", "minLength": 1},
-    "catalogBuildHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "songs": {"type": "array", "items": {"type": "object"}},
-    "bands": {"type": "array", "items": {"type": "object"}},
-    "playlists": {"type": "array", "items": {"type": "object"}}
+    "schemaVersion": {
+      "const": 1
+    },
+    "catalogBuildHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "songs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "songId",
+          "slug",
+          "href",
+          "metadata",
+          "contentRevision",
+          "contentHash",
+          "revisionHash",
+          "bars",
+          "lyricBlocks",
+          "approvalStatus",
+          "approvedOn"
+        ],
+        "properties": {
+          "songId": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "contentRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "contentHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "revisionHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bars": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lyricBlocks": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "approvalStatus": {
+            "enum": [
+              "unapproved",
+              "approval-record-present-unverified",
+              "changed-since-approval"
+            ]
+          },
+          "approvedOn": {
+            "const": ""
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "bands": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "playlists": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
   },
   "additionalProperties": false
 }

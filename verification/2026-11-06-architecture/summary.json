@@ -1,0 +1,53 @@
+{
+  "completedOn": "2026-11-07",
+  "status": "synthetic-local-checkpoint",
+  "baselineCommit": "3b1af0ac8aad928ab7739a9806ff2d4dccd5e704",
+  "sourceHashes": {
+    "architecture/retirement-plan.json": "6dd3b532de98c4f35bfd3679b181a9ccae3e7b2a9eca63a188cff9b9ca6a3e6e",
+    "src/intake/README.md": "90ed2ebede291fb81644a40623ed91071623d949f737111a84e982a13256be16",
+    "src/intake/git_store.py": "9c050e9a5e1c2e1acca3788adef069034c1bcbdfabad4c305951a9436781b630",
+    "src/sheet/revision-client.js": "b8450f31b87dcc00f628861ca235835039449780d08f5ec5c058a3f3d06effb9",
+    "tests/browser_revision_save.mjs": "105c235d0a6da28e3908ce3ca7efde470e4cf4bfaa1fe03fa6b28469a0f2d2ad",
+    "tests/test_git_revision_store.py": "13b2dee83e923bc50eb9a785eceb4ea02d23dadde7d8026870a0f6d892937352",
+    "tests/test_revision_integrity.py": "04ad6c2beb54683d4c85af4918910b9a85366fbe5da0395edac85bb2042d3e5e",
+    "tools/schema_check.py": "1be17114345c0a4c1413d8801c02349cba7108a17aa409e9a8d303fbd36819e6",
+    "tools/synthetic_save_lab.py": "fccdef0e276af7a4682c66087faecf9b4c14fd73b70c2f242530911d8e3e2be7",
+    "AGENTS.md": "7d8b731b7c75de5a31e6ee333c38fede512247e2ac914e25dd9180ce6361486e",
+    "architecture/song-data-v1.md": "40d2dfc92054aef82dc9433418ea8b6f1e128a9b24a1828187e34d0a86aa80bd",
+    "schemas/catalog.schema.json": "c2cb26a88c6f6359d656ef32f0042d023a01225a1c583d6372164145193a348f",
+    "schemas/release.schema.json": "de64f5cca8b33d80e2dd27dae049b1d79e101e812b7ff2b3421670ce3bed94e5",
+    "schemas/song.schema.json": "4a7f17e6104fe51491714f5ab90a21add33998052b1c8438f8a2104d77783dc7",
+    "song-data/README.md": "f1236e97c52b1d458658b8ec17bf60f80b2baeeff2ea9edcd191b66c3873de71",
+    "song-revisions/README.md": "2a5a7392c2682f1a617f3d2e1c566dbc26b5e63b65db1195ebf7615ef31a7c29",
+    "tests/test_song_data_contract.py": "994dd2f101494e0dc0e2947b1fc5056f13789a208468265337408e9813f26099",
+    "tests/test_song_fixture_render.py": "2e7f4724f94072305569c58dcc6eb13ee5a043ef56ddadc327542fe779e4f76b",
+    "tools/song_data_contract.py": "92aae87872afc42858db65077dfe96f3b869d64c5e88ffd585887b445857b192"
+  },
+  "unitTests": {
+    "passed": 27,
+    "log": "unit-tests.txt",
+    "renderIntegrityTestsRepeatedAfterFailClosedSavePatch": 18
+  },
+  "browserEvidence": "browser.json",
+  "productionChecks": {
+    "contentGuard": "PASS",
+    "approvedLocks": 0,
+    "validator": "PASS",
+    "songs": 72
+  },
+  "productionFilesChanged": 0,
+  "actualRemotePushed": false,
+  "actualRemoteCleanCloneVerified": false,
+  "originalProjectDeletionSafe": false,
+  "legacyFilesDeleted": false,
+  "pending": [
+    "reconcile original-project local-only files",
+    "review and authorize exact branch checkpoint push",
+    "verify actual remote draft isolation before any push",
+    "fresh clone whole project from actual authorized remote",
+    "real-song pilot gate not opened",
+    "Safari/mobile/network Git transport/full physical power-loss tests not covered",
+    "promotion/rollback executors not implemented"
+  ],
+  "excludedLegacyTests": "Full suite was not run because test_importers_disabled executes suspended importers; only synthetic suites and read-only production checks ran."
+}

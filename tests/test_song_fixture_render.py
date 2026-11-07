@@ -32,11 +32,12 @@ class SongFixtureRenderTests(unittest.TestCase):
         rendered = CONTRACT.render_song_html(self.template(), song, "7.0.0-rc.1")
         reopened = CONTRACT.extract_rendered_payload(rendered)
         self.assertEqual(
-            {key: reopened[key] for key in ("metadata", "sections", "footer", "settings")},
+            {key: reopened[key] for key in ("metadata", "sections", "footer", "settings", "extensions")},
             CONTRACT.semantic_payload(song),
         )
         self.assertEqual(reopened["sheetMeta"]["contentHash"], CONTRACT.content_hash(song))
         self.assertEqual(reopened["sheetMeta"]["songId"], song["songId"])
+        self.assertEqual(reopened["revision"], song)
 
     def test_render_is_deterministic_and_does_not_mutate_input(self):
         song = self.song()

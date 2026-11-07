@@ -1,0 +1,79 @@
+{
+  "status": "retirement-plan-not-deletion-approval",
+  "date": "2026-11-06",
+  "remoteRecoveryVerified": false,
+  "groups": [
+    {
+      "group": "suspended-importers",
+      "paths": [
+        "bandsheet_import.py",
+        "import_edited_song_html.py",
+        "busk_import.py",
+        "_work/busk-import.html"
+      ],
+      "status": "obsolete",
+      "deleteGate": "Remote checkpoint and reference/test review; do not execute, including --check"
+    },
+    {
+      "group": "historical-documents",
+      "paths": [
+        "_archive/docs/**",
+        "_work/version-log-*.md"
+      ],
+      "status": "obsolete-instructions",
+      "deleteGate": "Keep required evidence remotely; delete redundant active copies without rewriting history"
+    },
+    {
+      "group": "historical-prototypes",
+      "paths": [
+        "_archive/prototypes/**",
+        "transfer-batches/**"
+      ],
+      "status": "historical-dependency",
+      "deleteGate": "build_luminous.py reads a pinned historical prototype; replace dependency and verify recovery first"
+    },
+    {
+      "group": "legacy-build-transfer",
+      "paths": [
+        "tools/build_luminous.py",
+        "tools/transfer_song_trial.py",
+        "tools/batch_transfer.py",
+        "tools/p0_browser_fixture.py"
+      ],
+      "status": "transitional",
+      "deleteGate": "Replacement coverage, approved pilot and no remaining callers"
+    },
+    {
+      "group": "legacy-entrypoints",
+      "paths": [
+        "push.sh",
+        "commands/**",
+        "update_index.py"
+      ],
+      "status": "transitional-do-not-run",
+      "deleteGate": "New scoped build/deploy entrypoints and authorized cutover"
+    },
+    {
+      "group": "legacy-protection",
+      "paths": [
+        "content_guard.py",
+        "validate_bandsheet.py",
+        "rehearsal_check.py"
+      ],
+      "status": "transitional-protection",
+      "deleteGate": "Replacement guards, mutation coverage and rollback verification"
+    },
+    {
+      "group": "production-artifacts",
+      "paths": [
+        "songs/**",
+        "_template.html",
+        "index.html",
+        "*/index.html",
+        "releases/**"
+      ],
+      "status": "protected",
+      "deleteGate": "Exact per-song approval/cutover and historical remote recovery; no changes in current scope"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
-# Song revisions
+# Immutable song revision objects
 
-Future append-only browser revision documents live under `<song-id>/`. A captured revision must include its parent revision hash and must never overwrite an earlier file.
-
-This folder is Git-tracked so an accepted intake cannot exist only in Downloads or ignored `_work/` storage.
+Future `<songId>/<revisionHash>.json` files retain complete revision envelopes.
+An object is never rewritten. Draft capture does not imply musical approval or
+canonical selection. Only a verified authorized remote commit makes an object
+recoverable after local deletion; a tracked directory alone is not durability.
+This project currently contains no real-song JSON revisions.

@@ -56,11 +56,11 @@ class SongDataContractTests(unittest.TestCase):
             [song],
             [self.band()],
             [self.playlist()],
-            {song["songId"]: {"contentHash": digest, "approvedOn": "2026-11-06"}},
+            {song["songId"]: {"songId": song["songId"], "revisionHash": CONTRACT.revision_hash(song), "contentHash": digest, "approvedOn": "2026-11-06"}},
             index_version="1.0.0-draft.1",
             release_id="fixture-release",
         )
-        self.assertEqual(catalog["songs"][0]["approvalStatus"], "approved")
+        self.assertEqual(catalog["songs"][0]["approvalStatus"], "approval-record-present-unverified")
         self.assertEqual(catalog["songs"][0]["href"], "songs/fixture-representative.html")
         self.assertEqual(catalog["songs"][0]["bars"], 2)
         self.assertEqual(catalog["songs"][0]["lyricBlocks"], 1)

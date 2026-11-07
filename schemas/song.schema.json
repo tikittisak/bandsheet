@@ -3,41 +3,170 @@
   "$id": "https://ti.muse/bandsheet/schemas/song.schema.json",
   "title": "Bandsheet Song v1",
   "type": "object",
-  "required": ["schemaVersion", "songId", "slug", "contentRevision", "provenance", "metadata", "sections", "footer", "settings"],
+  "required": [
+    "schemaVersion",
+    "songId",
+    "slug",
+    "contentRevision",
+    "provenance",
+    "metadata",
+    "sections",
+    "footer",
+    "settings"
+  ],
   "properties": {
-    "schemaVersion": {"const": 1},
-    "songId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"},
-    "slug": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,79}$"},
-    "contentRevision": {"type": "integer", "minimum": 1},
+    "schemaVersion": {
+      "const": 1
+    },
+    "songId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,79}$"
+    },
+    "contentRevision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
     "provenance": {
       "type": "object",
-      "required": ["sourceType", "capturedOn", "parentRevisionHash"],
+      "required": [
+        "sourceType",
+        "capturedOn",
+        "parentRevisionHash"
+      ],
       "properties": {
-        "sourceType": {"type": "string", "minLength": 1},
-        "capturedOn": {"type": "string", "format": "date"},
-        "parentRevisionHash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
-        "sourceRef": {"type": "string"},
-        "note": {"type": "string"}
+        "sourceType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capturedOn": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "parentRevisionHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
     "metadata": {
       "type": "object",
-      "required": ["title", "artist", "key", "bpm", "timeSignature", "vocalist"],
+      "required": [
+        "title",
+        "artist",
+        "key",
+        "bpm",
+        "timeSignature",
+        "vocalist"
+      ],
       "properties": {
-        "title": {"type": "string", "minLength": 1},
-        "artist": {"type": "string"},
-        "key": {"type": "string"},
-        "bpm": {"type": "string"},
-        "timeSignature": {"type": "string"},
-        "vocalist": {"type": "string"}
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artist": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "bpm": {
+          "type": "string"
+        },
+        "timeSignature": {
+          "type": "string"
+        },
+        "vocalist": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
-    "sections": {"type": "array", "items": {"type": "object"}},
-    "footer": {"type": "object"},
-    "settings": {"type": "object"},
-    "extensions": {"type": "object"}
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rowSizes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            }
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "type",
+              "cols"
+            ],
+            "properties": {
+              "type": {
+                "const": "note"
+              },
+              "cols": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "required": [
+              "bars"
+            ],
+            "properties": {
+              "type": {
+                "not": {
+                  "const": "note"
+                }
+              },
+              "bars": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "c"
+                  ],
+                  "properties": {
+                    "c": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "footer": {
+      "type": "object"
+    },
+    "settings": {
+      "type": "object"
+    },
+    "extensions": {
+      "type": "object"
+    }
   },
   "additionalProperties": false
 }

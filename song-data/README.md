@@ -1,5 +1,7 @@
-# Song data
+# Canonical selection pointers
 
-Future canonical song JSON lives here only after an explicit promotion decision. During the architecture phase this folder stays empty; synthetic fixtures live under `tests/fixtures/`.
-
-Do not copy or normalize the existing 72 HTML sheets into this folder until the extraction round-trip gate passes.
+After an explicitly approved cutover, `<songId>.json` selects an exact immutable
+revision object from song-revisions. It must not duplicate the full editable payload.
+This directory currently contains no selected songs. Existing songs/*.html remain
+canonical disk sources during transition. Synthetic draft pointers exist only in
+disposable lab Git repositories and are never production selections.

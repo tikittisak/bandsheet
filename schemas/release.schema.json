@@ -3,15 +3,86 @@
   "$id": "https://ti.muse/bandsheet/schemas/release.schema.json",
   "title": "Bandsheet Release v1",
   "type": "object",
-  "required": ["schemaVersion", "releaseId", "editorVersion", "indexVersion", "catalogBuildHash", "artifactHashes", "promotionAllowed"],
+  "required": [
+    "schemaVersion",
+    "releaseId",
+    "editorVersion",
+    "indexVersion",
+    "catalogBuildHash",
+    "artifactHashes",
+    "inputCommit",
+    "generatorHash",
+    "editorHash",
+    "indexHash",
+    "songRevisionHashes",
+    "verificationRefs",
+    "previousReleaseId"
+  ],
   "properties": {
-    "schemaVersion": {"const": 1},
-    "releaseId": {"type": "string", "minLength": 1},
-    "editorVersion": {"type": "string", "minLength": 1},
-    "indexVersion": {"type": "string", "minLength": 1},
-    "catalogBuildHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "artifactHashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
-    "promotionAllowed": {"type": "boolean"}
+    "schemaVersion": {
+      "const": 1
+    },
+    "releaseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "editorVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "indexVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "catalogBuildHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifactHashes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "inputCommit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatorHash": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "editorHash": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "indexHash": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "songRevisionHashes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "verificationRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "previousReleaseId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
   },
   "additionalProperties": false
 }
