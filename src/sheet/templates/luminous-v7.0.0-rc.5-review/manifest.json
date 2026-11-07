@@ -1,0 +1,39 @@
+{
+  "version": "7.0.0-rc.5-review",
+  "status": "local-review-template",
+  "format": "bandsheet-review-html-1",
+  "base": {
+    "path": "src/sheet/templates/luminous-v7.0.0-rc.4-review/template.html",
+    "sha256": "5de6e8a31c78701fc86a91a1c47c579a26b0eef33d8e7420be272d977498c226"
+  },
+  "templateSha256": "f813344b24b67f76e3e41b4d334dd742dc7a537f7ccd7872df299c79a6c5e5ff",
+  "shellSha256": "095bc39581aa97c7793089462bd3bf63ec04041d3efaf40140f6fa987ff43c6d",
+  "defaultView": "both",
+  "sourceSha256": {
+    "build.py": "c1103fa1a59703492b423dea7ac23763bac167036f414b91c5b229e78bee2f34",
+    "editor.js": "a600c1aa926dced8b30f8e1f7c50125b71ed17214eaf67743b3a1312bdff6008",
+    "bootstrap.js": "679d8dba60e6dd768bd4042ad6e4043d3804f070e7a59a113b701028175bcdea"
+  },
+  "verification": {
+    "test": "tests/browser_review_shell.mjs",
+    "testSha256": "f81393b883ce3937a359f51e36abf27c4e26381c8b154aa9928d5abafff20c3b",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "cases": [
+      "Exact Hysteria revision downloads, reopens with 88 bars and 5 lyric blocks, and switches Both/Band/Vocal",
+      "Hysteria B/I/U survives a real download and reopen, with only the selected lyric formatting changed",
+      "B/I/U apply to selected synthetic lyric text and survive Save HTML and reopen",
+      "Unchanged re-export preserves exact draft revision, HTML bytes and file size",
+      "Blank template downloads and reopens with entered metadata, four bars and Both; color UI and hidden rhythm/beat handlers still apply options",
+      "Every downloaded HTML file matches the pinned UI shell byte for byte outside its one JSON slot",
+      "Changing UI bytes fails CLI verification and blocks browser Save; changing the slot pin also fails verification"
+    ],
+    "fileSizes": {
+      "hysteria": {
+        "generated": 181581,
+        "downloaded": 181581
+      }
+    },
+    "hysteriaHtmlSha256": "653b4d0b364e1fc85754a90de7b3f436096e2f8c5947ee0cbba5ea7e7dcffd68",
+    "hysteriaRevisionHash": "0dbbc4d73396c42b8226f136c80cc425238242516c625b10a58d8126116300fa"
+  }
+}

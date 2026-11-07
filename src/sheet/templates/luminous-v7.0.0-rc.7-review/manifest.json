@@ -1,0 +1,19 @@
+{
+  "version": "7.0.0-rc.7-review",
+  "baseSha256": "9570ba1b4b13a16939f7dc8b0ba0c4a5898271b79bbc0c6d2deec4ec87735037",
+  "templateSha256": "1a845108ba17e9ee9aabd5fdb3804401f7c83da77c0ca4f0fbb280a007fb73ba",
+  "shellSha256": "8f7475a3b6e4702b241c2865bbc803619f2768a09b3a04e1ae5eac62d8517a17",
+  "displayTimezone": "Asia/Bangkok",
+  "verification": {
+    "status": "pass",
+    "cases": [
+      "Hysteria r2 shows its historical date with no inferred time on both pages",
+      "Sheet and index agree on ICT times for UTC instants crossing local midnight",
+      "Draft export preserves edit time across a later Save and the index stays on r1",
+      "Standalone verifier rejects an approved file without its external decision"
+    ],
+    "hysteriaRevisionHash": "d88e194bf9a603491344d538cfdeed931e9483a7a9015386f231bb1bdaa9e307",
+    "testSha256": "81c016dd439cf2a64f31c3338999817d34f08ab9a84b5430c1a1b5a2cdcc0ef2",
+    "timelineSourceSha256": "51837a9127599ad23c6ea2914f8834b6386c2b8919911e9d38f4fb449b3fc984"
+  }
+}

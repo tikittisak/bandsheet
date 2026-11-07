@@ -1,0 +1,37 @@
+{
+  "version": "7.0.0-rc.4-review",
+  "status": "local-review-template",
+  "base": {
+    "path": "src/sheet/templates/luminous-v7.0.0-rc.3-review/template.html",
+    "sha256": "ece138080458c0807b225c1be5077e7c3eba45bf9af952177bbcce920fad6d0d"
+  },
+  "templateSha256": "5de6e8a31c78701fc86a91a1c47c579a26b0eef33d8e7420be272d977498c226",
+  "editorSha256": "8a83286f85564581ec2c7c5dc0896075de0817d29dda2a56d76e72af04f6ef5b",
+  "defaultView": "both",
+  "persistence": "local-html-download",
+  "formatting": [
+    "bold",
+    "italic",
+    "underline"
+  ],
+  "verification": {
+    "test": "tests/browser_review_template.mjs",
+    "testSha256": "ec9eeedf81b5a9e50553f3f89c0e0384300132b2ccfabc2724ad1243c9b5509e",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "cases": [
+      "Exact Hysteria revision downloads, reopens with 88 bars and 5 lyric blocks, and switches Both/Band/Vocal",
+      "Hysteria B/I/U survives a real download and reopen, with only the selected lyric formatting changed",
+      "B/I/U apply to selected synthetic lyric text and survive Save HTML and reopen",
+      "Unchanged re-export preserves exact draft revision, HTML bytes and file size",
+      "Blank template downloads and reopens with entered metadata, four bars and Both; color UI and hidden rhythm/beat handlers still apply options"
+    ],
+    "hysteriaHtmlSha256": "7fa31f686c0b2eca3abd711f80b190fe175cd1a2873c4b8b1e2ed4e6cf09e33b",
+    "hysteriaRevisionHash": "0dbbc4d73396c42b8226f136c80cc425238242516c625b10a58d8126116300fa",
+    "bytes": {
+      "rc3BlankTemplate": 177372,
+      "rc4BlankTemplate": 174541,
+      "rc3HysteriaDownload": 201381,
+      "rc4HysteriaDownload": 187683
+    }
+  }
+}

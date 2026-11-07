@@ -1,0 +1,23 @@
+{
+  "version": "7.0.0-rc.3-review",
+  "status": "local-review-template",
+  "base": {
+    "path": "src/sheet/templates/luminous-v7.0.0-rc.2-review/template.html",
+    "sha256": "796bae1359ba824009976a3915c903709567abdf12ad940b9d56bd277cdf02ff"
+  },
+  "templateSha256": "ece138080458c0807b225c1be5077e7c3eba45bf9af952177bbcce920fad6d0d",
+  "editorSha256": "c4b0722ae242a4b9ea35afb32ef559948cd5e64b456ccb0c96e4477bf9899096",
+  "revisionProtocolSourceSha256": "b8450f31b87dcc00f628861ca235835039449780d08f5ec5c058a3f3d06effb9",
+  "defaultView": "both",
+  "persistence": "local-html-download",
+  "verification": {
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "cases": [
+      "Hysteria Save HTML downloads a file and reopens with identical data, DOM and revision on a narrow viewport",
+      "Bold and Italic buttons plus a Georgia font selection apply to selected text and survive Save HTML and reopen",
+      "Downloading the reopened draft again preserves its exact revision hash and full payload",
+      "Blank template independently downloads and reopens with entered metadata"
+    ],
+    "hysteriaReviewHtmlSha256": "61263645ec950e2a949b63c6c11c58299c1e3627b797eb0c1de6bacc73fe7746"
+  }
+}

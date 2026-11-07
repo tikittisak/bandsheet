@@ -8,7 +8,7 @@ import re
 import math
 import struct
 import importlib.util
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 _schema_spec = importlib.util.spec_from_file_location('bandsheet_schema_check', Path(__file__).with_name('schema_check.py'))
@@ -41,7 +41,7 @@ TOP_LEVEL_KEYS = {
     "extensions",
 }
 METADATA_KEYS = {"title", "artist", "key", "bpm", "timeSignature", "vocalist"}
-PROVENANCE_KEYS = {"sourceType", "capturedOn", "parentRevisionHash", "sourceRef", "note"}
+PROVENANCE_KEYS = {"sourceType", "capturedOn", "editedAt", "parentRevisionHash", "sourceRef", "note"}
 
 
 class ContractError(ValueError):
@@ -163,6 +163,14 @@ def validate_song(song):
         date.fromisoformat(song["provenance"]["capturedOn"])
     except ValueError as exc:
         raise ContractError("invalid capturedOn date") from exc
+    if "editedAt" in song["provenance"]:
+        edited_at = song["provenance"]["editedAt"]
+        if not isinstance(edited_at, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z", edited_at):
+            raise ContractError("provenance.editedAt must be a UTC timestamp")
+        try:
+            datetime.fromisoformat(edited_at[:-1] + "+00:00")
+        except ValueError as exc:
+            raise ContractError("invalid editedAt timestamp") from exc
     for key in ("sourceRef", "note"):
         if key in song["provenance"] and not isinstance(song["provenance"][key], str):
             raise ContractError(f"provenance.{key} must be a string")
@@ -265,7 +273,7 @@ def _extract_input_value(document, element_id):
     return html.unescape(match.group(1))
 
 
-def render_song_html(template, song, editor_version):
+def render_song_html(template, song, editor_version, *, local_review=False):
     """Render a self-contained review sheet without changing the song revision."""
     validate_song(song)
     document = template
@@ -298,6 +306,14 @@ def render_song_html(template, song, editor_version):
     document = document.replace("SETTINGS.chordFont=CHORD_FONT;", "// Display defaults must not mutate SETTINGS.")
     document = document.replace("      if(!sec.rowSizes)sec.rowSizes=[];\n      var pos=", "      var pos=")
     document = document.replace("sec.rowSizes[ri]||DEFAULT_ROW_SIZE", "(sec.rowSizes||[])[ri]||DEFAULT_ROW_SIZE")
+    envelope = '<script id="bandsheet-revision" type="application/json">' + _inline_json(song) + '</script>'
+    local_export = document.count('<script id="bandsheet-local-html-export">')
+    if local_review:
+        if local_export != 1:
+            raise ContractError("local review requires an HTML export template")
+        return document.replace("</body>", envelope + "</body>")
+    if local_export:
+        raise ContractError("local HTML export template requires explicit local review mode")
     # Fail closed if the revision adapter fails to initialize: never fall back to
     # the retired download-as-Save implementation in this derived page.
     for start, end, replacement in (
@@ -309,7 +325,6 @@ def render_song_html(template, song, editor_version):
         left = document.index(start)
         right = document.index(end, left)
         document = document[:left] + replacement + document[right:]
-    envelope = '<script id="bandsheet-revision" type="application/json">' + _inline_json(song) + '</script>'
     client = (Path(__file__).resolve().parents[1] / "src/sheet/revision-client.js").read_text(encoding="utf-8")
     return document.replace("</body>", envelope + "<script>" + client + "</script></body>")
 

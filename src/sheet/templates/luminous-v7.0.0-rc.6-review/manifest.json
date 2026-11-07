@@ -1,0 +1,18 @@
+{
+  "version": "7.0.0-rc.6-review",
+  "baseSha256": "f813344b24b67f76e3e41b4d334dd742dc7a537f7ccd7872df299c79a6c5e5ff",
+  "templateSha256": "9570ba1b4b13a16939f7dc8b0ba0c4a5898271b79bbc0c6d2deec4ec87735037",
+  "shellSha256": "9096502c72d342298e74b6c9230d99d7c62cc92e33367e1c94ddde1ee879738d",
+  "verification": {
+    "status": "pass",
+    "cases": [
+      "Hysteria r2 and linked index show Pending review",
+      "Synthetic sheet and index show the same Approved test timestamp",
+      "Export after an edit reopens as Draft r2, while the index still shows approved r1",
+      "Standalone verifier rejects an approved file without its external decision"
+    ],
+    "hysteriaRevisionHash": "d88e194bf9a603491344d538cfdeed931e9483a7a9015386f231bb1bdaa9e307",
+    "hysteriaInputSha256": "3494ed228087330350698eb496891353a6a5e100f3ade0f94cc6a368e2cfd429",
+    "testSha256": "972bfacc7d1f87aa05980b56fd1a7a6470cab51c4eb1809cfe124cc341d3ee33"
+  }
+}

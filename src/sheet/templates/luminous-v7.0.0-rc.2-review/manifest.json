@@ -1,0 +1,34 @@
+{
+  "version": "7.0.0-rc.2-review",
+  "status": "local-review-template",
+  "base": {
+    "commit": "db2df1782f4b3fce36b52fbff75613f8633fc17a",
+    "path": "releases/luminous-v7.0.0-rc.1/template.html",
+    "sha256": "d6b5b547c56381e4c87349b73aeb8b61a6a9f9ed0d959e9fad5dc0e6208019fc"
+  },
+  "templateSha256": "796bae1359ba824009976a3915c903709567abdf12ad940b9d56bd277cdf02ff",
+  "view": {
+    "default": "both",
+    "options": [
+      "band",
+      "both",
+      "vocal"
+    ],
+    "stackAtOrBelowCssPx": 960
+  },
+  "referenceReviewArtifactSha256": "01c35bbacc75bc6f4334dfa87517312ef55b2009048a773c0e06f75f03abaee3",
+  "regenerate": "python3 -B src/sheet/templates/luminous-v7.0.0-rc.2-review/build.py --output /path/to/new/template.html",
+  "verify": "python3 -B src/sheet/templates/luminous-v7.0.0-rc.2-review/build.py --check",
+  "verification": {
+    "blankTemplate": "Chromium startup, empty metadata, one blank section, Both selected",
+    "generatedHysteriaWidthsCssPx": [
+      320,
+      390,
+      820,
+      1280
+    ],
+    "generatedHysteriaHtmlSha256": "21e7960909cc4c7c80cd67563e9916b5ed5eaa8023db22965712fa848ace772a",
+    "hysteriaRevisionHash": "0dbbc4d73396c42b8226f136c80cc425238242516c625b10a58d8126116300fa",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+  }
+}

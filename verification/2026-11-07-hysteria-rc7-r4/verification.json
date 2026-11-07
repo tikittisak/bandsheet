@@ -1,0 +1,26 @@
+{
+  "method": "Generated index HTML compared with the generated song page’s status and timeline JavaScript executed in Node with a minimal DOM stub.",
+  "browserPreview": "Unavailable: browser policy blocked direct file URL navigation.",
+  "nodeVersion": "v24.15.0",
+  "revisionHash": "90eeeb7642ee207a40cb703ea38d53a8c9c46ea951f7e9d215ecb432481d19bd",
+  "parentRevisionHash": "b0bc3c2b63d287e86309a97670a8ec84da352ca4791fedda8ea90fb32ef69819",
+  "approvedAt": "2026-11-07T14:20:06+07:00",
+  "approvedAtSource": "Local ICT clock sampled immediately after receiving Ti’s approval; not a chat-service timestamp.",
+  "sheet": [
+    "Approved · r4",
+    "Last edited: 7 Nov 2026, 14:19 ICT",
+    "Approved on: 7 Nov 2026, 14:20 ICT"
+  ],
+  "index": [
+    "Approved · r4",
+    "Last edited: 7 Nov 2026, 14:19 ICT",
+    "Approved on: 7 Nov 2026, 14:20 ICT"
+  ],
+  "filesSha256": {
+    "hysteria-rc7-r4.html": "511e54735a6dbca30da5be301c43adeb0b09569e3b528b6ae1005a052b6c4956",
+    "decision.json": "cc40313037525348b3f1f57176fd8cc8716101065d150e33991f05fc8cd4777c",
+    "review/song.html": "33e7f5a4075a2b9cda9c7173a6713935e40f2de23b06e3e3f22a465c65bbc759",
+    "review/index.html": "3a73f31b13daff6f011fa7facef3370a1e662d99ab79ae7876e23d1096af7c14",
+    "review/catalog.json": "74baeeefb2e8ea0f7b793ebce36fd7a1132bbe403e14b00d87d07613494c3834"
+  }
+}
