@@ -106,7 +106,10 @@ class IntegrityHardening(unittest.TestCase):
 
     def test_push_entrypoints_reject_invalid_template(self):
         (self.root/'commands').mkdir()
-        for rel in ('push.sh','commands/push-site.sh','commands/dry-run.sh','validate_bandsheet.py'):
+        for rel in (
+            'push.sh', 'commands/push-site.sh', 'commands/dry-run.sh',
+            'validate_bandsheet.py', 'published_sheet.py',
+        ):
             shutil.copy2(ROOT/rel,self.root/rel)
         (self.root/'_template.html').write_text('INVALID TEMPLATE')
         # Validation must stop before update_index or any Git operation exists.

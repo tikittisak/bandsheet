@@ -42,7 +42,26 @@ def json_var(doc, name, marker):
     return json.loads(raw)
 
 
-def content_payload(doc):
+def content_payload(doc, rel=None):
+    if rel is not None:
+        # Historical template builders call this function without a production path.
+        from published_sheet import read_published_review
+
+        review = read_published_review(doc, rel)
+        if review is not None:
+            revision = review["revision"]
+            return {
+                "metadata": dict(zip(CONTENT_FIELDS, (
+                    revision["metadata"][field] for field in (
+                        "title", "artist", "key", "bpm", "timeSignature", "vocalist"
+                    )
+                ))),
+                "sections": revision["sections"],
+                "footer": revision["footer"],
+                "settings": revision["settings"],
+                "sheet_meta": review["sheetMeta"],
+                "published_review": review,
+            }
     return {
         "metadata": {field: input_value(doc, field) for field in CONTENT_FIELDS},
         "sections": json_var(doc, "SECTIONS", "// ── END DATA ──"),
@@ -67,6 +86,8 @@ def load_locks():
 
 
 def lock_songs(raw_paths, note):
+    from published_sheet import read_song_text
+
     paths = normalize_allowed(raw_paths)
     if not paths:
         raise ValueError("--lock requires at least one exact song path")
@@ -77,7 +98,7 @@ def lock_songs(raw_paths, note):
         path = ROOT / rel
         if not path.exists():
             raise ValueError(f"cannot lock missing song: {rel}")
-        payload = content_payload(path.read_text(encoding="utf-8"))
+        payload = content_payload(read_song_text(path), rel)
         data["songs"][rel] = {
             "sha256": content_digest(payload),
             "approvedBy": "Ti",
@@ -89,6 +110,8 @@ def lock_songs(raw_paths, note):
 
 
 def verify_locks():
+    from published_sheet import read_song_text
+
     data = load_locks()
     errors = []
     baseline_doc = head_text("content-locks.json")
@@ -102,7 +125,7 @@ def verify_locks():
             errors.append(f"locked song missing: {rel}")
             continue
         try:
-            digest = content_digest(content_payload(path.read_text(encoding="utf-8")))
+            digest = content_digest(content_payload(read_song_text(path), rel))
         except (ValueError, json.JSONDecodeError) as exc:
             errors.append(f"locked song cannot be verified: {rel}: {exc}")
             continue
@@ -193,17 +216,21 @@ def describe_change(before, after):
 
 
 def find_drift():
+    from published_sheet import PublishedSheetError, read_song_text
+
     drift = {}
     template_only = []
     for rel in sorted(tracked_song_paths() | worktree_song_paths()):
         before_doc = head_text(rel)
         work_path = ROOT / rel
-        after_doc = work_path.read_text(encoding="utf-8") if work_path.exists() else None
+        after_doc = read_song_text(work_path) if work_path.exists() else None
         if before_doc == after_doc:
             continue
         try:
-            before = content_payload(before_doc) if before_doc is not None else None
-            after = content_payload(after_doc) if after_doc is not None else None
+            before = content_payload(before_doc, rel) if before_doc is not None else None
+            after = content_payload(after_doc, rel) if after_doc is not None else None
+        except PublishedSheetError:
+            raise
         except (ValueError, json.JSONDecodeError) as exc:
             drift[rel] = f"cannot verify embedded content: {exc}"
             continue

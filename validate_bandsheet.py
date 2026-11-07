@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Validate the bandsheet source-of-truth layout and write an optional change report."""
 import argparse
-import hashlib
 import json
 import re
 import subprocess
 from collections import Counter
 from datetime import date
 from pathlib import Path
+
+from published_sheet import read_published_review, read_song_text
 
 ROOT = Path(__file__).resolve().parent
 SONGS = ROOT / "songs"
@@ -55,13 +56,18 @@ def validate():
         errors.append("template still exposes removed font options")
 
     for path in song_files:
-        doc = read(path)
-        missing = [marker for marker in MARKERS if marker not in doc]
-        if missing:
-            errors.append(f"{path.relative_to(ROOT)} missing markers: {', '.join(missing)}")
+        doc = read_song_text(path)
         if re.search(r'<(?:script|link)[^>]+(?:src|href)="https?://', doc):
             errors.append(f"{path.relative_to(ROOT)} has external script/link dependency")
         try:
+            review = read_published_review(doc, path.relative_to(ROOT).as_posix())
+            if review is not None:
+                versions[review["sheetMeta"]["uiVersion"]] += 1
+                revisions[str(review["revision"]["contentRevision"])] += 1
+                continue
+            missing = [marker for marker in MARKERS if marker not in doc]
+            if missing:
+                errors.append(f"{path.relative_to(ROOT)} missing markers: {', '.join(missing)}")
             meta = js_var(doc, "SHEET_META", "// ── END SHEET META ──")
             versions[str(meta.get("templateVersion", ""))] += 1
             revisions[str(meta.get("sheetRevision", ""))] += 1

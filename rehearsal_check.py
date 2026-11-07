@@ -7,6 +7,8 @@ import json
 from datetime import date
 from pathlib import Path
 
+from published_sheet import read_song_text
+
 
 ROOT = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("content_guard", ROOT / "content_guard.py")
@@ -14,21 +16,11 @@ guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guard)
 
 
-def js_var(doc, name, marker):
-    marker_pos = doc.find(marker)
-    decl = f"var {name} = "
-    start = doc.rfind(decl, 0, marker_pos)
-    if marker_pos < 0 or start < 0:
-        raise ValueError(f"missing {name}")
-    return json.loads(doc[start + len(decl):marker_pos].strip().rstrip(";").strip())
-
-
 def inspect_song(rel, locks, lyrics_optional=False):
     path = ROOT / rel
-    doc = path.read_text(encoding="utf-8")
-    payload = guard.content_payload(doc)
+    payload = guard.content_payload(read_song_text(path), rel)
     sections = payload["sections"]
-    meta = js_var(doc, "SHEET_META", "// ── END SHEET META ──")
+    meta = payload["sheet_meta"]
     bars = sum(len(section.get("bars", [])) for section in sections)
     lyric_blocks = sum(1 for section in sections if section.get("type") == "note" and any(str(col).strip() for col in section.get("cols", [])))
     locked = locks.get(rel, {}).get("sha256") == guard.content_digest(payload)

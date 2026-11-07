@@ -6,6 +6,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from published_sheet import read_published_review, read_song_text
+
 BAND_ROOT = os.path.dirname(os.path.abspath(__file__))
 SONG_LIBRARY_DIR = "songs"
 BAND_CATALOG_DIR = "bands"
@@ -119,6 +121,10 @@ def count_bars(doc):
     except Exception:
         return ""
 
+    return count_section_bars(sections)
+
+
+def count_section_bars(sections):
     total = 0
     for section in sections:
         bars = section.get("bars") if isinstance(section, dict) else None
@@ -149,12 +155,29 @@ def title_from_filename(filepath):
 
 def extract_meta(filepath):
     try:
-        doc = read_text(filepath)
-    except Exception:
+        doc = read_song_text(Path(filepath))
+    except (OSError, UnicodeError):
         return None
 
-    title = get_input_value(doc, "tb-filename")
-    artist = get_input_value(doc, "tb-artist")
+    relative_path = Path(os.path.relpath(filepath, BAND_ROOT)).as_posix()
+    review = read_published_review(doc, relative_path)
+    if review is None:
+        title = get_input_value(doc, "tb-filename")
+        artist = get_input_value(doc, "tb-artist")
+        key = get_input_value(doc, "meta-key")
+        bpm = get_input_value(doc, "meta-bpm")
+        vocalist = get_input_value(doc, "meta-vocalist")
+        bars = count_bars(doc)
+    else:
+        revision = review["revision"]
+        metadata = revision["metadata"]
+        title = metadata["title"].strip()
+        artist = metadata["artist"].strip()
+        key = metadata["key"].strip()
+        bpm = metadata["bpm"].strip()
+        vocalist = metadata["vocalist"].strip()
+        bars = count_section_bars(revision["sections"])
+
     for prefix in ("— ", "- "):
         if artist.startswith(prefix):
             artist = artist[len(prefix):].strip()
@@ -172,10 +195,10 @@ def extract_meta(filepath):
     return {
         "title": title,
         "artist": artist,
-        "key": get_input_value(doc, "meta-key"),
-        "bpm": get_input_value(doc, "meta-bpm"),
-        "vocalist": get_input_value(doc, "meta-vocalist"),
-        "bars": count_bars(doc),
+        "key": key,
+        "bpm": bpm,
+        "vocalist": vocalist,
+        "bars": bars,
         "file": os.path.basename(filepath),
     }
 
