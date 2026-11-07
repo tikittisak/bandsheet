@@ -10,7 +10,7 @@ t=importlib.util.module_from_spec(spec);spec.loader.exec_module(t)
 
 class TransferTrialTests(unittest.TestCase):
     def setUp(self):
-        self.source=(ROOT/'songs/starlight.html').read_text()
+        self.source=(ROOT/'_archive/prototypes/preview-luminous-v7.0.0-alpha.2.html').read_text()
         self.template=t.TEMPLATE.read_text()
 
     def test_lossless_including_revision(self):

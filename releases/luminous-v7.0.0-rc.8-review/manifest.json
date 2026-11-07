@@ -1,0 +1,741 @@
+{
+  "baseCommit": "de66b849e727eee1ee703a649ffb8de5a83801d9",
+  "songs": {
+    "songs/anna-molly.html": {
+      "bars": 0,
+      "baselineSha256": "fec978eeb7338af4a3aef7e8e5b92bf787604702416bbc364ccc35acc5db19ae",
+      "contentRevision": 1,
+      "revisionHash": "45b4ed190b8afe971179829125875b2e5549750ce242c63577d904928281377f",
+      "sha256": "22ca3b3e3e0596fc6ecb89793df8f0b6b9536ffcaf53b9032e456df6501f6682",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "342e9f6db25237ecb094b576273cd3d9f60c0c39feddc231a94bf01a810d0164"
+    },
+    "songs/another-brick-in-the-wall-part-2.html": {
+      "bars": 89,
+      "baselineSha256": "2d82ffc59b7daa7f8e11407acc386b7cdeb80751874d9bc4b0de7f738451aa6d",
+      "contentRevision": 1,
+      "revisionHash": "f00a5bdedf66d4f003259f4d8a3cc62f74e1c8cb126d718834fb1c9139fe065a",
+      "sha256": "86e4d0c07e5e30dcb6a6ed6cbe719c0dacdecca981c8ae6368d04dbd867cd2a6",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "5894915b6948105ae832be7dcac717ba0ffd5e0f0ed74294acbc39d9d47a2518"
+    },
+    "songs/bad-guy.html": {
+      "bars": 112,
+      "baselineSha256": "e0a286c2fc8acbffadb3b5165342dcf3014cc0a0ebd291ddadf6ba338f028e38",
+      "contentRevision": 1,
+      "revisionHash": "53bb46d5d74f88d178879f53f1732931706bbdac4d81b087a5ba5a6e63222918",
+      "sha256": "e5568466e608dbd2b111d311b04f81a512f8a927d0f13cac66ba02f05916e661",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "c09667e41934053c915d48ac2f7207909e7c0b513e5239377f97db946216cc7f"
+    },
+    "songs/beautiful-ones.html": {
+      "bars": 84,
+      "baselineSha256": "a34220f7abae3e8a933718bdbbeab6fb941e5f1f33abd5d4287dba41c2278b5d",
+      "contentRevision": 1,
+      "revisionHash": "4b38dbba9e77f15450011d6de76e9c6c595179a341824d2257ca6d9679f28210",
+      "sha256": "c88786ef7d633326d3b8841cdbb63bd4657ea6b707b4da22f48feb598fb48f36",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "d7bb00d494662d78c1aea0de40a3a7eebd773d83ca096cb7cc1ae27254ef0ade"
+    },
+    "songs/beggin.html": {
+      "bars": 107,
+      "baselineSha256": "5908270a17a48227ea9dadf2d7715207469978068cd970e95b916ff829d8b496",
+      "contentRevision": 1,
+      "revisionHash": "b20c491d69a4d0f26df4bd9ef872968259b4f3d6fcbf1b405c814a6a4527b38b",
+      "sha256": "b40ab0d1d5faf4fc57e051724566dd9821bcbcc2be3405e3b72e7af2ea6df3d1",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "bcc7066edf8fbbcc6a77041c8fd652e377e88e13eeb524c7c3c3b73aa1bdcf7b"
+    },
+    "songs/birds-of-a-feather.html": {
+      "bars": 90,
+      "baselineSha256": "7ec8dafdf505bfada757c1babbeb95bcd0dc418cc929d503072a0641b2de2893",
+      "contentRevision": 3,
+      "revisionHash": "c1437079500e8eeeba87ba9530d0e419d7f53993108c2fb1d4d7d54c51df5ae2",
+      "sha256": "206fc894357a0ce46f73d2cdb8297349c7c4f4eab1c61fc6246e8887fde57b0c",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti selected Birds Of A Feather r3 on 2026-11-08",
+      "sourceSha256": "206fc894357a0ce46f73d2cdb8297349c7c4f4eab1c61fc6246e8887fde57b0c"
+    },
+    "songs/black-hole-sun.html": {
+      "bars": 136,
+      "baselineSha256": "21885031f58f9772266a247e1a0dd9cea2c0a4e6fc83eaec469d88c3a371d567",
+      "contentRevision": 3,
+      "revisionHash": "b2007a1cfa37b580646100d7a987319f73c7df1a26f452d5c4bcab15533e5742",
+      "sha256": "d4fff3f442520955b897aba40563dec9ae2fa5e49e0fc741666d371266400c11",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti r3 export",
+      "sourceSha256": "feff222bb2a39aff267c381cb4b6dfd76de31ab6e78c5f35d48dd971ab3ca31d"
+    },
+    "songs/blue-bird.html": {
+      "bars": 124,
+      "baselineSha256": "1985b1d348fc995c59ef5ab25ad7aa2d14d0f851d3f0204bfbb9eeb31fa48daa",
+      "contentRevision": 1,
+      "revisionHash": "9da580e562adc2395873de220a84d534d56c067f820fa685aa73935edeb6e621",
+      "sha256": "20ff61014ce4428c0cdc9c66ecdd0da401591bd0c33783d0114d0b597f5f123d",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "ef85376b5dfabd93344fac7a4417a0993f991c34f4904dd6e99ccf574d36702b"
+    },
+    "songs/bring-me-to-life.html": {
+      "bars": 87,
+      "baselineSha256": "5927a195fd49edcfa9b35bfe3e1ac3fc7dfbe21cbc095cffd55b1f834cd8a2d1",
+      "contentRevision": 1,
+      "revisionHash": "7d781e4185195aa3c10e1789cf74d79295418cbbd818bf95b41e0d977caee2cc",
+      "sha256": "9e986e6a62095542125bc166e84e8f8afaf716e2d5cf46046c2afba7efff4c6a",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "b904afbf2f44e246676ea72df9abb78611f018a139021a9156a67db863c0f258"
+    },
+    "songs/busbaa.html": {
+      "bars": 207,
+      "baselineSha256": "1a6c8c1b3d4fa01f13dcce4352ccdeecb3c0d52272d150ad6cb098c2579f9a97",
+      "contentRevision": 3,
+      "revisionHash": "a77f1791338dad065422e3932159095c48687c352967a6486dc42ba305602275",
+      "sha256": "0fbb5d34e5b09f770c7110243f794e638d0bfbbfe279c993bf92cd38fe7b80e3",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "0fbb5d34e5b09f770c7110243f794e638d0bfbbfe279c993bf92cd38fe7b80e3"
+    },
+    "songs/butter-fly.html": {
+      "bars": 118,
+      "baselineSha256": "e5bfefe735d4c6deb66f4600c5c59a331784b4f0a1d1ee53ae08ee281ce40445",
+      "contentRevision": 1,
+      "revisionHash": "73704677c3b18d6dd68b1ae36af4e0dab24c6ce0d6484c5e9f366cb87209d126",
+      "sha256": "87d2e19bedb1984553351af0c1cef05442d37787110ad180f76d4b23aa021f64",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "11c67e63016c6dd723667b0c32317057557364a2b15b982c9835c1413b215198"
+    },
+    "songs/comfortably-numb-bars.html": {
+      "bars": 100,
+      "baselineSha256": "b74b33cff7d6ec2fb0609bad217fe82136a0a8d3d646f12e2522babaa5fcc7e5",
+      "contentRevision": 1,
+      "revisionHash": "bfbfaf734c1c860a21503e731b25b60d27951c83b94e7dcee501a1e17f8c62d3",
+      "sha256": "e64cd870cba6faba8b7818984bdf5a13e78cf3fdcd94d1a7085491311cae86b4",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "99ffd2e096e724bd588ab7daff68aebec67e8ffd9ae93d4d57fd06c813f770f3"
+    },
+    "songs/crazy.html": {
+      "bars": 82,
+      "baselineSha256": "374d526e6293c149db5f29953258ce535d1ba578bf69452eabe353d074116a02",
+      "contentRevision": 1,
+      "revisionHash": "28947ef1aef69dd47aad8f346925abf8376624f79b4289d84a4f7d44be14751f",
+      "sha256": "4fb8d67565c3b9c3e04252524331910cac6e635ff3d077df12f3b4e16e9236f4",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "e7d33db313813b0fb38a1e13eeafeb669cf24a560b6dbbf753b5552c34a270a3"
+    },
+    "songs/dee-gern-pai.html": {
+      "bars": 86,
+      "baselineSha256": "fb8644012d5a88ff085e074eaf8fa8c5fc55e16f3e0f7405476a27cb62aca61d",
+      "contentRevision": 2,
+      "revisionHash": "4fc6f0077f8de1e7b35a2604ebfcadadc519654a10a3216a5c2c8688fb1861a0",
+      "sha256": "3f9ae11559972e8e95c600e5e96021e1245f73e4c2c41c85e10b8ef91839834d",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "3f9ae11559972e8e95c600e5e96021e1245f73e4c2c41c85e10b8ef91839834d"
+    },
+    "songs/forever-young.html": {
+      "bars": 118,
+      "baselineSha256": "391d858273154d16b0673e5d80dfe968bfd7f94ae441c0f359b610c30b82c965",
+      "contentRevision": 1,
+      "revisionHash": "32985414cbdd87bcc221d2238a12057187f9365f5085c7727fe57bcd774d635e",
+      "sha256": "4f54c8e372060fb1ace7093dd8393883259129d2a3e74296782c13bd95bfc9a8",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "13f147d462bd25c0c05c68dd016ee82819e674e606a811f32070f029f9becab5"
+    },
+    "songs/get-lucky.html": {
+      "bars": 120,
+      "baselineSha256": "35fee5d6e4ef00433b4c44396b7adc15696ca3d5b54aacef9bfc8915352a4c63",
+      "contentRevision": 3,
+      "revisionHash": "10ec1737372b7ee7770eeb575c09fccae7ff39588a422eb29433387b0015702a",
+      "sha256": "30631c326fec9521cf3a27ebd26e47f627ecf422a392b1d213da83988ceed21e",
+      "shellSha256": "38637c27c0e23bc016381c378824a189f7abdcd91c6a6a42156240c29bf22164",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "30631c326fec9521cf3a27ebd26e47f627ecf422a392b1d213da83988ceed21e"
+    },
+    "songs/gohok.html": {
+      "bars": 91,
+      "baselineSha256": "89e034b16329bd73ca05071de2cfb4277d929013df27948ca692a9a378898602",
+      "contentRevision": 3,
+      "revisionHash": "0df3146cd862846ebe55391e74ea554414ddfb21c38a8907600e8d1631a755d5",
+      "sha256": "925eb8372f24b7922c88d18f7a6f7f6088b7ff9612ef4082d19d1e377045a921",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "925eb8372f24b7922c88d18f7a6f7f6088b7ff9612ef4082d19d1e377045a921"
+    },
+    "songs/guitar-practice-1.html": {
+      "bars": 16,
+      "baselineSha256": "d0390b75689ef9ae27ddc5c11aeb82cade6e0f6db3f4fe63af5e97727e1247cf",
+      "contentRevision": 1,
+      "revisionHash": "969be8e81ac423fb669ba9450612531c6d1d001f1de7e2b272e0d5361881b341",
+      "sha256": "8d165c7bc79d048072db916bad723e2238bfef027ebe45b7b13a54c4e9242142",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "rc.7 completion draft",
+      "sourceSha256": "0fcee627e391aec2fe21b85ae1a6e8d75cfe14f2214583ed86dbf512edb3a1c3"
+    },
+    "songs/heathens.html": {
+      "bars": 93,
+      "baselineSha256": "03751a17faffcaf774cb36481a9ecd2339109fa618e77b8eb0bb3e31796e508b",
+      "contentRevision": 1,
+      "revisionHash": "dcfb93b63e92912faef7a4b3751f0cead8f996cfb0da2d1f9ec6170806af90fe",
+      "sha256": "7bb578d929fd5c32fe225d8d3231ce47fe19e3e3c9b55cae839c1140f94b95a4",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "58c2636bde4b08a9efc9d209d1a5efa9f884e706c4155bd145a65ea1af84d363"
+    },
+    "songs/hysteria-overture.html": {
+      "bars": 56,
+      "baselineSha256": "f3fae4782f9b364149251071d6e9d16b74d76f1962c18ec55a2b7814685527c9",
+      "contentRevision": 5,
+      "revisionHash": "10908a32990685c10d0e5039e4f5914823f8c88e1e200afdbacc3dd6d26f360b",
+      "sha256": "032959a57cffe69f9bd9a36cf9e698368840ad9c34393d55a3e9c754b3d3c1f7",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti-approved song revision",
+      "sourceSha256": "cad030b20bdaf38cf4292af7c556cefcac878b4ec0bf4e9bd76115cb67cdd9f9"
+    },
+    "songs/hysteria.html": {
+      "bars": 88,
+      "baselineSha256": "33e7f5a4075a2b9cda9c7173a6713935e40f2de23b06e3e3f22a465c65bbc759",
+      "contentRevision": 4,
+      "revisionHash": "90eeeb7642ee207a40cb703ea38d53a8c9c46ea951f7e9d215ecb432481d19bd",
+      "sha256": "9fbc4dae7b1713b6fb5d3bc2b600a828e656f4bc5986a118d8ad54a1443cbc85",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "33e7f5a4075a2b9cda9c7173a6713935e40f2de23b06e3e3f22a465c65bbc759"
+    },
+    "songs/i-put-a-spell-on-you.html": {
+      "bars": 46,
+      "baselineSha256": "e07f1a8404da64aa7613c50bce81ddf00ec7cf7f78ab1195c45041ce30bbf38b",
+      "contentRevision": 1,
+      "revisionHash": "2e2e602b10dda36e1a1a44343ed090130a6a99d1ea4437eb3bb597f1af6a4a14",
+      "sha256": "79e76e66bccc213ae7e0ad746bb44f851c41f8181e10ddc7567eb96159e6bd30",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "df0c6f6464ab2d246687a9c3bfedb3bb8b0298c81135d974fac128ca01aca615"
+    },
+    "songs/i-see-red.html": {
+      "bars": 100,
+      "baselineSha256": "c50619a2ae8c712894feafbc810869cf3e07e424b62774e87b0aed297cfa07cc",
+      "contentRevision": 1,
+      "revisionHash": "e8df6bb362bc2935c6fc211ba3e9ada48ac2393685cc10e62b544ff015f79474",
+      "sha256": "1025889b2999c51e09a0bcc8faf2ff8a560e2db5ff2fff221bb822cf91b2182d",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "4e891298bc65abe84b55c46e530326bf525425e8ddc3ff921b1c0c718b8aebbe"
+    },
+    "songs/if-i-aint-got-you.html": {
+      "bars": 73,
+      "baselineSha256": "8607151b92aa0f71727dd8d6832889642ee6b565e315122dcd440d87ca8b18df",
+      "contentRevision": 2,
+      "revisionHash": "8568eefe9b7bebaac8f86ce26c7876519a22077f47c313ec84a1cc63c2b67fb8",
+      "sha256": "a8a638ab711621026a8fbdd6a4b25c619123dd3ce91ea69aaf3de41eb75ef4d5",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "a8a638ab711621026a8fbdd6a4b25c619123dd3ce91ea69aaf3de41eb75ef4d5"
+    },
+    "songs/its-my-life.html": {
+      "bars": 141,
+      "baselineSha256": "1ea07cb3011d0a21a4a58659af8c54195652d937bd9d5a86902b2af5caabb36c",
+      "contentRevision": 2,
+      "revisionHash": "db7a545d471170fa2e35102ed147183dffce439227e3b8a70a0dc0fc1acf93c9",
+      "sha256": "16f698baf441537c2ea4276d922943fad7840d7388b3d65e3bc8ca588f8d914c",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "16f698baf441537c2ea4276d922943fad7840d7388b3d65e3bc8ca588f8d914c"
+    },
+    "songs/jesus-of-suburbia.html": {
+      "bars": 380,
+      "baselineSha256": "0c8e79710f2e543400f0bc946f8cc224c3196621eecdedaddf19b7150462e705",
+      "contentRevision": 1,
+      "revisionHash": "d4d55244e0ce0d2d705a87c3c084de258ad35a2d738806cf6b65630139345c0f",
+      "sha256": "13368c71b063fd219667bf16f03dd5a68497c591043890f95a8704ee5421f79b",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti selected existing v6.19 chart for rc.8",
+      "sourceSha256": "13368c71b063fd219667bf16f03dd5a68497c591043890f95a8704ee5421f79b"
+    },
+    "songs/just-the-two-of-us-wawa.html": {
+      "bars": 64,
+      "baselineSha256": "bfdc9ea62b101bcec3f9ba232745c9844018ef9ce6e7f98926e5981080bc32d1",
+      "contentRevision": 2,
+      "revisionHash": "16684771980dbe9a1cecc853349fca51316bbe0d98a7e03ac028a22a239f31f9",
+      "sha256": "85e889d26286794e13d0970d32667c3d6ed67317497f903f6fa7f76d051354c6",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "85e889d26286794e13d0970d32667c3d6ed67317497f903f6fa7f76d051354c6"
+    },
+    "songs/just-the-two-of-us.html": {
+      "bars": 97,
+      "baselineSha256": "6f12c00d3d0ff31802fd8e6eb784b3d670ae3fe97c2fad2428fca45d30c8a065",
+      "contentRevision": 2,
+      "revisionHash": "661d135f9415be3e6828fd8ca5c6b5f4605b9772783750f9c71718f843d46a79",
+      "sha256": "b4a91df6e9c5251f80e336bbaf4505e3e8343974ef92fe779502cf9ae56c46ee",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "b4a91df6e9c5251f80e336bbaf4505e3e8343974ef92fe779502cf9ae56c46ee"
+    },
+    "songs/keuab.html": {
+      "bars": 83,
+      "baselineSha256": "5725764e8c2d5baa219b24d32ddf762f1395f1e9aa051f97b4d8bc2018e2efb7",
+      "contentRevision": 3,
+      "revisionHash": "8108a8c1629fb669192f5358eb4fd5ec342fe7ff73da0849db6e4396dde1f2ef",
+      "sha256": "84cadbef5165926829f3e0528c8bc47234dc08f752f79c41ce12894101c782c1",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "84cadbef5165926829f3e0528c8bc47234dc08f752f79c41ce12894101c782c1"
+    },
+    "songs/knights-of-cydonia.html": {
+      "bars": 123,
+      "baselineSha256": "ade4a74d7de56bf9eae4740c6592bdb047443343c10882cbafe5080df84ff705",
+      "contentRevision": 5,
+      "revisionHash": "8ac50764b67f93bf7411e5f6e83af5232c0959ff27f71907538072f205c62ce2",
+      "sha256": "f2583419283567b789624e4ddc6340934e712d8d7c42eda9b3ebcb53535a9d1a",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "22fd1faa9ff1d453696ee9c4a8abc0ecf09219e88d8409e40017a295174b7f71"
+    },
+    "songs/koey.html": {
+      "bars": 136,
+      "baselineSha256": "8e8228c9a54722f2160aa55fe7bfe0051b8f3d2aa185b8bf625bafa76fbfe693",
+      "contentRevision": 3,
+      "revisionHash": "acc106520ed986392668b1bef5e9131ded58379ad884b3c47f8563e87606b419",
+      "sha256": "beaa9385a0267e8bf014a3396f98c7a65882a952b5855dcf188b013b2696f5e1",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "beaa9385a0267e8bf014a3396f98c7a65882a952b5855dcf188b013b2696f5e1"
+    },
+    "songs/live-forever.html": {
+      "bars": 111,
+      "baselineSha256": "855f2afd99ec6ee20272cd8fc153a2f30c9db1fa84096434f42956262c9df3ba",
+      "contentRevision": 1,
+      "revisionHash": "8c1a4178959a463b1b1ba00cbbb5de8fd9e1835b15784e130e35d1a2ab83996d",
+      "sha256": "39fa5ee1bfc8920fadd53979296b980181f5293c2322774de41dcd3004944b51",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "971346c7b94ea7abfc29c3749a76e4701639563d948b762a1fb58c2aabedfda0"
+    },
+    "songs/lom-hai-jai.html": {
+      "bars": 145,
+      "baselineSha256": "d31838d5177efb7aae5317af1e71e04c8e3cb8978345fcb25604961b0c6a58b6",
+      "contentRevision": 3,
+      "revisionHash": "e2aa25dc464dc2f134119301c4622fd4a17fa0600e0605791659ea13e84bbfcb",
+      "sha256": "db50ac9c88e08e2658e41c5f0e23fdecac5c0aabd2bea7c06cd6e4466a70fed8",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "db50ac9c88e08e2658e41c5f0e23fdecac5c0aabd2bea7c06cd6e4466a70fed8"
+    },
+    "songs/love-story.html": {
+      "bars": 117,
+      "baselineSha256": "378090690750e5e2f45ed9042599ebec018933ddb9270d3aef8a4ee7bcf2579e",
+      "contentRevision": 2,
+      "revisionHash": "35ce72e7e88493fbc5ac985cf605174c1b40a8d7103d03d6f1e20c2ba2d76daa",
+      "sha256": "c819665980c9838eec220a4fd7ea25566fd0935aa88549f4aefafaad03fdbd55",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "c819665980c9838eec220a4fd7ea25566fd0935aa88549f4aefafaad03fdbd55"
+    },
+    "songs/lovefool.html": {
+      "bars": 130,
+      "baselineSha256": "b0b9cf986f6258ba68dcdd6f7d1895c51b6a8bf085feda2b28012650f70c12be",
+      "contentRevision": 1,
+      "revisionHash": "511b57c8f8507f5cd71ff50f0b6e9256a6633c1f73ea9a26ace95b6a5b3be591",
+      "sha256": "7fd08003c14db306e2bd4e3bf9dbeb7164047589cdf77dc8a4bdf43dcaaead44",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "f39425b6a703545c27de53a0cc0305b8319ebf02222d542c9df98412ca012546"
+    },
+    "songs/lum-long.html": {
+      "bars": 107,
+      "baselineSha256": "b2a9056fdaa05542cf7525f88866ec6fa6194ee7a0a1dc4e0e40d1ac2b39db3b",
+      "contentRevision": 3,
+      "revisionHash": "7e8cd22c114e5a8eaccca25666d5c318a65b49299fe5ffb4cc923acb6812d020",
+      "sha256": "bdaa0711b477c3bdb4951c002d4d0c93fcd636a7957b5e760538b0ef6c731afc",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "bdaa0711b477c3bdb4951c002d4d0c93fcd636a7957b5e760538b0ef6c731afc"
+    },
+    "songs/mai-bok-thoe.html": {
+      "bars": 141,
+      "baselineSha256": "bc095cd850d3f72ed62f44e527c9a1292a6727189e3df0f84563e24cdcdd5adc",
+      "contentRevision": 3,
+      "revisionHash": "d8f77255fa897cd05e77c51c457bfca413c7777cdaa717d61e00aeefc994e6c5",
+      "sha256": "8f01dd28e6814bf90dcd415793a5ad46a9eac9f176c8071d5f7db63fab2adb0b",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "8f01dd28e6814bf90dcd415793a5ad46a9eac9f176c8071d5f7db63fab2adb0b"
+    },
+    "songs/man-who-cant-be-moved.html": {
+      "bars": 94,
+      "baselineSha256": "d10525174e1710dc9a8363a396e150276f69cf9d2c21c7488cb091dd82c675e5",
+      "contentRevision": 1,
+      "revisionHash": "5bba435bb999d9d286f70d624f553ccb21fdaa5b65d7616d1cc8d010d75c127a",
+      "sha256": "241f0c7b21ee0b968f3be4af95cbdd795cb23e73aba390a86b89b4616d467377",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "b27eed8d8efe64146da4afcf72040694fc77d2001892be81653c249a2b6a7eb9"
+    },
+    "songs/megalomaniac.html": {
+      "bars": 150,
+      "baselineSha256": "1f1c1f9e950e1a306bce32cdaa7948a0e7f6678f353a85516751f4aa3ede3e5a",
+      "contentRevision": 2,
+      "revisionHash": "4075d5832b124a5395cd738be6431449e33c97bfc5f215f253741dba149734a9",
+      "sha256": "f95e9a61440636325f53ef24dc8114b31894ed7725099b6f2fed8f4bd4e254cc",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti-approved song revision",
+      "sourceSha256": "518b9b727800f7ff120bb7cded6b3695c5c9e0a29cd1a0646aacca6e92b01669"
+    },
+    "songs/new-born.html": {
+      "bars": 4,
+      "baselineSha256": "8d63424a62ef773fc95f47a4371017e0dbcb7e4856a664fc1a814167c8622b91",
+      "contentRevision": 1,
+      "revisionHash": "28edbc2d610b6457b83554f758cf9640c439d808b796a6449454ecb7e744c5e7",
+      "sha256": "ab69215d8a55f388900759029b1dbc6ba82aeb15a4abf7020e98a154c2ad01d4",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "f40e920f14372fc45d7238ccf600581772feee76bdd6f5f1fce40f744658b967"
+    },
+    "songs/plug-in-baby.html": {
+      "bars": 0,
+      "baselineSha256": "dd9833ae9ed85caea4bc2664d3ca02cdf6e0a9eacdea11d008ce259fa6aba28b",
+      "contentRevision": 1,
+      "revisionHash": "9576926594d82c0d8cf063b053ee722f21b1216a59f0a42914cf5a7cdf9837f9",
+      "sha256": "225233b897bf83298323298199ef1e449fd8ac48604ebd4575b85d9248c86099",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "d9c1aff7908804834e969ac517985fa67da60bca90f7eaaf71d7a3cf4034406d"
+    },
+    "songs/psycho.html": {
+      "bars": 158,
+      "baselineSha256": "a5c7e5b26104da79b82bb6eea569c6e689d29809b576a6447071d1a2c34709be",
+      "contentRevision": 4,
+      "revisionHash": "96e2c25a5dbf164a17dc8c1f0eaf0c2058ed61cd9bad5513055f796d017da76a",
+      "sha256": "f5ce2b7addd22d86fb5ffd265184f7358bdcbfb147dd0459b5f1c4a2a3753eb7",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "3cc9197956d332dd507fc8f3092e083295ba0b461d5a09b0142ed29475ad979b"
+    },
+    "songs/resistance.html": {
+      "bars": 148,
+      "baselineSha256": "ed38c379f6eb8d2c271d4de1a30436dd254f2d20b1eaf5cf25f21def1ead29a4",
+      "contentRevision": 3,
+      "revisionHash": "ff1ef88502ead315869ac41012f24c868dd0bba484b225c5ffddd77e08dabd5d",
+      "sha256": "b679cabe38802c210cd82daff89392c116cbb4e2c403cb1fdc8b1d32546ef8b2",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "110dd280194da6de0f324709f15d2c37c4b4238564ef6e2a722f5bcd455a819d"
+    },
+    "songs/ride.html": {
+      "bars": 54,
+      "baselineSha256": "10df3a68d068ff97637f600faecd82cfe907464b24f8277bb739da78c2595fa2",
+      "contentRevision": 2,
+      "revisionHash": "60bbe6f25eb0b69f8c2ded030fa03be31abc4ee4a3d49957e19b8e9195952fc3",
+      "sha256": "b03cc0b5a97ec81deafb616bb0547aabbc08f431d3bacf59fda219f0c2edf12e",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "b03cc0b5a97ec81deafb616bb0547aabbc08f431d3bacf59fda219f0c2edf12e"
+    },
+    "songs/sabai-dee.html": {
+      "bars": 123,
+      "baselineSha256": "f5ccc56b52178e70ae0bf88f11dc58319a5960d282845efdb1b684a3b6c99060",
+      "contentRevision": 3,
+      "revisionHash": "f7a2f3723907b56cd98541ace1a38c62098f7e60a3e3b7a85f9ace4e6516e161",
+      "sha256": "4beb22e1264db8cdda1c5718e150c068274c7260909cb09fa401d66508be3f6a",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "4beb22e1264db8cdda1c5718e150c068274c7260909cb09fa401d66508be3f6a"
+    },
+    "songs/sattha.html": {
+      "bars": 88,
+      "baselineSha256": "9bc65014cf0380f62880e654df7f5d9b8fe08605bd834c1403e5090e1f427b71",
+      "contentRevision": 1,
+      "revisionHash": "b5789d60255a7c76dd05a03d0ab148873a750594db2701dce1aa414d06f3ff0e",
+      "sha256": "a5ee9922dd1e056542eafce9bd22eba95d8a40394db572f9ffcd3351c917494a",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti-approved song revision",
+      "sourceSha256": "d60f4ff657661f0f06b99a28c1d7b87b2093aa9f0893a5422b5cdcc24f811a45"
+    },
+    "songs/saving-all-my-love.html": {
+      "bars": 63,
+      "baselineSha256": "98c99abda5164ac0ea6e8e285059af35652de523b3c8b2ff1567e31cd4fe01de",
+      "contentRevision": 4,
+      "revisionHash": "2f8296433daa2a8193b715eee58c0eb091a5674a5f0b1c770ca604ab319ff655",
+      "sha256": "fa838eaeec0f245991470bb4d8e722d69c2a62e47870027eb713606a6605d74d",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "fa838eaeec0f245991470bb4d8e722d69c2a62e47870027eb713606a6605d74d"
+    },
+    "songs/shallow.html": {
+      "bars": 83,
+      "baselineSha256": "c0b4ef33838051dee521751f3003d5a169c3b1c233a188d601c746fce9535469",
+      "contentRevision": 3,
+      "revisionHash": "15154c08e6bddb3095b009255b1e0f59e4d48a8c930e64eb898e35d379277d57",
+      "sha256": "347c030ae5b6fc9686bd1a9d27e2fd4461292f7eb87cefcd304cdb122d4e4234",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "347c030ae5b6fc9686bd1a9d27e2fd4461292f7eb87cefcd304cdb122d4e4234"
+    },
+    "songs/she-will-be-loved.html": {
+      "bars": 94,
+      "baselineSha256": "891dc64d781ff77919cfa542f804a166cd4db08ab08e0f4f6c2b9ce024bf846b",
+      "contentRevision": 2,
+      "revisionHash": "d085823b6187b15e473d98a45973dbb897914239efa1b587fc1f822a871a526a",
+      "sha256": "e8551ce6bec62a9962519eef050e45aa3ab8f37c6d4b5f1807637d6f233ce8ba",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "e8551ce6bec62a9962519eef050e45aa3ab8f37c6d4b5f1807637d6f233ce8ba"
+    },
+    "songs/sleepwalk.html": {
+      "bars": 136,
+      "baselineSha256": "5c0b813cd5834851340dfffb9d0058efa838be9cf7715e1fa66dfcaaf8ad6ec1",
+      "contentRevision": 1,
+      "revisionHash": "2abe4d97743cc791c01f6d8c215a936d5f3464aab0764be2e727999aa1d6a714",
+      "sha256": "b4bcc6e5542b12ccc8320e2185fafcb6110babb61014cbdd00ab395ba961fe4a",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Git payload; rc.8 preserves missing rowSizes",
+      "sourceSha256": "298671a4787dd09aff5c4614307b9cb77de937959f9cd8744dafdbbb60c50630"
+    },
+    "songs/somebody-told-me.html": {
+      "bars": 112,
+      "baselineSha256": "0304c6676b6349a01ed0e354e580af757e4201773d90ecc7ebd75fb4599153e7",
+      "contentRevision": 1,
+      "revisionHash": "92ca941f1644e9921be69745a563a567e4927c04ae627521a074b15f86bf685c",
+      "sha256": "edc8a664c52588cf4c12a255ad22c914d3e652152a32a8cee7c2846c73bb88b4",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "rc.7 completion draft",
+      "sourceSha256": "4a7127a4e08ef30734003cb43cae252d9b54ee68f153a0e2c2bdb867bb2cae4b"
+    },
+    "songs/starlight.html": {
+      "bars": 120,
+      "baselineSha256": "b1920f9c6192fc21b4049000dbbccb03fe560f4aa1806501109cb3cfabae0db6",
+      "contentRevision": 2,
+      "revisionHash": "30d845fdc9d125575a354c3ed3aeb11f2a2a24c94ca56a7bb646598b36e5f943",
+      "sha256": "6bcbc0b6f0a7cb6271386034047a50c09117c5584be5a8bd85e55baf47b37fed",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "99333262626d3594a527d963a615fef83c7d73c8e8898c1ef9e070e5ae5c0c7d"
+    },
+    "songs/stay-with-me.html": {
+      "bars": 72,
+      "baselineSha256": "6affcdec6b34ddabb553b9b3462a0c888e904fefb6bc37af1cf56350ece26602",
+      "contentRevision": 1,
+      "revisionHash": "d1a9e7f9c0da986cae9b5968383a35e0bf8a645a5bc7b351d146e81c10fdaa8b",
+      "sha256": "cf3ad6490ca3c42f5f5affb288189342922cd3172e9cc953a65b0b8901dea511",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "ed2a6038f4fc2f7bbe173c7823eda5dac1565eeaf95721168112f1eefda0fc47"
+    },
+    "songs/stockholm-syndrome.html": {
+      "bars": 143,
+      "baselineSha256": "62585e79493479c8187eed3a76e4c2e0cdb71009b076e71044453d9aaaf7edfe",
+      "contentRevision": 2,
+      "revisionHash": "6844e9826b4612a812e6d3ec3bcc79df1d5ce01884aaa6ff1ac61c85133ce85c",
+      "sha256": "d1c25f35525707c1cd6acdb875f12fb8003ecbaaece749f3a5b0f9cecf8ad93a",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "654d4fd77b872dc46a6433246f520f537a99fe4fed5a4eb6197b8fc448ace49e"
+    },
+    "songs/supermassive-black-hole.html": {
+      "bars": 73,
+      "baselineSha256": "ac800867bf00becd3d8b68ebdc5d64938219be0c8388996852d4dbb623003768",
+      "contentRevision": 3,
+      "revisionHash": "1ad9c05fb26499ea8f67b8ac1d3da08fcba686dd0d94871921c2088b26663f16",
+      "sha256": "577a94373ef91e93d9552782ed262c8657564e281d81e9d2595dc47daf42c2a6",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "05b16219b112e975e8e09cc07b03e25ea085f8a872dc879591b64c8049fff4a5"
+    },
+    "songs/supersonic.html": {
+      "bars": 176,
+      "baselineSha256": "a00b72f2fcd71420d8fb1106aae78285cdf43a939192277810eeafdf39821dd3",
+      "contentRevision": 1,
+      "revisionHash": "b60837ce483493af060d6ce181348a38cfd1586ed294d2642cfdd16359572a78",
+      "sha256": "d063755fcbef3ef70cad28c43b4b46053351c8fa93febc5b829ab2144b739a01",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "7b149b90ed2be2ca6c0ff8468be63fcbebbd27613d3704179ec9525efdaf375c"
+    },
+    "songs/supremacy.html": {
+      "bars": 97,
+      "baselineSha256": "aabcb007b6c15fe630cf381d4cb13b3ae1d64cb03e68adeaf446bfeeca85979d",
+      "contentRevision": 4,
+      "revisionHash": "6a276081fca7edf5993c048ebb5435aeb55df0a4fc3ba532b284c51ed2b37f2b",
+      "sha256": "9edc350f98789f75d69f8ceefb33f3dc18800fc7df17474f98a9bb00bc6f86f1",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "6cdec5097e8fa9d4cf957d846c36322cb29eb8270052879aca0843302231bcae"
+    },
+    "songs/sweet-disposition.html": {
+      "bars": 125,
+      "baselineSha256": "2998020e82e53eea525283a49486bcd00060fdc072a50f052203479050ea49ca",
+      "contentRevision": 1,
+      "revisionHash": "1bfccbdd12d5b90d1fe008b35de6d8b106f072c49b3ad3898f3f2990c70c37f0",
+      "sha256": "996b2bcabbb3e186c07526ab61f6d5a329a9fbbf7d99ab25f64f3256c8d24f26",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "3636332a9df297f713becb31f7dbfd2c8270a9ec21072e970d44159e0a453651"
+    },
+    "songs/take-me-out.html": {
+      "bars": 110,
+      "baselineSha256": "56af34681fae497a0a428704b11599987a9e5926e4b271417ed281846bec7cdf",
+      "contentRevision": 6,
+      "revisionHash": "1aaeda5745596b9e95dcbd8df5bddc64a05250ec127eab2b70f50e2bd855a776",
+      "sha256": "fc7e0b84819504a96745f48bd6764a3a4ebc9416ffb352fb27f50466b6576d70",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti-approved song revision",
+      "sourceSha256": "c2200cdcf78b73bb0b40ac3c0aed9c20c1dfd5dff450646678bcb49bb379c8ca"
+    },
+    "songs/the-adventures-of-rain-dance-maggie.html": {
+      "bars": 126,
+      "baselineSha256": "548352fd0713dbcc4199ac17fe1d5d1d5ca6bdec758742628206d521ab9a9140",
+      "contentRevision": 1,
+      "revisionHash": "e4f8f4ce8b42783e8e85ccdc20a52712f287134fc23a09a75d28282654b7b643",
+      "sha256": "c8e446f7812ee88205c32b25a7aab7d6373757ecb0ebb5bc698905c376b09b6c",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti-approved song revision",
+      "sourceSha256": "ad9dca629b9aaaa6fb3d06449be8a701daf28a30b29babef22d72a58c16419de"
+    },
+    "songs/the-game-of-love.html": {
+      "bars": 124,
+      "baselineSha256": "11cba22c805a152ad40248f5d9b27441da929d5d8cd902c8d199dd875c609d68",
+      "contentRevision": 1,
+      "revisionHash": "03c3113eca8c0790368cef314e1d9f3f43961ec99e8758044154446f942795f2",
+      "sha256": "9fd4ae12d0575040609677e2e84506a33f8cbb65679222ea46e29110344f8452",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "9fd4ae12d0575040609677e2e84506a33f8cbb65679222ea46e29110344f8452"
+    },
+    "songs/time-is-running-out.html": {
+      "bars": 0,
+      "baselineSha256": "85ada788e33f2202cd1e0cbf2224dfed728b042dc9e9706cac6e5f1dee8d74a6",
+      "contentRevision": 1,
+      "revisionHash": "a34b3940bc23882ef1054d884450705399f95ad633192dc1057fb88d4edbe7cf",
+      "sha256": "f3a026d913635d46d385f6d3fb774dce95ccbef4eac6fc948abef622d4733b20",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "e27c518f20c85a0ac24312d246001f05e1d9d00c94eafc996633875ecf557088"
+    },
+    "songs/too-sweet.html": {
+      "bars": 112,
+      "baselineSha256": "96e5953460c890d6644b0fcbeab2159d4bb0e1b90380318c543d897e049209e6",
+      "contentRevision": 1,
+      "revisionHash": "7886ca3d188f4b8d6f616467daf287f45bc0f020e6299ea0ff9d3f0e0ecc3778",
+      "sha256": "c504dd863ae6581559ac97fa47d2762a6e635deff279eb2771e95eac142c0f3e",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "rc.7 completion draft",
+      "sourceSha256": "1a324ed6c4e0435eafad5b32fff0f3af660143472e162730f838c6814f365ce8"
+    },
+    "songs/toxic.html": {
+      "bars": 131,
+      "baselineSha256": "f9c9086034046a68d51a450b10a4c390a64dad68555fdf757b6f9ba76a5c898d",
+      "contentRevision": 1,
+      "revisionHash": "0a698de3e4a4aa318130338d3a86624ac5ac3eeedd24318ff945f771d19f4e36",
+      "sha256": "f64d7f07fb0d5fe4bf8f3a7916faab4f090e12e935064275d628b382f1db3c22",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "a0e577a311ce9c02943f8e72fa71eac3aea374a562cb76e6d8188a0a7a39177a"
+    },
+    "songs/uprising.html": {
+      "bars": 162,
+      "baselineSha256": "e7a8ca6693be8abc60e476b757f8d8ef004643570cd5621dc66144eef0f12877",
+      "contentRevision": 4,
+      "revisionHash": "6ca5b81982d9269e9fd5fd65e1445c58aada44738bd9c1688ca66e7048ce92f6",
+      "sha256": "91e23182f151d5f8ad0e82bfa584b67832922d6a5df9013c70e8e6e5d4bc2e19",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "d61207161768343264a7cf919b31d86620ce3bd8246f6d03e7476f86cef4ff76"
+    },
+    "songs/use-somebody.html": {
+      "bars": 137,
+      "baselineSha256": "c30f3df4dd9470fd7a8c6ff2b99e2772a6b88d57611f9409eaba6df58de53953",
+      "contentRevision": 1,
+      "revisionHash": "cd50ae11831be59772c5f1bc22eaab86de11713f6e0a943ca393a38ca5a172d6",
+      "sha256": "473182582226db6e17b2c17855248972f9f0b84466ed22c47f59ca98cba21f99",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "5b15c93b38eaa9278b39f309278938d47e2f30ad8988c97ecbca1deaae75d00d"
+    },
+    "songs/vampire.html": {
+      "bars": 125,
+      "baselineSha256": "c5ee322928d7e1c63c153a988ca54bdd05f3e11715e0807d40a5c1c4cd9e324e",
+      "contentRevision": 1,
+      "revisionHash": "3c76e3095648680262f5bd1f24a057cb25529e268306e626152888f9a5cfce57",
+      "sha256": "2c2a66a5458e6996fa24337cdfc183556f5035f46da2a8caff83b8a616d561a4",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "rc.7 completion draft",
+      "sourceSha256": "c906bdd469c5e248c1cb357627b487b56c916526b795cb3ded7a172d2b447874"
+    },
+    "songs/versace-on-the-floor.html": {
+      "bars": 109,
+      "baselineSha256": "070cd267e47c423a4aebb66f82f84b08d868cf5fd089ec9f57f2add0d7e3f697",
+      "contentRevision": 2,
+      "revisionHash": "d36e80e9425f0871d9a4e9bbe0a54f8b8b1e6652b781eb1c3728d97635de66a5",
+      "sha256": "5372e0279b4ae733fb211cbd66b232bb27893dd2d3a3f81f67b983383d57b80b",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Parkhaus108 selected review file",
+      "sourceSha256": "5372e0279b4ae733fb211cbd66b232bb27893dd2d3a3f81f67b983383d57b80b"
+    },
+    "songs/virtual-insanity.html": {
+      "bars": 88,
+      "baselineSha256": "d9edd02cb3059b4b7772d4ed4d4dfc2d8bb325244ba29b950415f280171ff41f",
+      "contentRevision": 1,
+      "revisionHash": "9a3048bcebab40c1d7902b7eb9f88acd4041ea7d8ea03696038cfeb24fe83faf",
+      "sha256": "e0f5610bda3d768956c992c1d6367ab499adb527e6beed606beb3b026eb8b6c6",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "c9d1bdfc03cd1dd779d875db4d6a1273a433e2e12678381993eb4b5b8f024dcd"
+    },
+    "songs/what-you-know.html": {
+      "bars": 55,
+      "baselineSha256": "d409ab82ff3cf4ce2ca3ec414de707f010cf15939b3b7bf13ea5ce84fd666202",
+      "contentRevision": 3,
+      "revisionHash": "bd788623460a46f3b12befba3d2dff37c64c004c14c2f66d55d2f88900e832d0",
+      "sha256": "54e0ceb59369034ab8b6919880a2618436ffc8c1ed22f82916a354a32e2c7e84",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "Ti-approved song revision",
+      "sourceSha256": "55fe63838ad6a30f8d175c41203e40172b623f5b495ea28a510f3f786f770838"
+    },
+    "songs/when-you-were-young.html": {
+      "bars": 125,
+      "baselineSha256": "2177e8e02f11a752c9149f28cd2f19aa17e7a7ad10a268432907976c5b7b80fb",
+      "contentRevision": 1,
+      "revisionHash": "3279daa90b89b8ceaf8923fd8333a878d3acfe6963aeeb0e21f87835d80a4ecb",
+      "sha256": "bcabdd8ed95b1aaecfd84e3ca0aa9f7b8938c3c5373e6215485db16a15452259",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "rc.7 completion draft",
+      "sourceSha256": "4f756442ce5cc2b8dd8ab289c8b5e5c7b5acd57fae3830303496c11a55db7525"
+    },
+    "songs/yellow.html": {
+      "bars": 95,
+      "baselineSha256": "9c2b0bf059e9f022bd7032e10b7d5b4055134d311b94c5d7a25a8426e2832212",
+      "contentRevision": 1,
+      "revisionHash": "ac1f8da557ea36fe1c1be309cf1bc70e81c853abcae0387c8182c87a1831ac19",
+      "sha256": "356d1cfacd62f8af78aeb3e75c1b4e22322a67b347200a6bf954d054ecc10de2",
+      "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
+      "sourceSelection": "TMJ/TLOE transfer from Git",
+      "sourceSha256": "f047e52532398bd0cf537f26dc1574e00b40305caf8e2b20abac829013e7f01b"
+    }
+  },
+  "template": {
+    "path": "_template.html",
+    "sha256": "266616b1d6d4f29056b2f60a1fcf707e97b570ea7c48cb1a3e52abfd20841310",
+    "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430"
+  },
+  "verification": {
+    "browserOpened": 72,
+    "catalogAndPlaylistsValidated": true,
+    "previousProductionCommit": "de66b849e727eee1ee703a649ffb8de5a83801d9",
+    "runtimeBrowser": "Chrome/156.0.8078.81",
+    "saveAndReopen": 72,
+    "songsWithContentPreservedFromGit": 47,
+    "songsWithPreviouslySelectedContentChanges": 25,
+    "unitTestsPassed": 49
+  },
+  "version": "7.0.0-rc.8-review"
+}

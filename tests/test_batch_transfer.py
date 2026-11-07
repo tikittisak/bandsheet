@@ -18,7 +18,7 @@ class BatchTransferTests(unittest.TestCase):
         self.root=Path(self.temp.name).resolve()
         (self.root/'songs').mkdir();(self.root/'bands').mkdir()
         for name in ('a.html','b.html'):
-            (self.root/'songs'/name).write_bytes((ROOT/'songs/starlight.html').read_bytes())
+            (self.root/'songs'/name).write_bytes((ROOT/'_archive/prototypes/preview-luminous-v7.0.0-alpha.2.html').read_bytes())
         (self.root/'bands/tmj.json').write_text(json.dumps({'songs':['a.html','b.html']}))
         path=self.root/b.TEMPLATE;path.parent.mkdir(parents=True);path.write_bytes((ROOT/b.TEMPLATE).read_bytes())
         self.ctx=patch.multiple(b,ROOT=self.root)
@@ -58,7 +58,7 @@ class BatchTransferTests(unittest.TestCase):
     def test_unknown_fields_preserved_and_review_tamper_detected(self):
         run=self.execute();manifest=json.loads((run/'manifest.json').read_text())
         row=manifest['songs'][0];path=run/row['output']
-        text=path.read_text().replace('value="122"','value="999"',1);path.write_text(text)
+        text=path.read_text().replace('value="135"','value="999"',1);path.write_text(text)
         row['outputSha256']=b.sha(text.encode())
         (run/'manifest.json').write_text(b.dump(manifest))
         with self.assertRaisesRegex(ValueError,'semantic divergence'):b.verify(run)

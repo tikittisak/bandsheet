@@ -8,7 +8,7 @@ from collections import Counter
 from datetime import date
 from pathlib import Path
 
-from published_sheet import read_published_review, read_song_text
+from published_sheet import read_published_review, read_published_template, read_song_text
 
 ROOT = Path(__file__).resolve().parent
 SONGS = ROOT / "songs"
@@ -46,10 +46,14 @@ def validate():
     versions = Counter()
     revisions = Counter()
 
-    template = read(TEMPLATE)
-    for marker in MARKERS:
-        if marker not in template:
-            errors.append(f"template missing marker: {marker}")
+    template = read_song_text(TEMPLATE)
+    try:
+        if read_published_template(template, TEMPLATE.name) is None:
+            for marker in MARKERS:
+                if marker not in template:
+                    errors.append(f"template missing marker: {marker}")
+    except ValueError as exc:
+        errors.append(str(exc))
     if re.search(r'<(?:script|link)[^>]+(?:src|href)="https?://', template):
         errors.append("template still has external script/link dependency")
     if any(token in template for token in ("Petaluma", "Roboto Mono", "font-sel", "changeChordFont")):

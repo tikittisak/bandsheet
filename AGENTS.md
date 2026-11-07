@@ -1,6 +1,6 @@
 # Bandsheet — กติกาและ workflow ปัจจุบัน
 
-Updated: 2026-11-01 · Status: freeze verification / production promotion blocked
+Updated: 2026-11-08 · Status: Luminous v7.0.0-rc.8-review library release
 
 ## 1. Authority และขอบเขต
 
@@ -28,15 +28,21 @@ Updated: 2026-11-01 · Status: freeze verification / production promotion blocke
 | songs/*.html | ข้อมูลเพลง canonical บนดิสก์; ห้ามอนุมานว่าถูกต้องทางดนตรีเพียงเพราะอยู่ใน Git |
 | Git / GitHub | ประวัติฉบับที่บันทึก/เผยแพร่; ไม่ครอบคลุม browser edits ที่ยังไม่ export |
 | bands/*.json, playlists/*/*.json | สมาชิกวงและ playlist references; ไม่ใช่แหล่งแต่งข้อมูลเพลง |
-| _template.html | Production shell v6.19; ยังไม่ได้รับ export fixes ของ Luminous |
+| _template.html | Blank Luminous v7.0.0-rc.8-review สำหรับเพลงใหม่ |
 | commit 4fb98e91389ddc021dea13996d9a72a7ed11ae75 | Frozen UI baseline: Luminous v7.0.0-alpha.1 |
 | _archive/prototypes/preview-resistance-luminous-mobile-test.html ณ commit ข้างต้น | Reference UI มีข้อมูล Resistance; ไม่ใช่ blank template |
 | _archive/prototypes/luminous-v7.0.0-alpha.2-blank.html | Luminous alpha.2 blank manual-draft prototype; ยังไม่ใช่ production-ready release |
 | _archive/prototypes/preview-luminous-v7.0.0-alpha.2.html | Derived Resistance UI trial; ไม่ใช่ canonical song |
 | tools/build_luminous.py | Reproducible alpha.2 builder จาก pinned commit; ไม่ใช่เครื่องมือย้ายเพลง |
 | releases/luminous-v7.0.0-alpha.1/manifest.json | Machine-readable frozen reference; ไม่ใช่ approval หรือ security certification |
+| releases/luminous-v7.0.0-rc.8-review/manifest.json | SHA-256 ของ template และไฟล์เพลงรุ่นเผยแพร่ พร้อมที่มาของฉบับที่เลือก |
 | content-locks.json | Fingerprint ที่ต้องมาจาก Ti อนุมัติ exact revision เท่านั้น |
 | _work/ | Draft, intake, reports, audit fixtures; ส่วนใหญ่ Git-ignore และไม่ durable ผ่าน Git โดยอัตโนมัติ |
+
+ตั้งแต่ 2026-11-08 ให้ใช้ rc.8 กับคลังปัจจุบันทั้ง 72 เพลง รุ่นและขั้นตอนทดลอง
+ก่อนหน้านี้ด้านล่างเป็นหลักฐานย้อนหลัง เมื่อเผยแพร่ให้ตรวจไฟล์ตาม path และ
+SHA-256 ใน manifest ผ่าน validator และ content guard การเปลี่ยน pin ต้องผูก
+กับฉบับที่ Ti เลือกและผ่านการตรวจข้อมูลและ runtime
 
 ชื่อไฟล์และ version badge ไม่พิสูจน์ source identity ต้องตรวจ commit/hash
 หากไฟล์ export ที่ Ti แก้ใหม่กว่าฉบับใน Git ให้เก็บทั้งสองและหาที่มา ห้ามเอา
@@ -150,8 +156,7 @@ Save HTML คือ local export ไม่ใช่ commit, push, cloud save ห
   C1-C2 ใช้ passing/chromatic ตาม source เท่านั้น
 - rowSizes เป็นรูปแบบการแสดงแถว ไม่ใช่สิทธิ์เพิ่ม/ลบ bar
   โค้ด validator ปัจจุบันรองรับจำนวนเต็ม 1–8 ต่อรายการ; [] คือ auto
-- สี semantic เดิม: Intro/Outro แดง, Verse น้ำเงิน, Pre-Chorus ส้ม,
-  Chorus เหลือง, Bridge เขียว, Solo ม่วง, Vamp ส้มแดง
+- สี section ใช้กฎเสนอสีใน §8.1 เมื่อรับเพลงหรือฉบับแก้
 
 หาก Ti สั่ง score/bar extraction โดยเฉพาะ ให้ทำเป็น draft เท่านั้น:
 - อ่านภาพจริงจาก _work/bar-extractor/cases/{slug}/
@@ -165,6 +170,55 @@ Save HTML คือ local export ไม่ใช่ commit, push, cloud save ห
 ในห้องเดิมตามตำแหน่ง source แหล่งอ้างอิงเต็มเก็บไว้ใน archive เท่านั้น
 ข้อกำหนด field/rhythm ที่ซับซ้อนให้ตรวจโค้ดและ tests ก่อนใช้; ห้ามถือว่าผ่าน
 schema แปลว่าถูกต้องทางดนตรี
+
+### 8.1 สี section ตอนรับเพลงใหม่หรือฉบับแก้
+
+ตอนสร้างหรือแก้ใน editor เลือกสีได้อิสระและ Save HTML ตามที่กรอก เมื่อรับ
+เพลงใหม่หรือ revision ที่ Ti ส่ง ให้เก็บ raw source กับ hash ก่อน แล้วใช้ตาราง
+นี้ตรวจสีเพื่อช่วยให้อ่านชนิดท่อนได้สม่ำเสมอ เสนอเฉพาะ section ที่มีบทบาทชัด
+และสีต่างจาก preset กลาง โดยรวมข้อเสนอไว้กับ diff ของรอบนั้น
+ระบุ section ตามตำแหน่งและชื่อ พร้อมสีเดิม → สีเสนอและเหตุผล
+ถ้าทุกสีตรงกฎหรืออยู่ในข้อยกเว้นที่ยืนยันแล้ว ให้รับ revision ตามปกติ
+
+| บทบาทท่อน | สีหลัก | `color.bar` | `color.bg` | `color.lbl` |
+|---|---|---|---|---|
+| Intro / Outro | แดง | `#ff3b30` | `#fff1f0` | `#b00008` |
+| Verse | น้ำเงิน | `#3b82f6` | `#eef4fd` | `#1e40af` |
+| Pre-Chorus | ส้ม | `#f59e0b` | `#fffbeb` | `#78350f` |
+| Chorus | เหลือง | `#ffcc00` | `#fffbe6` | `#7a5e00` |
+| Bridge | เขียว | `#059669` | `#eafaf4` | `#064e3b` |
+| Solo / Instrumental ที่ระบุบทบาทชัด | ม่วง | `#8b5cf6` | `#f5f3ff` | `#4c1d95` |
+| Groove / Vamp / Riff ที่เป็นท่อนหลักของ block นั้น | ส้มแดง | `#ff6b30` | `#fff3ed` | `#8a2e00` |
+
+- จับบทบาทจากป้ายและ cue ที่มีอยู่ โดยไม่สนตัวพิมพ์ เลขลำดับ หรือช่องว่างในชื่อ
+  เช่น `VERSE1` ใช้ Verse และ `Pre Chorus 2` ใช้ Pre-Chorus
+  จับชื่อท่อนเต็มก่อนเสมอ เช่น `Post-Chorus` ไม่เข้ากฎ Chorus
+- ถ้าคำหลังชื่อเป็น cue ที่ไม่เปลี่ยนบทบาท เช่น `Verse 1 — Lead-in`
+  ใช้ Verse ได้ ถ้ารวมสองบทบาทหรือหน้าที่ไม่ชัด เช่น `Outro / Solo`,
+  `Bridge + Riff`, `Interlude`, `Instrument` หรือ `Hook` ให้คงสีเดิม
+  จนมีหลักฐานจาก Ti หรือระบุบทบาทหลักได้ชัด บล็อก lyric/note ใช้สีที่มีอยู่
+  และไม่จัดหมวดจากชื่อหรือย้ายบล็อกเพื่อให้เข้ากฎ
+- ค่าตารางคือ preset ที่เก็บใน payload ส่วน Luminous rc.7 remap สีตอนแสดง
+  เช่น Chorus เหลืองในข้อมูลแต่แสดงฟ้า และ Pre-Chorus กับ Riff อาจแสดงส้ม
+  เดียวกัน ให้เทียบค่าที่เก็บใน `color` โดยคำนึงถึง preset ของรุ่นต้นทาง
+  หากต่างกันเพราะการ remap ของ UI อย่างเดียว ไม่เสนอให้แก้ข้อมูล
+- ข้อเสนอเป็น read-only และการรับ raw revision ไม่ต้องรออนุมัติสี
+  ใช้สีเดิมเป็นค่าเริ่มต้นจน Ti ยืนยันให้เปลี่ยน ถ้า Ti เลือกคงสีเดิม
+  ให้บันทึกข้อยกเว้นคู่กับเพลง, section และ revision ที่ตรวจ
+  ไม่เสนอซ้ำเมื่อบทบาทและสีของ section นั้นยังเหมือนเดิม
+- เมื่อ Ti เลือกใช้ข้อเสนอ ให้เก็บเป็น revision ใหม่แยกจาก raw source
+  และตรวจ diff ว่าเปลี่ยนเฉพาะ `color` ของ section ที่เลือก การอนุมัติเดิมผูกกับ
+  exact revision เดิม การเปลี่ยนสียังต้องให้ Ti ตรวจ revision ใหม่ก่อนนำไปใช้
+
+ฐานตั้งต้น 2026-11-07 คือ source snapshots จาก GitHub main `de66b84`
+ของ TMJ 40 เพลงและ The Light of Erebus 6 เพลง รวม 45 ไฟล์เมื่อหัก
+Megalomaniac ที่ใช้ร่วมกัน ตรวจ 442 chord sections และ 258 lyric/note blocks
+เทียบกับ palette ที่เคยศึกษาใน
+`_archive/docs/retired-2026-10-29/design-language.md`
+ชื่อท่อน Riff หรือ Main Riff แบบเดี่ยวรวมเลขลำดับพบ 27 ท่อน ใช้ส้มแดงทุกท่อน
+ตัวอย่างที่ทำให้ต้องเสนอเป็นรายท่อนคือ What You Know ใช้ `Verse1` สีเทาเข้ม
+และ The Adventures of Rain Dance Maggie มี `Intro / Turnaround` สีแดง
+ใช้หลักฐานนี้ตั้งกฎสำหรับ intake ถัดไปโดยไม่ไล่เปลี่ยนสีในคลังเดิม
 
 ## 9. Verification, approval และ publish
 

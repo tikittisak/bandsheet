@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 import content_guard
-from published_sheet import PublishedSheetError, read_published_review, read_song_text
+from published_sheet import PublishedSheetError, read_published_review, read_published_template, read_song_text
 import update_index
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +32,29 @@ class PublishedSheetTests(unittest.TestCase):
             with self.subTest(path=path, changed=changed != doc):
                 with self.assertRaises(PublishedSheetError):
                     read_published_review(changed, path)
+
+    def test_rc8_manifest_pins_blank_template_and_each_song(self):
+        from published_sheet import rc8_manifest
+
+        manifest = rc8_manifest()
+        self.assertEqual(set(manifest["songs"]), {
+            path.relative_to(ROOT).as_posix() for path in (ROOT / "songs").glob("*.html")
+        })
+        template = read_song_text(ROOT / "_template.html")
+        self.assertEqual(read_published_template(template, "_template.html")["sheetMeta"]["uiVersion"],
+                         manifest["version"])
+        with self.assertRaises(PublishedSheetError):
+            read_published_template(template + "\n", "_template.html")
+        with self.assertRaises(PublishedSheetError):
+            read_published_review(template, "songs/hysteria.html")
+        for rel, pin in manifest["songs"].items():
+            with self.subTest(song=rel):
+                doc = read_song_text(ROOT / rel)
+                data = read_published_review(doc, rel)
+                self.assertEqual(data["sheetMeta"]["uiVersion"], manifest["version"])
+                self.assertEqual(data["sheetMeta"]["revisionHash"], pin["revisionHash"])
+                with self.assertRaises(PublishedSheetError):
+                    read_published_review(doc + "\n", rel)
 
     def test_content_allowlist_cannot_admit_modified_review_html(self):
         doc = read_song_text(ROOT / HYSTERIA)

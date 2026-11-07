@@ -18,7 +18,7 @@ g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
 class IntegrityHardening(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc=(ROOT/'songs/resistance.html').read_text()
+        cls.doc=(ROOT/'_archive/prototypes/preview-luminous-v7.0.0-alpha.2.html').read_text()
 
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
@@ -93,8 +93,13 @@ class IntegrityHardening(unittest.TestCase):
         self.assertEqual(g.json_var(output,'SECTIONS','// ── END DATA ──')[0]['bars'][0]['c'],marker)
 
     def test_trial_payload_unchanged_and_blank_is_empty(self):
-        trial=(ROOT/'_archive/prototypes/preview-luminous-v7.0.0-alpha.2.html').read_text()
-        self.assertEqual(g.content_payload(trial),g.content_payload(self.doc))
+        original = g.content_payload(self.doc)
+        published = g.content_payload((ROOT/'songs/resistance.html').read_text(), 'songs/resistance.html')
+        revision = published["published_review"]["revision"]
+        self.assertEqual(original, {
+            **{field: published[field] for field in ("metadata", "sections", "footer", "settings")},
+            "sheet_meta": revision["extensions"]["legacyV619"]["sheetMeta"],
+        })
         blank=g.content_payload((ROOT/'_archive/prototypes/luminous-v7.0.0-alpha.2-blank.html').read_text())
         self.assertTrue(all(not v for v in blank['metadata'].values()))
         self.assertEqual([b['c'] for b in blank['sections'][0]['bars']],['—']*4)

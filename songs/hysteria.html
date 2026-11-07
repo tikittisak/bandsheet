@@ -2,7 +2,7 @@
 <html lang="en" style="--cell-w: 127px; --chord-font: 'Roboto Condensed';"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>New Song · Luminous v7.0.0-rc.7-review</title>
+<title>New Song · Luminous v7.0.0-rc.8-review</title>
 <style>
 :root{--bg:#f7f9fc;--surface:#fff;--border:#dfe7f2;--border-strong:#c8d4e3;--text:#172033;--text-muted:#7d8ca0;--text-faint:#b7c3d1;--accent:#334155;--ui-ink:#5f6f83;--ui-muted:#9aa8ba;--ui-line:#e6edf5;--ui-soft:#f3f7fb;--ui-hover:#edf3f9;--ui-active:#60758d;--cell-w:164px;--cell-h:64px;--gap:6px;--radius:5px;--chord-font:'Roboto Condensed';--note-font:'IBM Plex Sans Thai Looped',sans-serif;--ui-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -675,7 +675,6 @@ document.addEventListener('DOMContentLoaded',function(){
   .count-bypass-btn,
   .bar-ann,
   .sec-order-inp,
-  .row-repeat-ctrl,
   #footer-section {
     display: none !important;
   }
@@ -759,13 +758,21 @@ document.addEventListener('DOMContentLoaded',function(){
     text-align: center;
   }
   body.edit-mode .bar-row {
-    grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%));
+    grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%)) 72px;
     column-gap: var(--edit-gap);
     justify-content: start;
     width: 100%;
     padding-inline: 0;
   }
   body.edit-mode .bar-row-main { grid-column: 2; }
+  body.edit-mode .row-repeat-ctrl { grid-column: 3; }
+  @media (max-width: 760px) {
+    body.edit-mode .bar-row {
+      grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%));
+    }
+    body.edit-mode .row-repeat-ctrl { grid-column: 2; grid-row: 2; }
+    body.edit-mode .row-repeat-inp { height: 28px; }
+  }
   body.edit-mode .sec-note-wrap {
     display: grid;
     grid-template-columns: var(--edit-rail) minmax(0, var(--note-content-w, 100%));
@@ -1056,7 +1063,7 @@ body.edit-mode .lyric-format-toolbar {
   </div>
   <span class="tb-flex-spacer"></span>
   <span class="prototype-badge">80/20 · luminous system</span>
-  <span class="top-brand">Luminous v7.0.0-rc.7-review</span>
+  <span class="top-brand">Luminous v7.0.0-rc.8-review</span>
 </div>
 <div id="metabar">
   <input class="tb-filename" id="tb-filename" value="" oninput="updateTitle()">
@@ -1284,7 +1291,7 @@ async function exportLocalReviewHtml() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.href = url;
-    link.download = filenameSlug(payload.metadata.title) + '-rc7-r' + sheetMeta.sheetRevision + '.html';
+    link.download = filenameSlug(payload.metadata.title) + '-rc8-r' + sheetMeta.sheetRevision + '.html';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -1729,12 +1736,12 @@ function renderData(){
       head.appendChild(orderInp);head.appendChild(headMain);head.appendChild(acts);
       div.appendChild(head);
       // Bar rows
-      if(!sec.rowSizes)sec.rowSizes=[];
+      var rowSizes=sec.rowSizes||[];
       var pos=0,ri=0,baseEnd=0,baseRowSize=DEFAULT_ROW_SIZE,baseRi=0;
       while(pos<sec.bars.length){
         if(pos>=baseEnd){
           baseRi=ri;
-          baseRowSize=Math.max(1,Math.min(parseInt(sec.rowSizes[ri]||DEFAULT_ROW_SIZE,10)||DEFAULT_ROW_SIZE,COLS));
+          baseRowSize=Math.max(1,Math.min(parseInt(rowSizes[ri]||DEFAULT_ROW_SIZE,10)||DEFAULT_ROW_SIZE,COLS));
           baseEnd=Math.min(pos+baseRowSize,sec.bars.length);
           ri++;
         }
@@ -1770,7 +1777,7 @@ function renderData(){
         }
         if(atBaseRowEnd)n+=repeatExtraForRow(sec,baseRi);
         if(atBaseRowEnd&&EDIT_MODE){
-          var groupInp=document.createElement('input');groupInp.className='row-repeat-inp repeat-group-inp';groupInp.maxLength=1;groupInp.value=repeatGroup||'';groupInp.title='repeat group';
+          var groupInp=document.createElement('input');groupInp.className='row-repeat-inp repeat-group-inp';groupInp.maxLength=1;groupInp.value=repeatGroup||'';groupInp.title='Repeat group';groupInp.placeholder='A';groupInp.setAttribute('aria-label','Repeat group');
           groupInp.onmousedown=groupInp.onclick=function(e){e.stopPropagation()};
           groupInp.oninput=(function(s,ridx){return function(){
             var g=(this.value||'').trim().toUpperCase().slice(0,1);this.value=g;
@@ -1780,7 +1787,7 @@ function renderData(){
             SECTIONS[s].rowRepeatGroups[ridx]=g;if(!SECTIONS[s].repeatCounts[g])SECTIONS[s].repeatCounts[g]=2;
           }})(si,baseRi);
           groupInp.onblur=function(){render()};
-          var countInp=document.createElement('input');countInp.className='row-repeat-inp repeat-count-inp';countInp.inputMode='numeric';countInp.maxLength=1;countInp.value=repeatGroup&&nextRepeatGroup!==repeatGroup&&repeatVal?repeatVal:'';countInp.title='Repeat count on last row of group';
+          var countInp=document.createElement('input');countInp.className='row-repeat-inp repeat-count-inp';countInp.inputMode='numeric';countInp.maxLength=1;countInp.value=repeatGroup&&nextRepeatGroup!==repeatGroup&&repeatVal?repeatVal:'';countInp.title='Repeat count on last row of group';countInp.placeholder='×';countInp.setAttribute('aria-label','Repeat count');
           countInp.onmousedown=countInp.onclick=function(e){e.stopPropagation()};
           countInp.oninput=(function(s,ridx){return function(){
             var g=SECTIONS[s].rowRepeatGroups&&SECTIONS[s].rowRepeatGroups[ridx];if(!g)return;
@@ -2861,7 +2868,7 @@ function printPDF(){
 }
 function saveToFile(){return exportLocalReviewHtml()}
 
-function updateTitle(){var fn=document.getElementById('tb-filename').value;document.title=fn+' · rc.7 · r'+SHEET_META.sheetRevision;updateSaveState()}
+function updateTitle(){var fn=document.getElementById('tb-filename').value;document.title=fn+' · rc.8 · r'+SHEET_META.sheetRevision;updateSaveState()}
 function saveMeta(){if(typeof META!=='undefined'){META.key=document.getElementById('meta-key').value;META.bpm=document.getElementById('meta-bpm').value;META.time=document.getElementById('meta-time').value;META.vocalist=document.getElementById('meta-vocalist').value;}updateSaveState()}
 var toastTimer;
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show')},2400)}
@@ -3325,7 +3332,7 @@ window.addEventListener('beforeunload',function(e){
   document.body.dataset.prototype = 'lean-80-20';
 })();
 </script>
-<script id="bandsheet-review-data" type="application/json">{"format":"bandsheet-review-html-1","review":{"approvedAt":"2026-11-07T14:20:06+07:00","editedAt":"2026-11-07T07:19:06.301Z","editedOn":null,"label":"Approved · r4","revisionHash":"90eeeb7642ee207a40cb703ea38d53a8c9c46ea951f7e9d215ecb432481d19bd","state":"approved","test":false},"revision":{"contentRevision":4,"extensions":{"legacySheetMeta":{"contentSource":"restored-from-git:905a3e6^ (full version)","contentUpdated":"2026-10-22","sheetRevision":4,"templateVersion":"v6.19"}},"footer":{"notes":[""]},"metadata":{"artist":"— Muse","bpm":"93","key":"A minor","timeSignature":"4/4","title":"Hysteria","vocalist":"TI"},"provenance":{"capturedOn":"2026-11-07","editedAt":"2026-11-07T07:19:06.301Z","note":"Local HTML draft from the review editor.","parentRevisionHash":"b0bc3c2b63d287e86309a97670a8ec84da352ca4791fedda8ea90fb32ef69819","sourceRef":"db2df1782f4b3fce36b52fbff75613f8633fc17a:songs/hysteria.html#sha256=3418e810eafe653418e5e00e92e8d23014d950b55bdf0960abb7174a0cdd1212","sourceType":"local-html-draft"},"schemaVersion":1,"sections":[{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ff3b30","bg":"#fff1f0","lbl":"#b00008"},"id":"intro","label":"Intro","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ff6b30","bg":"#fff3ed","lbl":"#8a2e00"},"id":"riff1","label":"Riff","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"id":"verse1","label":"Verse 1","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"cols":["\u003cp\u003eIt's bugging me / Grating me\u003cbr\u003eAnd twisting me around\u003cbr\u003eYeah, I'm endlessly / Caving in\u003cbr\u003eAnd turning inside out\u003c/p\u003e",""],"id":"nl-v1","label":"Lyric — Verse 1","type":"note"},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"E7","h":false}],"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"id":"chorus1","label":"Chorus 1","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"cols":["\u003cp\u003e'Cause I want it now / I want it now\u003cbr\u003eGive me your heart and your soul\u003cbr\u003eAnd I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e / I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e\u003cbr\u003eLast chance to lose control\u003c/p\u003e",""],"id":"nl-ch1","label":"Lyric — Chorus 1","type":"note"},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ff6b30","bg":"#fff3ed","lbl":"#8a2e00"},"id":"riff2","label":"Riff","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"id":"verse2","label":"Verse 2","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"cols":["\u003cp\u003eAnd it's holding me / Morphing me\u003cbr\u003eAnd forcing me to strive\u003cbr\u003eTo be endlessly / Cold within\u003cbr\u003eAnd dreaming I'm alive\u003c/p\u003e",""],"id":"nl-v2","label":"Lyric — Verse 2","type":"note"},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"id":"chorus2","label":"Chorus 2","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"cols":["\u003cp\u003e'Cause I want it now / I want it now\u003cbr\u003eGive me your heart and your soul\u003cbr\u003eI'm \u003cstrong\u003enot breaking down\u003c/strong\u003e / I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e\u003cbr\u003eLast chance to lose control\u003c/p\u003e",""],"id":"nl-ch2","label":"Lyric — Chorus 2","type":"note"},{"bars":[{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false}],"color":{"bar":"#ff6b30","bg":"#fff3ed","lbl":"#8a2e00"},"id":"riff3","label":"Riff","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#8b5cf6","bg":"#f5f3ff","lbl":"#4c1d95"},"id":"solo1","label":"Solo 1","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false}],"color":{"bar":"#8b5cf6","bg":"#f5f3ff","lbl":"#4c1d95"},"id":"solo2","label":"Solo 2","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"id":"chorus3","label":"Chorus 3","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"cols":["\u003cp\u003eAnd I want you now / I want you now\u003cbr\u003eI feel my heart implode\u003cbr\u003eAnd I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e / \u003cstrong\u003eEscaping now\u003c/strong\u003e\u003cbr\u003eFeeling my faith erode\u003c/p\u003e",""],"id":"nl-ch3","label":"Lyric — Chorus 3","type":"note"},{"bars":[{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"—","h":false}],"color":{"bar":"#ff3b30","bg":"#fff1f0","lbl":"#b00008"},"id":"outro","label":"Outro","lyric":"","note":"","noteHidden":true,"rowSizes":[]}],"settings":{"autoScrollDuration":"","autoScrollSpeed":1,"chordFont":"Roboto Condensed","chordSize":14.5,"noteSize":20,"transpose":0},"slug":"hysteria","songId":"review-hysteria"},"sheetMeta":{"contentHash":"a3e2cc139f422f45fd784458faaa9087ad1ea0301a781bf9d5d7d81d376a689b","contentRevision":4,"contentSource":"local-html-draft","contentUpdated":"2026-11-07","dataSchemaVersion":1,"parentRevisionHash":"b0bc3c2b63d287e86309a97670a8ec84da352ca4791fedda8ea90fb32ef69819","revisionHash":"90eeeb7642ee207a40cb703ea38d53a8c9c46ea951f7e9d215ecb432481d19bd","sheetRevision":4,"songId":"review-hysteria","templateVersion":"v6.19","uiVersion":"7.0.0-rc.7-review"},"shellSha256":"8f7475a3b6e4702b241c2865bbc803619f2768a09b3a04e1ae5eac62d8517a17"}</script>
+<script id="bandsheet-review-data" type="application/json">{"format":"bandsheet-review-html-1","review":{"approvedAt":"2026-11-07T14:20:06+07:00","editedAt":"2026-11-07T07:19:06.301Z","editedOn":null,"label":"Approved · r4","revisionHash":"90eeeb7642ee207a40cb703ea38d53a8c9c46ea951f7e9d215ecb432481d19bd","state":"approved","test":false},"revision":{"contentRevision":4,"extensions":{"legacySheetMeta":{"contentSource":"restored-from-git:905a3e6^ (full version)","contentUpdated":"2026-10-22","sheetRevision":4,"templateVersion":"v6.19"}},"footer":{"notes":[""]},"metadata":{"artist":"— Muse","bpm":"93","key":"A minor","timeSignature":"4/4","title":"Hysteria","vocalist":"TI"},"provenance":{"capturedOn":"2026-11-07","editedAt":"2026-11-07T07:19:06.301Z","note":"Local HTML draft from the review editor.","parentRevisionHash":"b0bc3c2b63d287e86309a97670a8ec84da352ca4791fedda8ea90fb32ef69819","sourceRef":"db2df1782f4b3fce36b52fbff75613f8633fc17a:songs/hysteria.html#sha256=3418e810eafe653418e5e00e92e8d23014d950b55bdf0960abb7174a0cdd1212","sourceType":"local-html-draft"},"schemaVersion":1,"sections":[{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ff3b30","bg":"#fff1f0","lbl":"#b00008"},"id":"intro","label":"Intro","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ff6b30","bg":"#fff3ed","lbl":"#8a2e00"},"id":"riff1","label":"Riff","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"id":"verse1","label":"Verse 1","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"cols":["\u003cp\u003eIt's bugging me / Grating me\u003cbr\u003eAnd twisting me around\u003cbr\u003eYeah, I'm endlessly / Caving in\u003cbr\u003eAnd turning inside out\u003c/p\u003e",""],"id":"nl-v1","label":"Lyric — Verse 1","type":"note"},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"E7","h":false}],"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"id":"chorus1","label":"Chorus 1","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"cols":["\u003cp\u003e'Cause I want it now / I want it now\u003cbr\u003eGive me your heart and your soul\u003cbr\u003eAnd I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e / I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e\u003cbr\u003eLast chance to lose control\u003c/p\u003e",""],"id":"nl-ch1","label":"Lyric — Chorus 1","type":"note"},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ff6b30","bg":"#fff3ed","lbl":"#8a2e00"},"id":"riff2","label":"Riff","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"id":"verse2","label":"Verse 2","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#3b82f6","bg":"#eef4fd","lbl":"#1e40af"},"cols":["\u003cp\u003eAnd it's holding me / Morphing me\u003cbr\u003eAnd forcing me to strive\u003cbr\u003eTo be endlessly / Cold within\u003cbr\u003eAnd dreaming I'm alive\u003c/p\u003e",""],"id":"nl-v2","label":"Lyric — Verse 2","type":"note"},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"id":"chorus2","label":"Chorus 2","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"cols":["\u003cp\u003e'Cause I want it now / I want it now\u003cbr\u003eGive me your heart and your soul\u003cbr\u003eI'm \u003cstrong\u003enot breaking down\u003c/strong\u003e / I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e\u003cbr\u003eLast chance to lose control\u003c/p\u003e",""],"id":"nl-ch2","label":"Lyric — Chorus 2","type":"note"},{"bars":[{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false}],"color":{"bar":"#ff6b30","bg":"#fff3ed","lbl":"#8a2e00"},"id":"riff3","label":"Riff","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"Am","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"Dm","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#8b5cf6","bg":"#f5f3ff","lbl":"#4c1d95"},"id":"solo1","label":"Solo 1","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false}],"color":{"bar":"#8b5cf6","bg":"#f5f3ff","lbl":"#4c1d95"},"id":"solo2","label":"Solo 2","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"bars":[{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"A","h":false},{"a":"","c":"C","h":false},{"a":"","c":"G7","h":false},{"a":"","c":"D","h":false},{"a":"","c":"Am","h":false}],"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"id":"chorus3","label":"Chorus 3","lyric":"","note":"","noteHidden":true,"rowSizes":[]},{"color":{"bar":"#ffcc00","bg":"#fffbe6","lbl":"#7a5e00"},"cols":["\u003cp\u003eAnd I want you now / I want you now\u003cbr\u003eI feel my heart implode\u003cbr\u003eAnd I'm \u003cstrong\u003ebreaking out\u003c/strong\u003e / \u003cstrong\u003eEscaping now\u003c/strong\u003e\u003cbr\u003eFeeling my faith erode\u003c/p\u003e",""],"id":"nl-ch3","label":"Lyric — Chorus 3","type":"note"},{"bars":[{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"E7","h":false},{"a":"","c":"—","h":false}],"color":{"bar":"#ff3b30","bg":"#fff1f0","lbl":"#b00008"},"id":"outro","label":"Outro","lyric":"","note":"","noteHidden":true,"rowSizes":[]}],"settings":{"autoScrollDuration":"","autoScrollSpeed":1,"chordFont":"Roboto Condensed","chordSize":14.5,"noteSize":20,"transpose":0},"slug":"hysteria","songId":"review-hysteria"},"sheetMeta":{"contentHash":"a3e2cc139f422f45fd784458faaa9087ad1ea0301a781bf9d5d7d81d376a689b","contentRevision":4,"contentSource":"local-html-draft","contentUpdated":"2026-11-07","dataSchemaVersion":1,"parentRevisionHash":"b0bc3c2b63d287e86309a97670a8ec84da352ca4791fedda8ea90fb32ef69819","revisionHash":"90eeeb7642ee207a40cb703ea38d53a8c9c46ea951f7e9d215ecb432481d19bd","sheetRevision":4,"songId":"review-hysteria","templateVersion":"v6.19","uiVersion":"7.0.0-rc.8-review"},"shellSha256":"ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430"}</script>
 <script>
 /* Snapshot the static shell before executing the application scripts. */
 (() => {
@@ -3366,7 +3373,7 @@ window.addEventListener('beforeunload',function(e){
   for (const [key, id] of Object.entries(metaIds)) {
     document.getElementById(id).value = payload.metadata[key];
   }
-  if (payload.metadata.title) document.title = payload.metadata.title + ' · rc.7 · r' + data.sheetMeta.sheetRevision;
+  if (payload.metadata.title) document.title = payload.metadata.title + ' · rc.8 · r' + data.sheetMeta.sheetRevision;
 
   for (const source of document.querySelectorAll('script[type="application/x-bandsheet-js"]')) {
     const active = document.createElement('script');
