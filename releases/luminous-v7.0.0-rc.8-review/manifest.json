@@ -354,12 +354,12 @@
     "songs/lum-long.html": {
       "bars": 91,
       "baselineSha256": "b2a9056fdaa05542cf7525f88866ec6fa6194ee7a0a1dc4e0e40d1ac2b39db3b",
-      "contentRevision": 4,
-      "revisionHash": "f630c79df373f2413efd769d70f935d62c35b036866cac2a938dddafc90bc98c",
-      "sha256": "b1e2594d9ec9277c0a103816d22d27d646e343a1e373704def278b808a6f0707",
+      "contentRevision": 5,
+      "revisionHash": "d16c5c1b16aa28bc42a6b3a3ffe7bf8a0a693beb92d4c02184c6a3591d1f6ff0",
+      "sha256": "42edb838948904b2c40332d239156b5795b4d5a04de33ff46a045cba5d6ebf46",
       "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
-      "sourceSelection": "Ti r4 export approved for publish on 2026-11-08",
-      "sourceSha256": "b1e2594d9ec9277c0a103816d22d27d646e343a1e373704def278b808a6f0707"
+      "sourceSelection": "Ti r5 export approved for publish on 2026-11-08",
+      "sourceSha256": "42edb838948904b2c40332d239156b5795b4d5a04de33ff46a045cba5d6ebf46"
     },
     "songs/mai-bok-thoe.html": {
       "bars": 141,
