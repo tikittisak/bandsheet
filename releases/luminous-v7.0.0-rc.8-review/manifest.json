@@ -352,14 +352,14 @@
       "sourceSha256": "f39425b6a703545c27de53a0cc0305b8319ebf02222d542c9df98412ca012546"
     },
     "songs/lum-long.html": {
-      "bars": 107,
+      "bars": 91,
       "baselineSha256": "b2a9056fdaa05542cf7525f88866ec6fa6194ee7a0a1dc4e0e40d1ac2b39db3b",
-      "contentRevision": 3,
-      "revisionHash": "7e8cd22c114e5a8eaccca25666d5c318a65b49299fe5ffb4cc923acb6812d020",
-      "sha256": "bdaa0711b477c3bdb4951c002d4d0c93fcd636a7957b5e760538b0ef6c731afc",
+      "contentRevision": 4,
+      "revisionHash": "f630c79df373f2413efd769d70f935d62c35b036866cac2a938dddafc90bc98c",
+      "sha256": "b1e2594d9ec9277c0a103816d22d27d646e343a1e373704def278b808a6f0707",
       "shellSha256": "ba6badd9a6d77e4de67c9d21be43d0da0c72fcbf08b538e777fc3e3cf79b9430",
-      "sourceSelection": "Parkhaus108 selected review file",
-      "sourceSha256": "bdaa0711b477c3bdb4951c002d4d0c93fcd636a7957b5e760538b0ef6c731afc"
+      "sourceSelection": "Ti r4 export approved for publish on 2026-11-08",
+      "sourceSha256": "b1e2594d9ec9277c0a103816d22d27d646e343a1e373704def278b808a6f0707"
     },
     "songs/mai-bok-thoe.html": {
       "bars": 141,

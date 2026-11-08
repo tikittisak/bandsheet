@@ -42,12 +42,12 @@ def json_var(doc, name, marker):
     return json.loads(raw)
 
 
-def content_payload(doc, rel=None):
+def content_payload(doc, rel=None, *, manifest=None):
     if rel is not None:
         # Historical template builders call this function without a production path.
         from published_sheet import read_published_review
 
-        review = read_published_review(doc, rel)
+        review = read_published_review(doc, rel, manifest=manifest)
         if review is not None:
             revision = review["revision"]
             return {
@@ -216,8 +216,10 @@ def describe_change(before, after):
 
 
 def find_drift():
-    from published_sheet import PublishedSheetError, read_song_text
+    from published_sheet import PublishedSheetError, RC8_MANIFEST_REL, read_song_text
 
+    # The current manifest pins the proposed files. HEAD pins their predecessors.
+    baseline_manifest = json.loads(head_text(RC8_MANIFEST_REL) or "{}")
     drift = {}
     template_only = []
     for rel in sorted(tracked_song_paths() | worktree_song_paths()):
@@ -227,7 +229,8 @@ def find_drift():
         if before_doc == after_doc:
             continue
         try:
-            before = content_payload(before_doc, rel) if before_doc is not None else None
+            before = (content_payload(before_doc, rel, manifest=baseline_manifest)
+                      if before_doc is not None else None)
             after = content_payload(after_doc, rel) if after_doc is not None else None
         except PublishedSheetError:
             raise

@@ -1,4 +1,5 @@
 from contextlib import redirect_stdout
+from hashlib import sha256
 from io import StringIO
 import json
 from pathlib import Path
@@ -7,7 +8,9 @@ import unittest
 from unittest.mock import patch
 
 import content_guard
-from published_sheet import PublishedSheetError, read_published_review, read_published_template, read_song_text
+from published_sheet import (
+    PublishedSheetError, RC8_MANIFEST_REL, read_published_review, read_published_template, read_song_text,
+)
 import update_index
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,6 +58,31 @@ class PublishedSheetTests(unittest.TestCase):
                 self.assertEqual(data["sheetMeta"]["revisionHash"], pin["revisionHash"])
                 with self.assertRaises(PublishedSheetError):
                     read_published_review(doc + "\n", rel)
+
+    def test_guard_reads_each_side_with_its_own_manifest(self):
+        rel = "songs/lum-long.html"
+        current = read_song_text(ROOT / rel)
+        prior = current.replace('"bpm":"90"', '"bpm":"89"', 1)
+        self.assertNotEqual(current, prior)
+        baseline = json.dumps({"songs": {rel: {"sha256": sha256(prior.encode()).hexdigest()}}})
+        with self.assertRaises(PublishedSheetError):
+            read_published_review(prior, rel)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            song = root / rel
+            song.parent.mkdir()
+            song.write_bytes(current.encode())
+            old = {rel: prior, RC8_MANIFEST_REL: baseline}
+            with patch.multiple(content_guard, ROOT=root, SONGS=song.parent), \
+                 patch.object(content_guard, "head_text", side_effect=old.get), \
+                 patch.object(content_guard, "tracked_song_paths", return_value={rel}):
+                drift, unchanged = content_guard.find_drift()
+                self.assertEqual(set(drift), {rel})
+                self.assertEqual(unchanged, [])
+                song.write_bytes(prior.encode() + b"\n")
+                with self.assertRaises(PublishedSheetError):
+                    content_guard.find_drift()
 
     def test_content_allowlist_cannot_admit_modified_review_html(self):
         doc = read_song_text(ROOT / HYSTERIA)

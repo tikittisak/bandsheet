@@ -11,7 +11,8 @@ from pathlib import Path
 PUBLISHED_REVIEW_SHA256 = {
     "songs/hysteria.html": "33e7f5a4075a2b9cda9c7173a6713935e40f2de23b06e3e3f22a465c65bbc759",
 }
-RC8_MANIFEST = Path(__file__).resolve().parent / "releases/luminous-v7.0.0-rc.8-review/manifest.json"
+RC8_MANIFEST_REL = "releases/luminous-v7.0.0-rc.8-review/manifest.json"
+RC8_MANIFEST = Path(__file__).resolve().parent / RC8_MANIFEST_REL
 REVIEW_SLOT = re.compile(
     r'<script id="bandsheet-review-data" type="application/json">(.*?)</script>',
     re.DOTALL,
@@ -56,12 +57,13 @@ def read_published_template(doc, relative_path):
     return data
 
 
-def read_published_review(doc, relative_path):
+def read_published_review(doc, relative_path, *, manifest=None):
     if REVIEW_MARKER not in doc:
         return None
     digest = sha256(doc.encode("utf-8")).hexdigest()
-    current = rc8_manifest().get("songs", {}).get(relative_path, {})
-    if digest != current.get("sha256") and digest != PUBLISHED_REVIEW_SHA256.get(relative_path):
+    pins = rc8_manifest() if manifest is None else manifest
+    pin = pins.get("songs", {}).get(relative_path, {})
+    if digest != pin.get("sha256") and digest != PUBLISHED_REVIEW_SHA256.get(relative_path):
         raise PublishedSheetError(f"{relative_path}: review HTML does not match a reviewed production artifact")
     slot = REVIEW_SLOT.search(doc)
     if slot is None:
